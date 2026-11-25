@@ -63,6 +63,7 @@
     if (!res.ok) throw new Error('HTTP ' + res.status);
     state.data = await res.json();
     try { const c = await fetch('/data/coast.json'); if (c.ok) state.coast = await c.json(); } catch { /* map without coastline */ }
+    try { const h = await fetch('/data/history.json'); if (h.ok) state.hist = await h.json(); } catch { /* historical page unavailable */ }
     state.companies = V.companies(state.data.fields).map((c) => ({ ...c, slug: slugify(c.name) }));
     $('#snapshot').textContent = state.data.generated;
     recompute();
@@ -372,6 +373,7 @@
         <div class="card"><div class="card-head"><h2>${t('prodChart')}</h2><span class="muted">${t('prodChartSub')}</span></div><div class="chart-box"><canvas id="c-prod"></canvas></div></div>
         <div class="card"><div class="card-head"><h2>${t('cfChart')}</h2><span class="muted">${t('cfChartSub', state.cur)}</span></div><div class="chart-box"><canvas id="c-cf"></canvas></div></div>
       </div>
+      ${lifeCard(f, k)}
       <div class="grid g-2 section-gap">
         <div class="card">
           <div class="card-head"><h2>${t('owners')}</h2></div>
@@ -420,6 +422,22 @@
     $('#ov-reset', el).addEventListener('click', () => { delete state.overrides[slug]; store.set('ov', state.overrides); recompute(); route({ keepScroll: true }); });
     $('#csv', el).addEventListener('click', () => downloadCsv(f, v, k));
     drawFieldCharts(f, v, k);
+  }
+
+  function lifeCard(f, k) {
+    if (!state.hist) return '';
+    const h = V.valueHistory(f, state.hist, state.a, state.data.lastFullYear, state.overrides[f.slug] || {});
+    if (!h) return '';
+    return `<div class="card section-gap">
+      <div class="card-head"><h2>${t('lifeCard')}</h2><a href="#/historisk">${t('lifeMore')}</a></div>
+      <div class="life-grid">
+        <div><div class="l">${t('lifeStart')}</div><div class="v">${h.startYear}</div></div>
+        <div><div class="l">${t('colLifeProd')}</div><div class="v">${nf(h.prodTotal * k, 0)}</div></div>
+        <div><div class="l">${t('colCapexReal')}</div><div class="v">${money(h.capex * k)}</div></div>
+        <div><div class="l">${t('lifePre')}</div><div class="v ${h.pre < 0 ? 'neg' : ''}">${money(h.pre * k)}</div></div>
+        <div><div class="l">${t('lifeOrig')}</div><div class="v ${h.npvPost < 0 ? 'neg' : ''}">${money(h.npvPost * k)}</div></div>
+        <div><div class="l">${t('lifeIrr')}</div><div class="v">${irrText(h.irr)}</div></div>
+      </div></div>`;
   }
 
   function cashflowTable(v, k) {
@@ -589,6 +607,114 @@
     $$('tr.link', el).forEach((tr) => tr.addEventListener('click', (e) => { if (!e.target.closest('a')) location.hash = tr.dataset.href; }));
   }
 
+  // ----- historical (whole-life) view -----
+  function histAll() {
+    const out = new Map();
+    if (!state.hist) return out;
+    for (const f of state.data.fields) {
+      const h = V.valueHistory(f, state.hist, state.a, state.data.lastFullYear, state.overrides[f.slug] || {});
+      if (h) out.set(f.slug, h);
+    }
+    return out;
+  }
+  const irrText = (irr) => (irr == null ? '–' : irr < 0 ? '< 0 %' : irr >= 3 ? '> 300 %' : pct(irr * 100, 0));
+
+  function viewHistory(el) {
+    if (!state.hist) { el.innerHTML = `<div class="empty">${t('loadError')}</div>`; return; }
+    const H = histAll();
+    const R = state.hrank || (state.hrank = { sort: 'pre', asc: false, q: '', area: '' });
+    const all = [...H.values()];
+    const s = (k) => all.reduce((x, r) => x + r[k], 0);
+    const pre = s('pre'), preHist = s('preHist'), prod = s('prodTotal'), prodHist = s('prodHist');
+    const base = state.hist.cpiBaseYear;
+    // shelf time series
+    const byYear = new Map();
+    for (const r of all) for (const row of r.rows) {
+      const o = byYear.get(row.year) || { hist: 0, fc: 0 };
+      if (row.hist) o.hist += row.pre; else o.fc += row.pre;
+      byYear.set(row.year, o);
+    }
+    const years = [...byYear.keys()].filter((y) => y >= 1970 && y <= 2060).sort((a, b) => a - b);
+    const cpi = new Map(state.hist.cpi), cpiNow = cpi.get(base);
+    const brentReal = new Map(state.hist.prices.map(([y, b]) => [y, b * cpiNow / cpi.get(y)]));
+
+    let rows = state.data.fields.filter((f) => H.has(f.slug)).map((f) => {
+      const h = H.get(f.slug);
+      return { f, href: `#/felt/${f.slug}`, name: f.name, area: tmap('area', f.area), areaKey: f.area, start: h.startYear, prodTotal: h.prodTotal, capex: h.capex, pre: h.pre, orig: h.npvPost, irr: h.irr == null ? -2 : h.irr, realised: h.prodTotal > 0 ? h.prodHist / h.prodTotal : 0 };
+    }).filter((r) => (!R.q || r.name.toLowerCase().includes(R.q.toLowerCase())) && (!R.area || r.areaKey === R.area));
+    const cols = [['name', t('colField')], ['area', t('colArea')], ['start', t('colStart'), 'r'], ['prodTotal', t('colLifeProd'), 'r'], ['capex', t('colCapexReal'), 'r'], ['pre', t('colPre'), 'r'], ['orig', t('colOrig'), 'r'], ['irr', t('colIrr'), 'r'], ['realised', t('colRealised'), 'r']];
+    const key = cols.some((c) => c[0] === R.sort) ? R.sort : 'pre';
+    rows.sort((a, b) => { const x = a[key], z = b[key]; const c = typeof x === 'string' ? x.localeCompare(z, 'nb') : x - z; return R.asc ? c : -c; });
+    const cell = (r, k) => {
+      if (k === 'name') return `<a href="${r.href}">${esc(r.name)}</a>`;
+      if (k === 'prodTotal') return nf(r.prodTotal, 0);
+      if (['capex', 'pre', 'orig'].includes(k)) return `<span class="${r[k] < 0 ? 'neg' : ''}">${money(r[k], { bare: true })}</span>`;
+      if (k === 'irr') return irrText(r.irr === -2 ? null : r.irr);
+      if (k === 'realised') return pct(r.realised * 100, 0);
+      return esc(String(r[k]));
+    };
+    const src = state.hist.sources;
+    el.innerHTML = `
+      <section class="hero hero-grid">
+        <div>
+          <div class="eyebrow">${t('histEyebrow')}</div>
+          <h1>${t('histTitle')}</h1>
+          <div class="hero-value">${money(pre)}</div>
+          <p class="hero-sub">${t('histIntro', base)}</p>
+        </div>
+      </section>
+      <div class="kpis">
+        <div class="kpi hl"><div class="l">${t('histKpiPre')}</div><div class="v">${money(pre)}</div><div class="s">${t('histKpiPreSub', pct(preHist / pre * 100, 0))}</div></div>
+        <div class="kpi"><div class="l">${t('histKpiTax')}</div><div class="v">${money(s('tax'))}</div><div class="s">${t('histKpiTaxSub')}</div></div>
+        <div class="kpi"><div class="l">${t('histKpiCapex')}</div><div class="v">${money(s('capex'))}</div><div class="s">${t('histKpiCapexSub')}</div></div>
+        <div class="kpi"><div class="l">${t('histKpiProd')}</div><div class="v">${nf(prod / 1000, 1)}</div><div class="s">${t('histKpiProdSub', pct(prodHist / prod * 100, 0))}</div></div>
+      </div>
+      <div class="card section-gap">
+        <div class="card-head"><h2>${t('histChart')}</h2><span class="muted">${t('histChartSub', state.cur)}</span></div>
+        <div class="chart-box" style="height:340px"><canvas id="c-hist"></canvas></div>
+      </div>
+      <div class="card section-gap">
+        <div class="card-head"><h2>${t('histTable')}</h2></div>
+        <div class="filters">
+          <input type="search" id="hq" placeholder="${t('search')}" value="${esc(R.q)}" aria-label="${t('search')}">
+          <select id="ha" aria-label="${t('filterArea')}"><option value="">${t('filterArea')}</option>${['North sea', 'Norwegian sea', 'Barents sea'].map((a) => `<option value="${a}"${R.area === a ? ' selected' : ''}>${tmap('area', a)}</option>`).join('')}</select>
+          <span class="muted" style="align-self:center;margin-left:auto">${rows.length} · ${state.cur} ${t('mn')}/${t('bn')}</span>
+        </div>
+        <div class="tbl-wrap"><table><thead><tr>${cols.map(([k, l, c]) => `<th class="sortable ${c || ''} ${key === k ? 'sorted' + (R.asc ? ' asc' : '') : ''}" data-sort="${k}" scope="col">${esc(l)}</th>`).join('')}</tr></thead>
+        <tbody>${rows.map((r) => `<tr class="link" data-href="${r.href}">${cols.map(([k, , c]) => `<td class="${c || ''}">${cell(r, k)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>
+        <p class="muted" style="font-size:13px;margin:14px 2px 0">${t('histColNote', pct(state.a.discount * 100, 1))}</p>
+      </div>
+      <div class="grid g-2 section-gap">
+        <div class="card"><div class="card-head"><h2>${t('histSources')}</h2></div>
+          <ul class="src-list">${src.map((x) => `<li><a href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.name)}</a><span>${esc(x.series)}${x.note ? ` · ${esc(x.note)}` : ''}</span></li>`).join('')}</ul></div>
+        <div class="card"><div class="card-head"><h2>${t('histLimits')}</h2></div>
+          <ul class="src-list plain">${t('histLimitList').map((x) => `<li>${esc(x)}</li>`).join('')}</ul></div>
+      </div>`;
+    $$('th[data-sort]', el).forEach((th) => th.addEventListener('click', () => { const k = th.dataset.sort; if (R.sort === k) R.asc = !R.asc; else { R.sort = k; R.asc = ['name', 'area', 'start'].includes(k); } route({ keepScroll: true }); }));
+    const q = $('#hq', el); let tm;
+    q.addEventListener('input', () => { clearTimeout(tm); tm = setTimeout(() => { R.q = q.value; route({ keepScroll: true, refocus: '#hq' }); }, 150); });
+    $('#ha', el).addEventListener('change', (e) => { R.area = e.target.value; route({ keepScroll: true }); });
+    $$('tr.link', el).forEach((tr) => tr.addEventListener('click', (e) => { if (!e.target.closest('a')) location.hash = tr.dataset.href; }));
+    if (window.Chart) {
+      const conv = (v) => toCur(v) / 1000;
+      charts.push(new Chart($('#c-hist'), {
+        data: {
+          labels: years,
+          datasets: [
+            { type: 'bar', label: t('histRealised'), data: years.map((y) => conv(byYear.get(y).hist) || null), backgroundColor: COLORS.accent, borderRadius: 2, stack: 's', yAxisID: 'y' },
+            { type: 'bar', label: t('histForecast'), data: years.map((y) => conv(byYear.get(y).fc) || null), backgroundColor: COLORS.accentSoft, borderColor: COLORS.accent, borderWidth: 1, borderRadius: 2, stack: 's', yAxisID: 'y' },
+            { type: 'line', label: t('histBrent'), data: years.map((y) => brentReal.get(y) ?? null), borderColor: COLORS.oil, borderWidth: 2, pointRadius: 0, tension: 0.2, yAxisID: 'y1', spanGaps: false },
+          ],
+        },
+        options: {
+          maintainAspectRatio: false, interaction: { mode: 'index', intersect: false },
+          scales: { x: { stacked: true, grid: { display: false }, ticks: { maxTicksLimit: 12 } }, y: { stacked: true, ticks: { callback: (x) => nf(x) } }, y1: { position: 'right', grid: { display: false }, ticks: { callback: (x) => '$' + nf(x) } } },
+          plugins: { tooltip: { callbacks: { label: (c) => c.raw == null ? null : c.dataset.yAxisID === 'y1' ? `${c.dataset.label}: $${nf(c.raw, 0)}` : `${c.dataset.label}: ${nf(c.raw, 1)} ${t('bn')}` } } },
+        },
+      }));
+    }
+  }
+
   function viewMethod(el) {
     el.innerHTML = `<article class="prose"><div class="eyebrow">Feltverdi.no</div><h1>${t('methodTitle')}</h1>${window.FV_METHOD[state.lang]}</article>`;
   }
@@ -608,6 +734,7 @@
     else if (page === 'selskap') { nav = 'value'; viewCompany(view, arg ? decodeURIComponent(arg) : state.lastCompany); }
     else if (page === 'rangering') { nav = 'rank'; viewRank(view); }
     else if (page === 'metode') { nav = 'method'; viewMethod(view); }
+    else if (page === 'historisk') { nav = 'hist'; viewHistory(view); }
     else if (!page) viewHome(view);
     else viewNotFound(view);
     $$('[data-nav]').forEach((a) => a.classList.toggle('active', a.dataset.nav === nav));

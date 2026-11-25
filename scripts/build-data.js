@@ -88,7 +88,7 @@ async function main() {
   const prod = new Map();
   for (const p of t.field_production_yearly) {
     const y = num(p.prfYear);
-    if (y > lastFullYear || y < 1990) continue;
+    if (y > lastFullYear) continue; // full history (needed for the historical value page)
     const k = p.prfNpdidInformationCarrier;
     if (!prod.has(k)) prod.set(k, []);
     prod.get(k).push([y, r3(num(p.prfPrdOilNetMillSm3)), r3(num(p.prfPrdGasNetBillSm3)), r3(num(p.prfPrdNGLNetMillSm3)), r3(num(p.prfPrdCondensateNetMillSm3)), r3(num(p.prfPrdOeNetMillSm3))]);
@@ -96,7 +96,7 @@ async function main() {
   const inv = new Map();
   for (const i of t.field_investment_yearly) {
     const y = num(i.prfYear), v = num(i.prfInvestmentsMillNOK);
-    if (y < 2010 || y > lastFullYear || !v) continue;
+    if (y > lastFullYear || !v) continue; // full history, nominal NOK million
     const k = i.prfNpdidInformationCarrier;
     if (!inv.has(k)) inv.set(k, []);
     inv.get(k).push([y, Math.round(v)]);
@@ -142,6 +142,59 @@ async function main() {
   console.log('Plateau per Sodir:', fields.filter((f) => f.outlook.plateau === 'plateau').map((f) => `${f.name} (${f.outlook.basis})`).join(', '));
   console.log('Off plateau:', fields.filter((f) => f.outlook.plateau === 'off').map((f) => f.name).join(', '));
   await buildCoast(useCache);
+  await buildHistory(useCache, lastFullYear);
+}
+
+// ---------- Historical prices, exchange rates and inflation (for the "Historisk" page) ----------
+// World Bank Commodity Price Data (Pink Sheet), annual nominal: Crude oil Brent ($/bbl) and Natural gas Europe ($/mmbtu)
+const WB_URL = 'https://thedocs.worldbank.org/en/doc/18675f1d1639c7a34d463f59263ba0a2-0050012025/related/CMO-Historical-Data-Annual.xlsx';
+// US CPI-U, all items (BLS), via FRED – used to express everything in real 2026 dollars
+const CPI_URL = 'https://fred.stlouisfed.org/graph/fredgraph.csv?id=CPIAUCSL';
+// Norges Bank official exchange rates, annual average USD/NOK
+const FX_URL = 'https://data.norges-bank.no/api/data/EXR/A.USD.NOK.SP?format=csv&startPeriod=1960&locale=en';
+
+async function fetchRaw(name, url, useCache, binary = false) {
+  const file = path.join(RAW, name);
+  if (useCache && fs.existsSync(file)) return binary ? fs.readFileSync(file) : fs.readFileSync(file, 'utf8');
+  const res = await fetch(url, { headers: { 'User-Agent': 'feltverdi-data-build' }, redirect: 'follow' });
+  if (!res.ok) throw new Error(`${name}: HTTP ${res.status}`);
+  const buf = Buffer.from(await res.arrayBuffer());
+  fs.writeFileSync(file, buf);
+  return binary ? buf : buf.toString('utf8');
+}
+
+async function buildHistory(useCache, lastFullYear) {
+  const { readXlsx } = require('./xlsx-lite');
+  const wb = readXlsx(await fetchRaw('wb.xlsx', WB_URL, useCache, true));
+  const rows = wb.rows('Annual Prices (Nominal)');
+  const names = rows.find((r) => r.includes('Crude oil, Brent'));
+  const ib = names.indexOf('Crude oil, Brent'), ig = names.indexOf('Natural gas, Europe');
+  const updated = (rows.find((r) => typeof r[0] === 'string' && /^Updated on/i.test(r[0])) || [''])[0].replace(/^Updated on\s*/i, '');
+  const prices = rows.filter((r) => /^\d{4}$/.test(String(r[0])) && +r[0] >= 1960 && +r[0] <= lastFullYear)
+    .map((r) => [+r[0], Math.round(+r[ib] * 100) / 100, Math.round(+r[ig] * 100) / 100]);
+
+  const cpiRows = (await fetchRaw('fred_cpi.csv', CPI_URL, useCache)).trim().split(/\r?\n/).slice(1).map((l) => l.split(','));
+  const byYear = new Map();
+  for (const [d, v] of cpiRows) { const y = +d.slice(0, 4); if (!byYear.has(y)) byYear.set(y, []); byYear.get(y).push(+v); }
+  const cpi = [...byYear.entries()].filter(([y]) => y >= 1960).map(([y, v]) => [y, Math.round(v.reduce((s, x) => s + x, 0) / v.length * 1000) / 1000]);
+  const cpiLast = cpiRows[cpiRows.length - 1][0];
+
+  const fxText = (await fetchRaw('nb_usdnok.csv', FX_URL, useCache)).trim().split(/\r?\n/);
+  const h = fxText[0].split(';'), iy = h.indexOf('TIME_PERIOD'), iv = h.indexOf('OBS_VALUE');
+  const usdnok = fxText.slice(1).map((l) => l.split(';')).map((c) => [+c[iy], +c[iv]]).filter(([y, v]) => y && v);
+
+  const cpiBaseYear = Math.max(...cpi.map((c) => c[0]));
+  const out = {
+    generated: new Date().toISOString().slice(0, 10), cpiBaseYear, prices, usdnok, cpi,
+    sources: [
+      { key: 'prices', name: 'World Bank – Commodity Price Data (The Pink Sheet), annual prices, nominal US dollars', series: 'Crude oil, UK Brent 38° API ($/bbl); Natural gas, Europe ($/mmbtu) – import border price, from April 2015 Netherlands TTF', url: 'https://www.worldbank.org/en/research/commodity-markets', note: `Updated ${updated}` },
+      { key: 'fx', name: 'Norges Bank – official exchange rates, annual average', series: 'USD/NOK (EXR A.USD.NOK.SP)', url: 'https://www.norges-bank.no/en/topics/Statistics/exchange_rates/', note: '' },
+      { key: 'cpi', name: 'U.S. Bureau of Labor Statistics – Consumer Price Index (CPI-U, all items), via FRED, Federal Reserve Bank of St. Louis', series: 'CPIAUCSL, annual average', url: 'https://fred.stlouisfed.org/series/CPIAUCSL', note: `Latest observation ${cpiLast}` },
+      { key: 'sodir', name: 'Sokkeldirektoratet (Sodir) FactPages', series: 'Production per field (Sm³), investments per field (NOK million, nominal)', url: 'https://factpages.sodir.no', note: 'NLOD' },
+    ],
+  };
+  fs.writeFileSync(path.join(path.dirname(OUT), 'history.json'), JSON.stringify(out));
+  console.log(`Wrote history: prices ${prices[0][0]}–${prices[prices.length - 1][0]}, USD/NOK ${usdnok[0][0]}–${usdnok[usdnok.length - 1][0]}, CPI ${cpi[0][0]}–${cpiBaseYear} (base ${cpiBaseYear})`);
 }
 
 // Base map: country outlines from Natural Earth 1:50m (public domain), clamped to the North Atlantic/Barents window.

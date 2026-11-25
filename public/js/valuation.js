@@ -197,11 +197,71 @@
     return { company, rows, npv: sum('npv'), remBoe: sum('remBoe'), q0: sum('q0'), operated: rows.filter((r) => r.operator).length };
   }
 
+  /**
+   * Whole-life ("original") value of a field: actual history (Sodir production and investments, historical prices,
+   * exchange rates and US CPI) plus the model forecast. Everything in real USD of H.cpiBaseYear.
+   * H = history.json: { prices: [[y, brent, gasEuropeUsdMmbtu]], usdnok: [[y, rate]], cpi: [[y, index]], cpiBaseYear }
+   * Simplifications: historical opex from the same $/boe model as the forecast; tax as a 78 % cash-flow tax every year.
+   */
+  const MMBTU_PER_BOE_GAS = 5.87;
+  function valueHistory(field, H, assumptions = {}, lastFullYear, ov = {}) {
+    const a = { ...DEFAULTS, ...assumptions };
+    const price = new Map(H.prices.map(([y, b, g]) => [y, { b, g }]));
+    const fx = new Map(H.usdnok), cpi = new Map(H.cpi);
+    const cpiNow = cpi.get(H.cpiBaseYear);
+    const realF = (y) => cpiNow / (cpi.get(y) || cpi.get(Math.min(...cpi.keys())));
+    const prodY = new Map(field.prod.map((r) => [r[0], r]));
+    const invY = new Map(field.inv);
+    const histYears = [...new Set([...prodY.keys(), ...invY.keys()])].filter((y) => y <= lastFullYear).sort((x, y) => x - y);
+    const fut = valueField(field, a, lastFullYear, ov);
+    if (!histYears.length && !fut.years.length) return null;
+    const opexBoe = ov.opexBoe ?? OPEX_BY_TYPE[field.hc] ?? 10;
+    const top = field.prod.map((r) => r[5] * BOE_PER_SM3).sort((x, y) => y - x).slice(0, 3);
+    const peak = top.length ? top.reduce((s, x) => s + x, 0) / top.length : 0;
+    const rows = [];
+    for (const y of histYears) {
+      const p = prodY.get(y), pr = price.get(y), rf = realF(y);
+      const q = p ? p[5] * BOE_PER_SM3 : 0;
+      const revNom = p && pr ? (p[1] + p[4]) * BOE_PER_SM3 * (pr.b - 1) + p[3] * BOE_PER_SM3 * 0.6 * pr.b + p[2] * BOE_PER_SM3 * pr.g * MMBTU_PER_BOE_GAS : 0;
+      const rev = revNom * rf;
+      const capex = (invY.get(y) || 0) / (fx.get(y) || a.usdnok) * rf;
+      const opex = q > 0 ? 0.6 * opexBoe * peak + 0.4 * opexBoe * q : 0;
+      const pre = rev - opex - capex, tax = MARGINAL * pre;
+      rows.push({ year: y, hist: true, q, rev, opex, capex, pre, tax, post: pre - tax, brentReal: pr ? pr.b * rf : null });
+    }
+    for (const r of fut.years) {
+      const pre = r.rev - r.opex - r.capex - (r.decom || 0);
+      rows.push({ year: r.year, hist: false, q: r.q, rev: r.rev, opex: r.opex, capex: r.capex + (r.decom || 0), pre, tax: r.tax, post: r.fcf });
+    }
+    rows.sort((x, y) => x.year - y.year);
+    const y0 = rows[0].year;
+    const sum = (k, f = () => true) => rows.filter(f).reduce((s, r) => s + r[k], 0);
+    const npvAt = (k, rate) => rows.reduce((s, r) => s + r[k] * Math.pow(1 + rate, -(r.year - y0 + 0.5)), 0);
+    // real pre-tax IRR (only defined if cash flows change sign)
+    let irr = null;
+    if (rows.some((r) => r.pre < 0) && rows.some((r) => r.pre > 0)) {
+      // search non-negative rates only: at negative rates the end-of-life decommissioning outflow dominates
+      let lo = 0, hi = 3;
+      const f = (x) => rows.reduce((s, r) => s + r.pre * Math.pow(1 + x, -(r.year - y0 + 0.5)), 0);
+      if (f(lo) <= 0) irr = -1; // lifetime value not positive: IRR below zero
+      else if (f(hi) >= 0) irr = hi; // above the search range (shown as "> 300 %")
+      else { for (let k = 0; k < 80; k++) { const m = (lo + hi) / 2; if (f(m) > 0) lo = m; else hi = m; } irr = (lo + hi) / 2; }
+    }
+    const firstProd = (field.prod.find((r) => r[5] > 0) || [])[0] || (fut.years.find((r) => r.q > 0) || {}).year || null;
+    return {
+      field: field.slug, startYear: y0, firstProd, endYear: fut.endYear || (histYears.length ? histYears[histYears.length - 1] : null), baseYear: H.cpiBaseYear,
+      prodTotal: sum('q'), prodHist: sum('q', (r) => r.hist),
+      rev: sum('rev'), opex: sum('opex'), capex: sum('capex'), capexHist: sum('capex', (r) => r.hist),
+      pre: sum('pre'), preHist: sum('pre', (r) => r.hist), tax: sum('tax'), post: sum('post'),
+      npvPre: npvAt('pre', a.discount), npvPost: npvAt('post', a.discount), irr, rows,
+    };
+  }
+
   function companies(fields) {
     const m = new Map();
     for (const f of fields) for (const [c] of f.owners) m.set(c, (m.get(c) || 0) + 1);
     return [...m.entries()].map(([name, n]) => ({ name, fields: n })).sort((a, b) => a.name.localeCompare(b.name, 'nb'));
   }
 
-  return { DEFAULTS, OPEX_BY_TYPE, BOE_PER_SM3, valueField, valueAll, valueCompany, companies, realisedPrice, prices, mix };
+  return { DEFAULTS, OPEX_BY_TYPE, BOE_PER_SM3, valueField, valueAll, valueCompany, valueHistory, companies, realisedPrice, prices, mix };
 });

@@ -72,6 +72,22 @@ test('plateau fields hold production flat, then decline, and still match reserve
   assert.strictEqual(V.valueField(f, {}, LAST, { plateauYears: 0 }).kind, 'decline');
 });
 
+test('whole-life value combines history (real terms) and forecast', () => {
+  const H = { cpiBaseYear: 2026, prices: [[2023, 80, 10], [2024, 80, 10], [2025, 80, 10]], usdnok: [[2022, 10], [2023, 10], [2024, 10], [2025, 10]],
+    cpi: [[2022, 100], [2023, 100], [2024, 100], [2025, 100], [2026, 110]] };
+  const f = field({ inv: [[2022, 1500], [2023, 1500], [2024, 1500]] });
+  const h = V.valueHistory(f, H, {}, LAST);
+  assert.strictEqual(h.startYear, 2022);
+  // 2023 revenue: 2.4 MSm3 oil × 6.29 × (80 − 1) × CPI factor 1.1
+  const r23 = h.rows.find((r) => r.year === 2023);
+  assert.ok(Math.abs(r23.rev - 2.4 * 6.29 * 79 * 1.1) < 1e-6);
+  // 2022 capex: NOK 1500m / 10 × 1.1 = USD 165m real
+  assert.ok(Math.abs(h.rows.find((r) => r.year === 2022).capex - 165) < 1e-6);
+  assert.ok(h.rows.some((r) => !r.hist), 'forecast rows included');
+  assert.ok(h.prodHist > 0 && h.prodTotal > h.prodHist);
+  assert.ok(h.irr > 0);
+});
+
 test('company value is the sum of its field shares', () => {
   const fields = [field(), field({ slug: 'two', name: 'Two', owners: [['B ASA', 100]], operator: 'B ASA' })];
   const vals = V.valueAll(fields, {}, LAST);

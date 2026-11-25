@@ -247,6 +247,19 @@ details.cf summary::-webkit-details-marker { display: none; }
 details.cf summary::after { content: ' ›'; }
 details.cf[open] summary::after { content: ' ‹'; }
 
+/* Historical view */
+.life-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 16px; }
+.life-grid .l { font-size: 13px; color: var(--muted); }
+.life-grid .v { font-family: var(--display); font-size: 22px; font-weight: 650; letter-spacing: -0.02em; margin-top: 2px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.src-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
+.src-list li { font-size: 14px; line-height: 1.45; color: var(--text-2); }
+.src-list li a { display: block; font-weight: 600; }
+.src-list li span { display: block; color: var(--muted); font-size: 13px; margin-top: 2px; }
+.src-list.plain li { padding-left: 16px; position: relative; }
+.src-list.plain li::before { content: ''; position: absolute; left: 0; top: .6em; width: 6px; height: 6px; border-radius: 50%; background: var(--border-strong); }
+@media (max-width: 900px) { .life-grid { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 560px) { .life-grid { grid-template-columns: repeat(2, 1fr); } }
+
 /* Prose (method page) */
 .prose { max-width: 700px; margin: 0 auto; }
 .prose h1 { margin-bottom: 12px; }

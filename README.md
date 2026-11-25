@@ -34,6 +34,28 @@ public/css/styles.css   design (dark theme, Inter font)
 tests/                  node --test
 ```
 
+## History ("Historisk")
+
+The history page calculates each field's value over its whole life. It combines actual production and investments (Sodir) from the first year with historical prices, exchange rates and inflation, plus the model forecast for the remaining years. Every figure is in real terms at the latest CPI year. The page shows three measures:
+- **Value before tax:** undiscounted, in real terms.
+- **Original value:** the after-tax present value at the year of first investment, using the prices that actually occurred.
+- **Real return:** the real internal rate of return before tax.
+
+Sources (fetched by `npm run build:data` into `public/data/history.json`):
+
+| Data | Source |
+|---|---|
+| Brent (USD/bbl) and European gas (USD/MMBtu), annual nominal | World Bank Commodity Price Data ("Pink Sheet"), CMO-Historical-Data-Annual.xlsx |
+| USD/NOK, annual average | Norges Bank, EXR A.USD.NOK.SP |
+| Inflation (real terms) | US BLS CPI-U (CPIAUCSL) via FRED, Federal Reserve Bank of St. Louis |
+| Production and investments per field | Sodir FactPages (NLOD) |
+
+Simplifications:
+- **Opex:** historical operating costs use the same model as the forecast.
+- **Tax:** 78% throughout. Royalty and the older tax regimes before 1992 aren't modelled.
+- **Investments:** pipelines and onshore facilities aren't included in the field investments, which matters for Snøhvit, Ormen Lange and Troll.
+- **NGL:** priced at 60% of Brent.
+
 ## Hosting (Vercel)
 
 `vercel.json` contains the setup:

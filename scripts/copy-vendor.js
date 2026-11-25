@@ -28,9 +28,6 @@ try {
   // Inter (variable font, latin + latin-ext covers æøå)
   const inter = nm('@fontsource-variable', 'inter', 'files');
   copyDir(inter, path.join(out, 'inter'), (f) => /inter-(latin|latin-ext)-wght-normal\.woff2$/.test(f));
-  // Fraunces (variable serif for headings and large figures)
-  const fraunces = nm('@fontsource-variable', 'fraunces', 'files');
-  copyDir(fraunces, path.join(out, 'fraunces'), (f) => /fraunces-(latin|latin-ext)-wght-normal\.woff2$/.test(f));
   console.log('Vendor files copied to public/vendor');
 } catch (e) {
   console.error('Could not copy vendor files:', e.message);

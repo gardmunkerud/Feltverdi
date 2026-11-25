@@ -2,8 +2,9 @@
  * Real terms (USD, base year = startYear), mid-year discounting. Works in the browser (window.FVValuation) and in Node.
  *
  * Model (all figures gross for 100% of the field; owners' values are their share of the gross value):
- *  - Production: starts at last full year's production and declines exponentially. The decline rate is fitted so that
- *    cumulative production until the economic limit equals Sodir's remaining reserves (unless the user overrides it).
+ *  - Production: starts at last full year's production and declines exponentially. The decline rate follows the
+ *    field's own observed decline over the last five years, bounded by Sodir's remaining reserves (never faster than
+ *    producing exactly those) and by reserves × reserveGrowth (never slower). See valueField() for details.
  *    New fields (first production in the last two years) and approved fields get a 3-year plateau first.
  *  - Price: product mix of the remaining reserves. Oil/condensate = Brent − $1; NGL = 60 % of Brent;
  *    gas = €/MWh × 1.72 MWh/boe × EURUSD.
@@ -31,6 +32,7 @@
     discount: 0.08,   // real, after tax
     startYear: 2026,
     decomPerBoe: 1.0, // USD per boe of original recoverable volume (gross)
+    reserveGrowth: 1.6, // cap on implied growth of Sodir's remaining reserves (1.0 = use Sodir's reserves as they are)
   };
 
   // Default opex (USD/boe at the starting rate) by hydrocarbon type
@@ -80,13 +82,17 @@
   }
 
   // Classifies how the forecast should start
-  function setup(field, a, lastFullYear, ov = {}) {
-    const remBoe = field.rem ? field.rem.oe * BOE_PER_SM3 : 0;
+  // growth: reserve-growth multiplier applied to Sodir's remaining reserves for fields without a usable decline history
+  function setup(field, a, lastFullYear, ov = {}, growth = 1) {
+    const remSodir = field.rem ? field.rem.oe * BOE_PER_SM3 : 0;
+    let remBoe = remSodir;
     const recBoe = field.rec ? field.rec.oe * BOE_PER_SM3 : 0;
     const q0 = lastProduction(field, lastFullYear);
     const first = firstProductionYear(field);
     let kind = 'decline', startIndex = 0, plateau = 0, plateauYears = 0, plateauSource = null;
     if (field.status === 'Shut down' || remBoe <= 0.05) kind = 'none';
+    else if (field.status === 'Approved for production' || q0 <= 0 || (first && first >= lastFullYear - 1) || (field.outlook && field.outlook.plateau === 'plateau') || ov.plateauYears > 0) remBoe = remSodir * growth;
+    if (kind === 'none') { /* nothing */ }
     else if (field.status === 'Approved for production' || q0 <= 0) { kind = 'new'; startIndex = 1; plateau = remBoe / 9; plateauYears = 3; }
     else if (first && first >= lastFullYear - 1) { kind = 'ramp'; plateau = Math.max(q0, remBoe / 9); plateauYears = 3; }
     else if ((field.outlook && field.outlook.plateau === 'plateau') || ov.plateauYears > 0) {
@@ -99,13 +105,13 @@
       kind = 'plateau'; plateauSource = field.outlook && field.outlook.plateau === 'plateau' ? field.outlook.basis : 'user';
     }
     if (ov.plateauYears != null && (kind === 'plateau' || kind === 'decline')) {
-      if (ov.plateauYears <= 0) { kind = 'decline'; plateauYears = 0; }
+      if (ov.plateauYears <= 0) { kind = 'decline'; plateauYears = 0; remBoe = remSodir; }
       else { if (kind === 'decline') { plateau = q0; kind = 'plateau'; plateauSource = 'user'; } plateauYears = Math.round(ov.plateauYears); }
     }
     const opexBoe = ov.opexBoe ?? OPEX_BY_TYPE[field.hc] ?? 10;
     const capexBoe = ov.capexBoe ?? capexIntensity(field, a, lastFullYear);
     const refRate = kind === 'decline' ? q0 : plateau;
-    return { remBoe, recBoe, q0, kind, startIndex, plateau, plateauYears, plateauSource, opexBoe, capexBoe, refRate, devCapex: kind === 'new' ? 6 * remBoe : 0, decomPerBoe: ov.decomPerBoe };
+    return { remBoe, remSodir, recBoe, q0, kind, startIndex, plateau, plateauYears, plateauSource, opexBoe, capexBoe, refRate, devCapex: kind === 'new' ? 6 * remSodir : 0, decomPerBoe: ov.decomPerBoe };
   }
 
   function simulate(field, a, s, d, record) {
@@ -152,28 +158,70 @@
    * Values one field (100 % gross). Returns USD millions (real).
    * ov: optional overrides { opexBoe, capexBoe, decline }
    */
+  // Decline rate at which cumulative production (until the economic limit) equals `target` MMboe
+  function fitDecline(field, a, s, target) {
+    let lo = 0.002, hi = 0.7;
+    if (simulate(field, a, s, lo, false).cum < target) return lo; // even the slowest decline cannot produce it all economically
+    for (let k = 0; k < 50; k++) {
+      const m = (lo + hi) / 2;
+      if (simulate(field, a, s, m, false).cum > target) lo = m; else hi = m;
+    }
+    return (lo + hi) / 2;
+  }
+
+  // The field's own decline over the last five years: log-linear fit of annual production (needs ≥ 4 producing years)
+  function observedDecline(field, lastFullYear) {
+    const pts = [];
+    for (let y = lastFullYear - 4; y <= lastFullYear; y++) {
+      const p = field.prod.find((r) => r[0] === y);
+      if (p && p[5] > 0) pts.push([y, Math.log(p[5])]);
+    }
+    if (pts.length < 4) return null;
+    const n = pts.length, mx = pts.reduce((t, p) => t + p[0], 0) / n, my = pts.reduce((t, p) => t + p[1], 0) / n;
+    let sxy = 0, sxx = 0;
+    for (const [x, y] of pts) { sxy += (x - mx) * (y - my); sxx += (x - mx) ** 2; }
+    return 1 - Math.exp(sxy / sxx);
+  }
+
+  /**
+   * Values one field (100 % gross). Returns USD millions (real).
+   * ov: optional overrides { opexBoe, capexBoe, decline, plateauYears, decomPerBoe }
+   *
+   * Decline (fields in ordinary decline, no user override) – calibrated on Sodir history (backtests from 2010 and 2015):
+   *   d = clamp(observed 5-year decline, dLow, dHigh), where
+   *   dHigh = decline that produces exactly Sodir's remaining reserves (never decline faster than that), and
+   *   dLow  = decline that produces reserves × reserveGrowth (cap on implied reserve growth, default 1.6).
+   *   Without a usable history the target is reserves × (1 + (reserveGrowth − 1) / 2), i.e. ×1.3 by default.
+   * Plateau, ramp-up and new fields use reserves × (1 + (reserveGrowth − 1) / 2).
+   * reserveGrowth = 1 reproduces the pure "fit to Sodir reserves" method.
+   */
   function valueField(field, assumptions = {}, lastFullYear, ov = {}) {
     const a = { ...DEFAULTS, ...assumptions };
-    const s = setup(field, a, lastFullYear, ov);
+    const cap = Math.max(1, a.reserveGrowth ?? 1);
+    const mid = 1 + (cap - 1) / 2;
+    const s = setup(field, a, lastFullYear, ov, mid);
     const price = realisedPrice(field, a);
-    const base = { field: field.slug, kind: s.kind, price, mix: mix(field), remBoe: s.remBoe, q0: s.q0, opexBoe: s.opexBoe, capexBoe: s.capexBoe,
+    const base = { field: field.slug, kind: s.kind, price, mix: mix(field), remBoe: s.remSodir, q0: s.q0, opexBoe: s.opexBoe, capexBoe: s.capexBoe,
       plateauYears: s.plateauYears, plateauRate: s.plateau, plateauSource: s.plateauSource,
       plateauEnd: s.plateauYears ? a.startYear + s.startIndex + s.plateauYears - 1 : null };
-    if (s.kind === 'none') return { ...base, npv: 0, taxPv: 0, grossValue: 0, decline: 0, endYear: null, cum: 0, years: [] };
-    let d = ov.decline;
+    if (s.kind === 'none') return { ...base, npv: 0, taxPv: 0, grossValue: 0, decline: 0, endYear: null, cum: 0, years: [], impliedGrowth: 0 };
+    let d = ov.decline, declineBasis = ov.decline != null ? 'user' : null, obs = null, dLow = null, dHigh = null;
     if (d == null) {
-      let lo = 0.002, hi = 0.7;
-      if (simulate(field, a, s, lo, false).cum < s.remBoe) d = lo; // even the slowest decline cannot produce it all economically
-      else {
-        for (let k = 0; k < 50; k++) {
-          const m = (lo + hi) / 2;
-          if (simulate(field, a, s, m, false).cum > s.remBoe) lo = m; else hi = m;
-        }
-        d = (lo + hi) / 2;
+      if (s.kind === 'decline') {
+        dHigh = fitDecline(field, a, s, s.remSodir);
+        dLow = cap > 1 ? fitDecline(field, a, s, s.remSodir * cap) : dHigh;
+        obs = observedDecline(field, lastFullYear);
+        const target = obs != null ? obs : fitDecline(field, a, s, s.remSodir * mid);
+        d = Math.min(dHigh, Math.max(dLow, target));
+        declineBasis = cap <= 1 ? 'reserves' : obs == null ? 'growth' : obs > dHigh ? 'capHigh' : obs < dLow ? 'capLow' : 'observed';
+      } else {
+        d = fitDecline(field, a, s, s.remBoe);
+        declineBasis = cap > 1 ? 'growth' : 'reserves';
       }
     }
     const r = simulate(field, a, s, d, true);
-    return { ...base, npv: r.npv, taxPv: r.taxPv, grossValue: s.remBoe * price, decline: d, endYear: r.endYear, cum: r.cum, years: r.years };
+    return { ...base, npv: r.npv, taxPv: r.taxPv, grossValue: s.remSodir * price, decline: d, endYear: r.endYear, cum: r.cum, years: r.years,
+      declineBasis, observedDecline: obs, dLow, dHigh, reserveGrowth: cap, impliedGrowth: s.remSodir > 0 ? r.cum / s.remSodir : 0 };
   }
 
   function valueAll(fields, assumptions, lastFullYear, overrides = {}) {

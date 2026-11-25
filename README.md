@@ -69,7 +69,13 @@ To update the data: run `npm run build:data` locally, then commit and push the c
 
 ## Model (short version)
 
-- **Production:** starts from last year's production and declines exponentially. The decline rate is fitted so that cumulative production until the economic limit equals Sodir's remaining reserves. New fields and fields approved for development get a three-year plateau first.
+- **Production:** starts from last year's production and declines exponentially. The decline rate is the field's own observed decline over the last five years, with two limits:
+  - no faster than producing exactly Sodir's remaining reserves
+  - no slower than producing reserves × *reserve growth* (default ×1.6, adjustable in the assumptions bar)
+
+  Plateau and new fields use reserves × 1.3. New fields and fields approved for development get a three-year plateau first.
+
+  The method was calibrated on Sodir history. Backtested from 2010 and 2015, actual production divided by the forecast was 1.26 and 1.16 with this method, against 1.45 and 1.35 when fitting to reserves alone. Setting reserve growth to ×1.0 reproduces the old method.
 - **Prices:** oil is Brent − $1, NGL is 60% of Brent, gas is €/MWh × 1.72 × EURUSD.
 - **Costs:**
   - Opex is 60% fixed and 40% variable, at default levels by field type.

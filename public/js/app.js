@@ -27,7 +27,7 @@
     get(k, d) { try { const v = localStorage.getItem('fv:' + k); return v == null ? d : JSON.parse(v); } catch { return d; } },
     set(k, v) { try { localStorage.setItem('fv:' + k, JSON.stringify(v)); } catch { /* storage unavailable */ } },
   };
-  const DEFAULT_A = { brent: V.DEFAULTS.brent, gasEur: V.DEFAULTS.gasEur, usdnok: V.DEFAULTS.usdnok, discount: V.DEFAULTS.discount };
+  const DEFAULT_A = { brent: V.DEFAULTS.brent, gasEur: V.DEFAULTS.gasEur, usdnok: V.DEFAULTS.usdnok, discount: V.DEFAULTS.discount, reserveGrowth: V.DEFAULTS.reserveGrowth };
   const state = {
     data: null, vals: null, companies: [],
     lang: store.get('lang', (navigator.language || 'nb').startsWith('en') ? 'en' : 'nb'),
@@ -89,6 +89,7 @@
       note: (v) => { const eurusd = V.DEFAULTS.eurusd; return t('gasConv', nf(eurusd, 2), nf(1.72 * eurusd, 2), nf(v), nf(v * 1.72 * eurusd, 1), nf(v * eurusd / 3.412, 1)); } },
     { k: 'usdnok', label: 'usdnok', min: 7, max: 13, step: 0.1, fmt: (v) => nf(v, 1), hint: 'usdnokHint' },
     { k: 'discount', label: 'discount', min: 0.04, max: 0.14, step: 0.005, fmt: (v) => pct(v * 100, 1), hint: 'discountHint' },
+    { k: 'reserveGrowth', label: 'growth', min: 1, max: 2, step: 0.1, fmt: (v) => `×${nf(v, 1)}`, hint: 'growthHint' },
   ];
   let openPop = null;
   function renderAssumptions() {
@@ -338,7 +339,8 @@
     const ov = state.overrides[slug] || {};
     const statusCls = f.status === 'Producing' ? 'prod' : f.status === 'Shut down' ? 'shut' : 'appr';
     const note = v.kind === 'none' ? t('noValue') : v.kind === 'new' ? t('newField') : v.kind === 'ramp' ? t('rampField')
-      : v.kind === 'plateau' ? t('plateauNote', nf(kboed(v.plateauRate), 0), v.plateauYears, v.plateauEnd, t('plateauSrc_' + v.plateauSource), nf(v.decline * 100, 1))
+      : v.kind === 'plateau' ? t('plateauNote', nf(kboed(v.plateauRate), 0), v.plateauYears, v.plateauEnd, t('plateauSrc_' + v.plateauSource), nf(v.decline * 100, 1), nf(v.impliedGrowth, 2))
+      : v.kind === 'decline' ? [f.outlook && f.outlook.plateau === 'off' ? t('offPlateauNote') : '', declineNote(v)].filter(Boolean).join(' ')
       : f.outlook && f.outlook.plateau === 'off' ? t('offPlateauNote') : '';
     const shareOptions = [`<option value="gross"${sh.type === 'gross' ? ' selected' : ''}>${t('gross100')}</option>`]
       .concat(f.owners.map(([c, s]) => `<option value="owner:${esc(c)}"${sh.type === 'owner' && sh.company === c ? ' selected' : ''}>${esc(c)} – ${pct(s, 2)}</option>`))
@@ -361,7 +363,7 @@
       </div>
       <div class="kpis k6">
         <div class="kpi hl"><div class="l">${t('fieldValue')}${k < 1 ? ` (${pct(sh.pct, 1)})` : ''}</div><div class="v">${money(v.npv * k)}</div><div class="s">${perBoe(v.npv, v.remBoe)} ${t('perBoe')}</div></div>
-        <div class="kpi"><div class="l">${t('remaining')}</div><div class="v">${nf(v.remBoe * k, v.remBoe * k < 10 ? 1 : 0)}</div><div class="s">${t('mmboe')}${f.resYear ? ` · ${f.resYear}` : ''}</div></div>
+        <div class="kpi"><div class="l">${t('remaining')}</div><div class="v">${nf(v.remBoe * k, v.remBoe * k < 10 ? 1 : 0)}</div><div class="s">${t('mmboe')}${f.resYear ? ` · Sodir ${f.resYear}` : ''}${v.cum > 0 ? ` · ${t('modelProd', nf(v.cum * k, v.cum * k < 10 ? 1 : 0), nf(v.impliedGrowth, 2))}` : ''}</div></div>
         <div class="kpi"><div class="l">${t('production', y)}</div><div class="v">${nf(kboed(v.q0 * k), 1)}</div><div class="s">${t('kboed')}</div></div>
         <div class="kpi"><div class="l">${t('lifetime')}</div><div class="v">${v.endYear || '–'}</div><div class="s">${t('lifetimeSub')}</div></div>
         <div class="kpi"><div class="l">${t('taxState')}</div><div class="v">${money(v.taxPv * k)}</div><div class="s">${t('taxSub')}</div></div>
@@ -386,7 +388,7 @@
           <div class="ov">
             <div><label for="ov-opex">${t('opexBoe')}</label><input id="ov-opex" type="number" min="0" max="60" step="0.5" value="${ov.opexBoe ?? ''}" placeholder="${nf(v.opexBoe, 1)}"><div class="auto">${t('auto')}: ${nf(V.OPEX_BY_TYPE[f.hc] ?? 10, 1)}</div></div>
             <div><label for="ov-capex">${t('capexBoe')}</label><input id="ov-capex" type="number" min="0" max="60" step="0.5" value="${ov.capexBoe ?? ''}" placeholder="${nf(v.capexBoe, 1)}"><div class="auto">${t('auto')}: ${nf(v.capexBoe, 1)}</div></div>
-            <div><label for="ov-dec">${t('declineRate')}</label><input id="ov-dec" type="number" min="0" max="60" step="0.5" value="${ov.decline != null ? nf(ov.decline * 100, 1).replace(',', '.') : ''}" placeholder="${nf(v.decline * 100, 1)}"><div class="auto">${t('autoFit', nf(v.decline * 100, 1))}</div></div>
+            <div><label for="ov-dec">${t('declineRate')}</label><input id="ov-dec" type="number" min="0" max="60" step="0.5" value="${ov.decline != null ? nf(ov.decline * 100, 1).replace(',', '.') : ''}" placeholder="${nf(v.decline * 100, 1)}"><div class="auto">${t('autoDecl', nf(v.decline * 100, 1))}</div></div>
             <div><label for="ov-plat">${t('plateauYearsLbl')}</label><input id="ov-plat" type="number" min="0" max="30" step="1" value="${ov.plateauYears ?? ''}" placeholder="${v.plateauYears || 0}"><div class="auto">${t('auto')}: ${v.kind === 'plateau' && v.plateauSource !== 'user' ? t('plateauAuto', v.plateauYears) : '0'}</div></div>
             <div><label for="ov-decom">${t('decomBoe')}</label><input id="ov-decom" type="number" min="0" max="10" step="0.1" value="${ov.decomPerBoe ?? ''}" placeholder="${nf(V.DEFAULTS.decomPerBoe, 1)}"><div class="auto">${t('auto')}: ${nf(V.DEFAULTS.decomPerBoe, 1)}</div></div>
           </div>
@@ -422,6 +424,13 @@
     $('#ov-reset', el).addEventListener('click', () => { delete state.overrides[slug]; store.set('ov', state.overrides); recompute(); route({ keepScroll: true }); });
     $('#csv', el).addEventListener('click', () => downloadCsv(f, v, k));
     drawFieldCharts(f, v, k);
+  }
+
+  // Explains how the decline rate was chosen for a field in ordinary decline
+  function declineNote(v) {
+    const p = (x) => (x == null ? '–' : nf(x * 100, 1));
+    const args = [p(v.decline), p(v.observedDecline), p(v.dLow), p(v.dHigh), nf(v.reserveGrowth, 1), nf(v.impliedGrowth, 2)];
+    return t('declNote_' + (v.declineBasis || 'reserves'), ...args);
   }
 
   function lifeCard(f, k) {

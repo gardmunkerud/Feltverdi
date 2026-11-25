@@ -16,8 +16,8 @@ function field(over = {}) {
   };
 }
 
-test('fitted decline produces (about) the remaining reserves', () => {
-  const v = V.valueField(field(), {}, LAST);
+test('with reserve growth ×1.0 the decline produces (about) the remaining reserves', () => {
+  const v = V.valueField(field(), { reserveGrowth: 1 }, LAST);
   const remBoe = 10 * V.BOE_PER_SM3;
   assert.ok(Math.abs(v.cum - remBoe) / remBoe < 0.02, `cum ${v.cum} vs ${remBoe}`);
   assert.ok(v.npv > 0);
@@ -61,7 +61,7 @@ test('approved fields start next year after a development year', () => {
 
 test('plateau fields hold production flat, then decline, and still match reserves', () => {
   const f = field({ rem: { oil: 30, gas: 0, ngl: 0, cond: 0, oe: 30 }, outlook: { plateau: 'plateau', basis: 'text' } });
-  const v = V.valueField(f, {}, LAST);
+  const v = V.valueField(f, { reserveGrowth: 1 }, LAST);
   assert.strictEqual(v.kind, 'plateau');
   assert.ok(v.plateauYears >= 2, `plateau years ${v.plateauYears}`);
   const q = v.years.filter((y) => y.q > 0).map((y) => y.q);
@@ -86,6 +86,35 @@ test('whole-life value combines history (real terms) and forecast', () => {
   assert.ok(h.rows.some((r) => !r.hist), 'forecast rows included');
   assert.ok(h.prodHist > 0 && h.prodTotal > h.prodHist);
   assert.ok(h.irr > 0);
+});
+
+test('decline follows the observed 5-year decline, bounded by reserves ×1.0 and × reserveGrowth', () => {
+  const hist = (rates) => rates.map((q, i) => [2021 + i, q, 0, 0, 0, q]);
+  const rem = (oe) => ({ oil: oe, gas: 0, ngl: 0, cond: 0, oe });
+  // observed decline ~10 %/yr
+  const obs10 = hist([3.0, 2.7, 2.43, 2.187, 1.968]);
+  const mid = V.valueField(field({ prod: obs10, rem: rem(14) }), {}, LAST);
+  assert.ok(mid.observedDecline > 0.09 && mid.observedDecline < 0.11, `observed ${mid.observedDecline}`);
+  assert.ok(mid.decline >= mid.dLow - 1e-9 && mid.decline <= mid.dHigh + 1e-9);
+  // very slow observed decline -> clamped at dLow (reserves × 1.6)
+  const slow = V.valueField(field({ prod: hist([2, 2, 2, 2, 2]), rem: rem(6) }), {}, LAST);
+  assert.strictEqual(slow.declineBasis, 'capLow');
+  assert.ok(Math.abs(slow.impliedGrowth - 1.6) < 0.05, `growth ${slow.impliedGrowth}`);
+  // very fast observed decline -> clamped at dHigh (exactly Sodir reserves)
+  const fast = V.valueField(field({ prod: hist([8, 6, 4.5, 3.4, 2.5]), rem: rem(40) }), {}, LAST);
+  assert.strictEqual(fast.declineBasis, 'capHigh');
+  assert.ok(Math.abs(fast.impliedGrowth - 1) < 0.03, `growth ${fast.impliedGrowth}`);
+  // reserve growth 1.0 reproduces the pure reserve fit
+  const pure = V.valueField(field({ prod: obs10, rem: rem(14) }), { reserveGrowth: 1 }, LAST);
+  assert.strictEqual(pure.declineBasis, 'reserves');
+  assert.ok(Math.abs(pure.impliedGrowth - 1) < 0.03);
+});
+
+test('higher reserve growth never lowers production or value', () => {
+  const f = field({ prod: [[2021, 2, 0, 0, 0, 2], [2022, 2, 0, 0, 0, 2], [2023, 2, 0, 0, 0, 2], [2024, 2, 0, 0, 0, 2], [2025, 2, 0, 0, 0, 2]] });
+  const a = V.valueField(f, { reserveGrowth: 1 }, LAST), b = V.valueField(f, { reserveGrowth: 1.6 }, LAST), c = V.valueField(f, { reserveGrowth: 2 }, LAST);
+  assert.ok(a.cum <= b.cum + 1e-9 && b.cum <= c.cum + 1e-9);
+  assert.ok(a.npv <= b.npv + 1e-9 && b.npv <= c.npv + 1e-9);
 });
 
 test('company value is the sum of its field shares', () => {

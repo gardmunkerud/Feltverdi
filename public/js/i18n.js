@@ -38,6 +38,15 @@ window.FV_I18N = {
     brentHint: 'Langsiktig oljepris i faste dollar (USD/fat).', gasHint: 'Europeisk gasspris (TTF/NBP) i faste euro per MWh.',
     gasConv: (fx, f, v, boe, mmbtu) => `<strong>Omregning:</strong> 1 fat o.e. gass ≈ 1,72 MWh (159 Sm³ à ~10,8 kWh). USD/fat o.e. = €/MWh × 1,72 × EURUSD (${fx}) = €/MWh × <strong>${f}</strong>.<br>€${v}/MWh ≈ <strong>$${boe}/fat o.e.</strong> ≈ $${mmbtu}/MMBtu.`,
     usdnokHint: 'Brukes for å vise verdier i kroner og regne om investeringer.', discountHint: 'Reelt avkastningskrav etter skatt.',
+    growth: 'Reservevekst', growthHint: 'Hvor mye gjenværende reserver kan vokse utover Sodirs anslag (nye brønner, økt utvinning, levetidsforlengelse). ×1,6 er standard, kalibrert mot Sodirs historikk 2010–2025. ×1,0 bruker Sodirs reserver slik de er.',
+    autoDecl: (d) => `Auto: ${d} % – faktisk fall siste fem år, begrenset av reservene`,
+    modelProd: (v, g) => `modell ${v} (×${g})`,
+    declNote_observed: (d, o, lo, hi, cap, g) => `Fallraten på ${d} % per år er feltets faktiske fall de siste fem årene. Den ligger innenfor det reservene tillater (${lo}–${hi} %), og gir samlet produksjon på ×${g} av Sodirs gjenværende reserver.`,
+    declNote_capLow: (d, o, lo, hi, cap, g) => `Feltet har falt bare ${o} % per år de siste fem årene. Modellen bruker likevel minst ${d} % – det fallet som gir Sodirs reserver × ${cap} – for ikke å fremskrive en god periode for langt.`,
+    declNote_capHigh: (d, o, lo, hi, cap, g) => `Feltet har falt ${o} % per år de siste fem årene. Modellen bruker høyst ${d} % – det fallet som akkurat gir Sodirs gjenværende reserver.`,
+    declNote_growth: (d, o, lo, hi, cap, g) => `Feltet har for kort produksjonshistorikk til å måle fallet. Fallraten på ${d} % gir samlet produksjon på Sodirs reserver × ${g}.`,
+    declNote_reserves: (d) => `Fallraten på ${d} % gir samlet produksjon lik Sodirs gjenværende reserver (reservevekst ×1,0).`,
+    declNote_user: (d) => `Du har satt fallraten til ${d} % per år.`,
     loading: 'Laster feltdata …', loadError: 'Klarte ikke å laste feltdata.',
     heroEyebrow: 'Norsk kontinentalsokkel', heroTitle: 'Hva er sokkelen verdt?',
     heroSearchTitle: 'Finn et felt eller selskap', heroSearchSub: (f, c) => `Søk blant ${f} felt og ${c} rettighetshavere.`,
@@ -64,7 +73,7 @@ window.FV_I18N = {
     rampField: 'Feltet er nytt og i opptrapping. Modellen antar tre år platå før fall.',
     discovered: 'Funnet', sodirLink: 'Faktasider hos Sodir ↗',
     plateauTag: (y) => `Platå til ${y}`, plateauYearsLbl: 'Platå (år)', plateauAuto: (n) => `${n} år – fra Sodir-beskrivelse og reserver`,
-    plateauNote: (rate, n, end, src, d) => `${src} Modellen holder produksjonen på ${rate} tusen fat o.e./d i ${n} år (til ${end}), og lar den deretter falle med ${d} % per år slik at samlet produksjon tilsvarer gjenværende reserver.`,
+    plateauNote: (rate, n, end, src, d, g) => `${src} Modellen holder produksjonen på ${rate} tusen fat o.e./d i ${n} år (til ${end}), og lar den deretter falle med ${d} % per år slik at samlet produksjon blir Sodirs gjenværende reserver × ${g}.`,
     plateauSrc_text: 'Sodir beskriver feltet som på platå.', plateauSrc_stable: 'Sodir beskriver stabil eller kapasitetsbegrenset produksjon.',
     plateauSrc_capacity: 'Gassproduksjonen er begrenset av kapasitet, ikke reservoar (vurdering basert på Sodirs beskrivelse av kapasitetsøkende tiltak).', plateauSrc_user: 'Du har satt platå for feltet.',
     offPlateauNote: 'Sodir beskriver at feltet har gått av platå og er i fall.', sodirStatus: 'Status fra Sodir (engelsk originaltekst)',
@@ -116,6 +125,15 @@ window.FV_I18N = {
     brentHint: 'Long-term oil price in real dollars (USD/bbl).', gasHint: 'European gas price (TTF/NBP) in real euros per MWh.',
     gasConv: (fx, f, v, boe, mmbtu) => `<strong>Conversion:</strong> 1 boe of gas ≈ 1.72 MWh (159 Sm³ at ~10.8 kWh). USD/boe = €/MWh × 1.72 × EURUSD (${fx}) = €/MWh × <strong>${f}</strong>.<br>€${v}/MWh ≈ <strong>$${boe}/boe</strong> ≈ $${mmbtu}/MMBtu.`,
     usdnokHint: 'Used to show values in NOK and convert investments.', discountHint: 'Real after-tax required return.',
+    growth: 'Reserve growth', growthHint: 'How much remaining reserves may grow beyond Sodir\'s estimate (new wells, improved recovery, life extension). ×1.6 is the default, calibrated on Sodir history 2010–2025. ×1.0 uses Sodir\'s reserves as they are.',
+    autoDecl: (d) => `Auto: ${d} % – actual decline over the last five years, bounded by reserves`,
+    modelProd: (v, g) => `model ${v} (×${g})`,
+    declNote_observed: (d, o, lo, hi, cap, g) => `The decline of ${d} % per year is the field's actual decline over the last five years. It lies within what the reserves allow (${lo}–${hi} %) and gives total production of ×${g} Sodir's remaining reserves.`,
+    declNote_capLow: (d, o, lo, hi, cap, g) => `The field has declined only ${o} % per year over the last five years. The model still uses at least ${d} % – the decline that gives Sodir's reserves × ${cap} – so as not to extrapolate a good period too far.`,
+    declNote_capHigh: (d, o, lo, hi, cap, g) => `The field has declined ${o} % per year over the last five years. The model uses at most ${d} % – the decline that exactly gives Sodir's remaining reserves.`,
+    declNote_growth: (d, o, lo, hi, cap, g) => `The field's production history is too short to measure its decline. The decline of ${d} % gives total production of Sodir's reserves × ${g}.`,
+    declNote_reserves: (d) => `The decline of ${d} % gives total production equal to Sodir's remaining reserves (reserve growth ×1.0).`,
+    declNote_user: (d) => `You have set the decline to ${d} % per year.`,
     loading: 'Loading field data …', loadError: 'Could not load field data.',
     heroEyebrow: 'Norwegian Continental Shelf', heroTitle: 'What is the shelf worth?',
     heroSearchTitle: 'Find a field or company', heroSearchSub: (f, c) => `Search ${f} fields and ${c} licensees.`,
@@ -142,7 +160,7 @@ window.FV_I18N = {
     rampField: 'The field is new and ramping up. The model assumes a three-year plateau before decline.',
     discovered: 'Discovered', sodirLink: 'Sodir fact pages ↗',
     plateauTag: (y) => `Plateau to ${y}`, plateauYearsLbl: 'Plateau (years)', plateauAuto: (n) => `${n} years – from Sodir description and reserves`,
-    plateauNote: (rate, n, end, src, d) => `${src} The model holds production at ${rate} kboe/d for ${n} years (to ${end}), then declines it by ${d} % per year so that cumulative production matches remaining reserves.`,
+    plateauNote: (rate, n, end, src, d, g) => `${src} The model holds production at ${rate} kboe/d for ${n} years (to ${end}), then declines it by ${d} % per year so that cumulative production equals Sodir's remaining reserves × ${g}.`,
     plateauSrc_text: 'Sodir describes the field as on plateau.', plateauSrc_stable: 'Sodir describes stable or capacity-limited production.',
     plateauSrc_capacity: 'Gas production is limited by capacity rather than the reservoir (judgement based on Sodir\'s description of capacity-increasing measures).', plateauSrc_user: 'You have set a plateau for this field.',
     offPlateauNote: 'Sodir describes the field as off plateau and declining.', sodirStatus: 'Status from Sodir',
@@ -163,8 +181,20 @@ window.FV_METHOD = {
 <h2>Data</h2>
 <p>Alle tall kommer fra Sokkeldirektoratets (Sodir) åpne faktasider: felt, status, operatør, rettighetshavere, årlig produksjon, investeringer og reserver (siste estimat per 31.12). Dataene er lisensiert under <a href="https://data.norge.no/nlod/no/2.0" target="_blank" rel="noopener">Norsk lisens for offentlige data (NLOD)</a>. Feltverdi henter dem automatisk.</p>
 <h2>Produksjonsprofil</h2>
-<p>Prognosen starter på fjorårets produksjon og faller eksponentielt. Fallraten tilpasses slik at samlet produksjon fram til økonomisk grense tilsvarer Sodirs <em>gjenværende reserver</em>. Nye felt i opptrapping og felt godkjent for utbygging får tre år platå før fall.</p>
-<p><strong>Platåfelt:</strong> Feltverdi leser Sodirs statusbeskrivelse for hvert felt. Der Sodir beskriver feltet som på platå, med stabil eller kapasitetsbegrenset produksjon (f.eks. Snøhvit og Johan Sverdrup), holdes produksjonen flat på nivået fra de siste årene (median av tre år). Det gjelder også Troll, der gassproduksjonen er begrenset av kapasitet. Antall platåår beregnes slik at platået pluss et normalt fall etterpå (10 % for gass, 12 % for olje) tilsvarer gjenværende reserver. Du kan overstyre platå og fallrate per felt.</p>
+<p>Prognosen starter på fjorårets produksjon og faller eksponentielt. Nye felt i opptrapping og felt godkjent for utbygging får tre år platå før fall.</p>
+<p><strong>Fallrate:</strong> Sodirs <em>gjenværende reserver</em> omfatter bare godkjente prosjekter. Historisk har reservene på sokkelen vokst etter hvert som nye brønner, økt utvinning og levetidsforlengelser er modnet fram. Feltverdi bruker derfor feltets <em>faktiske fall de siste fem årene</em> (log-lineær tilpasning), med to grenser:</p>
+<ul>
+<li><strong>Aldri raskere</strong> enn fallet som akkurat gir Sodirs gjenværende reserver.</li>
+<li><strong>Aldri saktere</strong> enn fallet som gir reservene × <em>reservevekst</em> (standard ×1,6, justerbar øverst). Det hindrer at en god periode fremskrives for langt.</li>
+<li>Felt uten brukbar historikk (nye felt og platåfelt) får reservene × 1,3 (halvveis mot taket).</li>
+</ul>
+<p><strong>Kalibrering mot historikken:</strong> Vi kjørte modellen som om vi sto i 2010 og 2015, med de reservene Sodir oppga da, og sammenlignet med faktisk produksjon fram til 2025. Faktisk produksjon delt på prognosen:</p>
+<div class="tbl-wrap"><table><thead><tr><th>Metode</th><th class="r">Fra 2010 (15 år / 5 år)</th><th class="r">Fra 2015 (10 år / 5 år)</th><th class="r">Framtidig produksjon i dag</th></tr></thead><tbody>
+<tr><td>Tilpasset Sodirs reserver (×1,0, tidligere standard)</td><td class="r">1,45 / 1,16</td><td class="r">1,35 / 1,23</td><td class="r">13,6 mrd. fat</td></tr>
+<tr><td>Faktisk fall, tak ×1,6 (standard)</td><td class="r">1,26 / 1,07</td><td class="r">1,16 / 1,11</td><td class="r">18,1 mrd. fat</td></tr>
+</tbody></table></div>
+<p>Tall over 1 betyr at prognosen var for lav. Standarden er fortsatt noe forsiktig, men treffer langt bedre enn ren tilpasning til reservene. Den impliserte samlede reserveveksten (om lag ×1,33) tilsvarer det sokkelen faktisk har oppnådd siden 2010 (×1,28–1,39).</p>
+<p><strong>Platåfelt:</strong> Feltverdi leser Sodirs statusbeskrivelse for hvert felt. Der Sodir beskriver feltet som på platå, med stabil eller kapasitetsbegrenset produksjon (f.eks. Snøhvit og Johan Sverdrup), holdes produksjonen flat på nivået fra de siste årene (median av tre år). Det gjelder også Troll, der gassproduksjonen er begrenset av kapasitet. Antall platåår beregnes slik at platået pluss et normalt fall etterpå (10 % for gass, 12 % for olje) tilsvarer gjenværende reserver × 1,3. Du kan overstyre platå og fallrate per felt.</p>
 <h2>Priser og kostnader</h2>
 <ul>
 <li><strong>Olje og kondensat:</strong> Brent − 1 USD. <strong>NGL:</strong> 60 % av Brent. <strong>Gass:</strong> €/MWh × 1,72 MWh per fat o.e. × EURUSD.</li>
@@ -187,8 +217,20 @@ window.FV_METHOD = {
 <h2>Data</h2>
 <p>All figures come from the Norwegian Offshore Directorate's (Sodir) open fact pages: fields, status, operator, licensees, annual production, investments and reserves (latest estimate as of 31 December). The data is licensed under the <a href="https://data.norge.no/nlod/en/2.0" target="_blank" rel="noopener">Norwegian Licence for Open Government Data (NLOD)</a>. Feltverdi fetches it automatically.</p>
 <h2>Production profile</h2>
-<p>The forecast starts from last year's production and declines exponentially. The decline rate is fitted so that cumulative production until the economic limit equals Sodir's <em>remaining reserves</em>. New fields ramping up and fields approved for development get a three-year plateau first.</p>
-<p><strong>Plateau fields:</strong> Feltverdi reads Sodir's status description for each field. Where Sodir describes the field as on plateau, with stable or capacity-limited production (e.g. Snøhvit and Johan Sverdrup), production is held flat at the recent level (median of three years). This also applies to Troll, where gas production is limited by capacity. The number of plateau years is set so that the plateau plus a normal decline afterwards (10 % for gas, 12 % for oil) equals the remaining reserves. You can override plateau and decline per field.</p>
+<p>The forecast starts from last year's production and declines exponentially. New fields ramping up and fields approved for development get a three-year plateau first.</p>
+<p><strong>Decline rate:</strong> Sodir's <em>remaining reserves</em> only cover approved projects. Historically, reserves on the shelf have grown as new wells, improved recovery and life extensions mature. Feltverdi therefore uses the field's <em>actual decline over the last five years</em> (log-linear fit), with two bounds:</p>
+<ul>
+<li><strong>Never faster</strong> than the decline that exactly produces Sodir's remaining reserves.</li>
+<li><strong>Never slower</strong> than the decline that produces reserves × <em>reserve growth</em> (default ×1.6, adjustable at the top). This prevents a good period from being extrapolated too far.</li>
+<li>Fields without a usable history (new fields and plateau fields) get reserves × 1.3 (halfway to the cap).</li>
+</ul>
+<p><strong>Calibration against history:</strong> We ran the model as if standing in 2010 and 2015, with the reserves Sodir reported then, and compared with actual production up to 2025. Actual production divided by the forecast:</p>
+<div class="tbl-wrap"><table><thead><tr><th>Method</th><th class="r">From 2010 (15 yrs / 5 yrs)</th><th class="r">From 2015 (10 yrs / 5 yrs)</th><th class="r">Future production today</th></tr></thead><tbody>
+<tr><td>Fitted to Sodir reserves (×1.0, previous default)</td><td class="r">1.45 / 1.16</td><td class="r">1.35 / 1.23</td><td class="r">13.6 bn boe</td></tr>
+<tr><td>Actual decline, cap ×1.6 (default)</td><td class="r">1.26 / 1.07</td><td class="r">1.16 / 1.11</td><td class="r">18.1 bn boe</td></tr>
+</tbody></table></div>
+<p>Values above 1 mean the forecast was too low. The default is still somewhat conservative, but much closer than fitting to reserves alone. The implied total reserve growth (about ×1.33) matches what the shelf has actually achieved since 2010 (×1.28–1.39).</p>
+<p><strong>Plateau fields:</strong> Feltverdi reads Sodir's status description for each field. Where Sodir describes the field as on plateau, with stable or capacity-limited production (e.g. Snøhvit and Johan Sverdrup), production is held flat at the recent level (median of three years). This also applies to Troll, where gas production is limited by capacity. The number of plateau years is set so that the plateau plus a normal decline afterwards (10 % for gas, 12 % for oil) equals the remaining reserves × 1.3. You can override plateau and decline per field.</p>
 <h2>Prices and costs</h2>
 <ul>
 <li><strong>Oil and condensate:</strong> Brent − USD 1. <strong>NGL:</strong> 60 % of Brent. <strong>Gas:</strong> €/MWh × 1.72 MWh per boe × EURUSD.</li>

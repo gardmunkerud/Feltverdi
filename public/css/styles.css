@@ -247,6 +247,16 @@ details.cf summary::-webkit-details-marker { display: none; }
 details.cf summary::after { content: ' ›'; }
 details.cf[open] summary::after { content: ' ‹'; }
 
+/* Info icons (ⓘ) and floating tooltip */
+.info { appearance: none; display: inline-flex; align-items: center; justify-content: center; width: 15px; height: 15px; margin-left: 5px; padding: 0;
+  border: 1.3px solid currentColor; border-radius: 50%; background: none; color: var(--muted); font: italic 600 10px/1 Georgia, 'Times New Roman', serif;
+  vertical-align: 1px; cursor: help; opacity: .75; transition: opacity .15s, color .15s; }
+.info:hover, .info:focus-visible { opacity: 1; color: var(--accent); }
+th .info { text-transform: none; letter-spacing: 0; }
+.fv-tooltip { position: fixed; z-index: 2000; max-width: 320px; padding: 11px 14px; background: var(--surface-solid); color: var(--text-2);
+  border-radius: 12px; box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18); font-size: 13px; line-height: 1.45; letter-spacing: -0.005em; pointer-events: none; white-space: normal; }
+.fv-tooltip[hidden] { display: none; }
+
 /* Historical view */
 .life-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 16px; }
 .life-grid .l { font-size: 13px; color: var(--muted); }

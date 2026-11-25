@@ -680,9 +680,11 @@
           <select id="ha" aria-label="${t('filterArea')}"><option value="">${t('filterArea')}</option>${['North sea', 'Norwegian sea', 'Barents sea'].map((a) => `<option value="${a}"${R.area === a ? ' selected' : ''}>${tmap('area', a)}</option>`).join('')}</select>
           <span class="muted" style="align-self:center;margin-left:auto">${rows.length} · ${state.cur} ${t('mn')}/${t('bn')}</span>
         </div>
-        <div class="tbl-wrap"><table><thead><tr>${cols.map(([k, l, c]) => `<th class="sortable ${c || ''} ${key === k ? 'sorted' + (R.asc ? ' asc' : '') : ''}" data-sort="${k}" scope="col">${esc(l)}</th>`).join('')}</tr></thead>
+        <div class="tbl-wrap"><table><thead><tr>${cols.map(([k, l, c]) => {
+          const tip = I18N[state.lang].histTips[k](base, pct(state.a.discount * 100, 1));
+          return `<th class="sortable ${c || ''} ${key === k ? 'sorted' + (R.asc ? ' asc' : '') : ''}" data-sort="${k}" scope="col">${esc(l)}<button type="button" class="info" data-tip="${esc(tip)}" aria-label="${esc(t('infoLabel'))}: ${esc(l)}">i</button></th>`;
+        }).join('')}</tr></thead>
         <tbody>${rows.map((r) => `<tr class="link" data-href="${r.href}">${cols.map(([k, , c]) => `<td class="${c || ''}">${cell(r, k)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>
-        <p class="muted" style="font-size:13px;margin:14px 2px 0">${t('histColNote', pct(state.a.discount * 100, 1))}</p>
       </div>
       <div class="grid g-2 section-gap">
         <div class="card"><div class="card-head"><h2>${t('histSources')}</h2></div>
@@ -690,7 +692,7 @@
         <div class="card"><div class="card-head"><h2>${t('histLimits')}</h2></div>
           <ul class="src-list plain">${t('histLimitList').map((x) => `<li>${esc(x)}</li>`).join('')}</ul></div>
       </div>`;
-    $$('th[data-sort]', el).forEach((th) => th.addEventListener('click', () => { const k = th.dataset.sort; if (R.sort === k) R.asc = !R.asc; else { R.sort = k; R.asc = ['name', 'area', 'start'].includes(k); } route({ keepScroll: true }); }));
+    $$('th[data-sort]', el).forEach((th) => th.addEventListener('click', (e) => { if (e.target.closest('.info')) return; const k = th.dataset.sort; if (R.sort === k) R.asc = !R.asc; else { R.sort = k; R.asc = ['name', 'area', 'start'].includes(k); } route({ keepScroll: true }); }));
     const q = $('#hq', el); let tm;
     q.addEventListener('input', () => { clearTimeout(tm); tm = setTimeout(() => { R.q = q.value; route({ keepScroll: true, refocus: '#hq' }); }, 150); });
     $('#ha', el).addEventListener('change', (e) => { R.area = e.target.value; route({ keepScroll: true }); });
@@ -719,6 +721,36 @@
     el.innerHTML = `<article class="prose"><div class="eyebrow">Feltverdi.no</div><h1>${t('methodTitle')}</h1>${window.FV_METHOD[state.lang]}</article>`;
   }
   function viewNotFound(el) { el.innerHTML = `<div class="empty">${t('notFound')} <a href="#/">${t('navHome')}</a></div>`; }
+
+  // ---------- info tooltips (ⓘ icons) ----------
+  // One floating tooltip for the whole app, positioned next to the hovered/focused icon (escapes table overflow).
+  const tipEl = document.createElement('div');
+  tipEl.className = 'fv-tooltip'; tipEl.setAttribute('role', 'tooltip'); tipEl.id = 'fv-tooltip'; tipEl.hidden = true;
+  document.body.appendChild(tipEl);
+  let tipFor = null;
+  function showTip(btn) {
+    tipFor = btn;
+    tipEl.textContent = btn.dataset.tip;
+    tipEl.hidden = false;
+    btn.setAttribute('aria-describedby', 'fv-tooltip');
+    const r = btn.getBoundingClientRect(), w = tipEl.offsetWidth, h = tipEl.offsetHeight, m = 10;
+    let left = Math.min(Math.max(m, r.left + r.width / 2 - w / 2), window.innerWidth - w - m);
+    let top = r.bottom + 8;
+    if (top + h > window.innerHeight - m) top = r.top - h - 8;
+    tipEl.style.left = left + 'px'; tipEl.style.top = top + 'px';
+  }
+  function hideTip() { if (tipFor) tipFor.removeAttribute('aria-describedby'); tipFor = null; tipEl.hidden = true; }
+  document.addEventListener('mouseover', (e) => { const b = e.target.closest && e.target.closest('.info'); if (b) showTip(b); });
+  document.addEventListener('mouseout', (e) => { const b = e.target.closest && e.target.closest('.info'); if (b && !b.contains(e.relatedTarget) && document.activeElement !== b) hideTip(); });
+  document.addEventListener('focusin', (e) => { if (e.target.classList && e.target.classList.contains('info')) showTip(e.target); });
+  document.addEventListener('focusout', (e) => { if (e.target.classList && e.target.classList.contains('info')) hideTip(); });
+  document.addEventListener('click', (e) => {
+    const b = e.target.closest && e.target.closest('.info');
+    if (b) { e.preventDefault(); e.stopPropagation(); if (tipFor === b && !tipEl.hidden) hideTip(); else showTip(b); } // touch: tap toggles
+    else if (!tipEl.hidden) hideTip();
+  }, true);
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') hideTip(); });
+  window.addEventListener('scroll', hideTip, { passive: true });
 
   // ---------- router ----------
   function route(opts = {}) {

@@ -726,6 +726,112 @@
     }
   }
 
+  // ----- Wiki (petroleum economics glossary, Investopedia-style) -----
+  const WIKI = () => window.FV_WIKI || [];
+  const wikiCat = (k) => (window.FV_WIKI_CATS[k] || {})[state.lang] || k;
+  const wikiTitle = (e) => e.title[state.lang] || e.title.nb;
+  const bySlug = (s) => WIKI().find((e) => e.slug === s);
+  // English rendering of formulas written with Norwegian words (longest phrases first) + decimal point
+  const EN_FORMULA = [
+    ['Skatt + avgifter + statens kontantstrøm', 'Tax + fees + state cash flow'], ['Faste kostnader + variable kostnader', 'Fixed costs + variable costs'],
+    ['netto kontantstrøm siden virkningsdato', 'net cash flow since effective date'], ['Lete- og utbyggingskostnader', 'Exploration and development costs'],
+    ['Betaling ved gjennomføring', 'Payment at closing'], ['Produksjon (fat o.e./d)', 'Production (boe/d)'], ['Tilstedeværende volum', 'Volume in place'],
+    ['Gjenværende reserver', 'Remaining reserves'], ['Nåverdi etter skatt', 'After-tax present value'], ['Overskudd før skatt', 'Pre-tax profit'],
+    ['EV per flytende fat', 'EV per flowing barrel'], ['Risikojustert verdi', 'Risked value'], ['Synergi etter skatt', 'After-tax synergy'],
+    ['Synergi før skatt', 'Pre-tax synergy'], ['Verdi etter skatt', 'After-tax value'], ['Utvinnbart volum', 'Recoverable volume'], ['Årlig produksjon', 'Annual production'],
+    ['kvalitetsjustering', 'quality adjustment'], ['andre justeringer', 'other adjustments'], ['bankens prisbane', 'bank price deck'], ['Reservetilvekst', 'Reserve additions'],
+    ['Utvinningsgrad', 'Recovery factor'], ['Statens andel', 'Government take'], ['Selskapsskatt', 'Corporate tax'], ['Letekostnader', 'Exploration costs'],
+    ['Investeringer', 'Investments'], ['Netto gevinst', 'Net gain'], ['Verdi mottatt', 'Value received'], ['Verdi avgitt', 'Value given'], ['2P-reserver', '2P reserves'],
+    ['Capex per fat', 'Capex per barrel'], ['Opex per fat', 'Opex per barrel'], ['Markedspris', 'Market price'], ['prosessering', 'processing'], ['belåningsgrad', 'advance rate'],
+    ['Lånegrense', 'Borrowing base'], ['Produksjon', 'Production'], ['Inntekter', 'Revenue'], ['utbygging', 'development'], ['Platåår', 'Plateau years'], ['Reserver', 'Reserves'],
+    ['Refusjon', 'Refund'], ['Helning', 'Slope'], ['Kostnad', 'Cost'], ['kontanter', 'cash'], ['Skatt', 'Tax'], ['Avskr.', 'Depr.'], ['Inv.', 'Capex'], ['Pris', 'Price'],
+    ['mrd. Sm³ gass', 'bn Sm³ gas'], ['mill. fat o.e.', 'MMboe'], ['fat o.e.', 'boe'], ['USD/fat', 'USD/bbl'],
+  ];
+  function wikiExpr(expr) {
+    if (state.lang !== 'en') return expr;
+    let s = expr;
+    for (const [nb, en] of EN_FORMULA) s = s.split(nb).join(en);
+    return s.replace(/(\d),(\d)/g, '$1.$2');
+  }
+  const wikiLinks = (html) => html.replace(/\[\[([a-z0-9-]+)(?:\|([^\]]+))?\]\]/g, (m, s, text) => {
+    const e = bySlug(s);
+    return e ? `<a href="#/wiki/${s}">${text || esc(wikiTitle(e))}</a>` : (text || s);
+  });
+  const sortTitle = (e) => wikiTitle(e).replace(/^[«"(]/, '');
+
+  function viewWiki(el, slug) {
+    if (slug) return viewWikiArticle(el, slug);
+    const W = state.wiki || (state.wiki = { q: '', cat: '' });
+    const fold = (s) => s.toLowerCase().normalize('NFKD').replace(/[̀-ͯ]/g, '');
+    const q = fold(W.q.trim());
+    const hits = WIKI().filter((e) => (!W.cat || e.cat === W.cat) &&
+      (!q || fold([wikiTitle(e), e.short[state.lang], ...(e.keys[state.lang] || [])].join(' ')).includes(q)))
+      .sort((a, b) => sortTitle(a).localeCompare(sortTitle(b), state.lang === 'nb' ? 'nb' : 'en'));
+    const groups = new Map();
+    for (const e of hits) { const L = sortTitle(e)[0].toUpperCase(); if (!groups.has(L)) groups.set(L, []); groups.get(L).push(e); }
+    const featured = WIKI().filter((e) => e.featured);
+    el.innerHTML = `
+      <section class="wiki-hero">
+        <div class="eyebrow">Feltverdi Wiki</div>
+        <h1>${t('wikiTitle')}</h1>
+        <p class="hero-sub">${t('wikiIntro', WIKI().length)}</p>
+        <div class="picker wiki-search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+          <input type="search" id="wq" placeholder="${t('wikiSearch')}" value="${esc(W.q)}" aria-label="${t('wikiSearch')}"></div>
+        <div class="wiki-cats" role="group" aria-label="${t('wikiCategories')}">
+          <button type="button" data-cat="" class="${!W.cat ? 'on' : ''}">${t('wikiAll')}</button>
+          ${Object.keys(window.FV_WIKI_CATS).map((k) => `<button type="button" data-cat="${k}" class="${W.cat === k ? 'on' : ''}">${esc(wikiCat(k))}</button>`).join('')}
+        </div>
+      </section>
+      ${!q && !W.cat ? `<section class="section-gap"><h2 class="wiki-h2">${t('wikiFeatured')}</h2>
+        <div class="wiki-feature-grid">${featured.map((e) => `<a class="wiki-feature" href="#/wiki/${e.slug}"><span class="wiki-cat-label">${esc(wikiCat(e.cat))}</span><strong>${esc(wikiTitle(e))}</strong><span>${esc(e.short[state.lang])}</span></a>`).join('')}</div></section>` : ''}
+      <section class="section-gap">
+        <div class="az" aria-label="A–Å">${[...groups.keys()].map((L) => `<button type="button" data-letter="${L}">${L}</button>`).join('')}</div>
+        ${hits.length ? [...groups.entries()].map(([L, list]) => `
+          <div class="az-group" id="az-${L}"><div class="az-letter">${L}</div>
+            <ul class="wiki-list">${list.map((e) => `<li><a href="#/wiki/${e.slug}">${esc(wikiTitle(e))}</a><span class="wiki-cat-label">${esc(wikiCat(e.cat))}</span><p>${esc(e.short[state.lang])}</p></li>`).join('')}</ul>
+          </div>`).join('') : `<div class="empty">${t('wikiNoHits')}</div>`}
+      </section>`;
+    const input = $('#wq', el); let tm;
+    input.addEventListener('input', () => { clearTimeout(tm); tm = setTimeout(() => { W.q = input.value; route({ keepScroll: true, refocus: '#wq' }); }, 120); });
+    $$('[data-cat]', el).forEach((b) => b.addEventListener('click', () => { W.cat = b.dataset.cat; route({ keepScroll: true }); }));
+    $$('[data-letter]', el).forEach((b) => b.addEventListener('click', () => { const g = $('#az-' + CSS.escape(b.dataset.letter), el); if (g) window.scrollTo({ top: g.getBoundingClientRect().top + window.scrollY - 120, behavior: 'smooth' }); }));
+  }
+
+  function viewWikiArticle(el, slug) {
+    const e = bySlug(slug);
+    if (!e) return viewNotFound(el);
+    const L = state.lang, title = wikiTitle(e);
+    const sorted = [...WIKI()].sort((a, b) => sortTitle(a).localeCompare(sortTitle(b), L === 'nb' ? 'nb' : 'en'));
+    const i = sorted.indexOf(e), prev = sorted[i - 1], next = sorted[i + 1];
+    const sameCat = WIKI().filter((x) => x.cat === e.cat && x !== e);
+    const sections = [['what', t('wikiWhat', title)], ['keys', t('wikiKeys')], ['understand', t('wikiUnderstand', title)]]
+      .concat(e.formula ? [['formula', t('wikiFormula')]] : []).concat(e.example ? [['example', t('wikiExample')]] : []).concat(e.related && e.related.length ? [['related', t('wikiRelated')]] : []);
+    el.innerHTML = `
+      <nav class="crumbs" aria-label="Brødsmuler"><a href="#/wiki">Wiki</a><span>›</span><button type="button" class="crumb-cat" data-cat="${e.cat}">${esc(wikiCat(e.cat))}</button><span>›</span><span aria-current="page">${esc(title)}</span></nav>
+      <div class="wiki-layout">
+        <article class="wiki-article">
+          <h1>${esc(title)}</h1>
+          <p class="wiki-meta">Feltverdi Wiki · ${esc(wikiCat(e.cat))}</p>
+          <section id="sec-what"><h2>${t('wikiWhat', esc(title))}</h2><p class="wiki-lead">${esc(e.short[L])}</p></section>
+          <aside id="sec-keys" class="wiki-keys"><h2>${t('wikiKeys')}</h2><ul>${e.keys[L].map((k) => `<li>${esc(k)}</li>`).join('')}</ul></aside>
+          <section id="sec-understand"><h2>${t('wikiUnderstand', esc(title))}</h2>${wikiLinks(e.body[L])}</section>
+          ${e.formula ? `<section id="sec-formula"><h2>${t('wikiFormula')}</h2>
+            <div class="formula" role="math" aria-label="${esc(title)}">${wikiExpr(e.formula.expr)}</div>
+            ${e.formula.vars && e.formula.vars.length ? `<p class="formula-where">${t('wikiWhere')}</p><dl class="formula-vars">${e.formula.vars.map(([sym, nb, en]) => `<dt>${wikiExpr(sym)}</dt><dd>${esc(L === 'nb' ? nb : en)}</dd>`).join('')}</dl>` : ''}</section>` : ''}
+          ${e.example ? `<section id="sec-example"><h2>${t('wikiExample')}</h2><div class="wiki-example">${wikiLinks(e.example[L])}</div></section>` : ''}
+          ${e.feltverdi ? `<p class="wiki-use"><a href="${e.feltverdi}">${t('wikiUse')}</a></p>` : ''}
+          ${e.related && e.related.length ? `<section id="sec-related"><h2>${t('wikiRelated')}</h2><div class="wiki-related">${e.related.map(bySlug).filter(Boolean).map((r) => `<a href="#/wiki/${r.slug}"><strong>${esc(wikiTitle(r))}</strong><span>${esc(r.short[L])}</span></a>`).join('')}</div></section>` : ''}
+          <nav class="wiki-pager">${prev ? `<a href="#/wiki/${prev.slug}"><span>← ${t('wikiPrev')}</span><strong>${esc(wikiTitle(prev))}</strong></a>` : '<span></span>'}${next ? `<a class="nx" href="#/wiki/${next.slug}"><span>${t('wikiNext')} →</span><strong>${esc(wikiTitle(next))}</strong></a>` : ''}</nav>
+        </article>
+        <aside class="wiki-side">
+          <div class="wiki-toc"><h3>${t('wikiContents')}</h3><ol>${sections.map(([id, label]) => `<li><button type="button" data-sec="${id}">${esc(label)}</button></li>`).join('')}</ol></div>
+          <div class="wiki-toc"><h3>${t('wikiMoreIn', esc(wikiCat(e.cat)))}</h3><ul>${sameCat.map((x) => `<li><a href="#/wiki/${x.slug}">${esc(wikiTitle(x))}</a></li>`).join('')}</ul></div>
+        </aside>
+      </div>`;
+    $$('[data-sec]', el).forEach((b) => b.addEventListener('click', () => { const s = $('#sec-' + b.dataset.sec, el); if (s) window.scrollTo({ top: s.getBoundingClientRect().top + window.scrollY - 120, behavior: 'smooth' }); }));
+    const cc = $('.crumb-cat', el); if (cc) cc.addEventListener('click', () => { (state.wiki || (state.wiki = { q: '', cat: '' })).cat = cc.dataset.cat; state.wiki.q = ''; location.hash = '#/wiki'; });
+  }
+
   function viewMethod(el) {
     el.innerHTML = `<article class="prose"><div class="eyebrow">Feltverdi.no</div><h1>${t('methodTitle')}</h1>${window.FV_METHOD[state.lang]}</article>`;
   }
@@ -776,6 +882,7 @@
     else if (page === 'rangering') { nav = 'rank'; viewRank(view); }
     else if (page === 'metode') { nav = 'method'; viewMethod(view); }
     else if (page === 'historisk') { nav = 'hist'; viewHistory(view); }
+    else if (page === 'wiki') { nav = 'wiki'; viewWiki(view, arg ? decodeURIComponent(arg) : null); }
     else if (!page) viewHome(view);
     else viewNotFound(view);
     $$('[data-nav]').forEach((a) => a.classList.toggle('active', a.dataset.nav === nav));

@@ -1,7 +1,12 @@
 /* Feltverdi – texts in Norwegian (nb) and English (en) */
 window.FV_I18N = {
   nb: {
-    navHome: 'Oversikt', navValue: 'Verdsett', navRank: 'Rangering', navMethod: 'Metode', navHist: 'Historisk',
+    navHome: 'Oversikt', navValue: 'Verdsett', navRank: 'Rangering', navMethod: 'Metode', navHist: 'Historisk', navWiki: 'Wiki',
+    wikiTitle: 'Petroøkonomi fra A til Å', wikiIntro: (n) => `${n} sentrale begreper innen olje- og gassøkonomi – forklart enkelt, med formler og eksempler fra norsk sokkel.`,
+    wikiSearch: 'Søk etter begrep …', wikiCategories: 'Kategorier', wikiAll: 'Alle', wikiFeatured: 'Viktige begreper', wikiNoHits: 'Ingen begreper passer søket.',
+    wikiWhat: (x) => `Hva er ${x}?`, wikiKeys: 'Viktige poenger', wikiUnderstand: (x) => `Forstå ${x}`, wikiFormula: 'Formel og beregning', wikiWhere: 'Der:',
+    wikiExample: 'Eksempel', wikiRelated: 'Relaterte begreper', wikiContents: 'Innhold', wikiMoreIn: (c) => `Mer om ${c.toLowerCase()}`,
+    wikiUse: 'Se det i bruk i Feltverdi →', wikiPrev: 'Forrige', wikiNext: 'Neste',
     histEyebrow: 'Hele levetiden', histTitle: 'Historisk verdi',
     histIntro: (y) => `Hva har feltene på sokkelen vært verdt fra første investering til nedstengning? Her kombineres faktisk produksjon og investeringer fra Sodir med historiske olje- og gasspriser, valutakurser og inflasjon – og modellens prognose for årene som gjenstår. Alle beløp er i faste ${y}-priser.`,
     histKpiPre: 'Verdiskaping før skatt', histKpiPreSub: (p) => `hele levetiden · ${p} allerede realisert`,
@@ -88,7 +93,12 @@ window.FV_I18N = {
     bn: 'mrd.', mn: 'mill.', notFound: 'Fant ikke det du lette etter.',
   },
   en: {
-    navHome: 'Overview', navValue: 'Value', navRank: 'Rankings', navMethod: 'Method', navHist: 'History',
+    navHome: 'Overview', navValue: 'Value', navRank: 'Rankings', navMethod: 'Method', navHist: 'History', navWiki: 'Wiki',
+    wikiTitle: 'Petroleum economics A–Z', wikiIntro: (n) => `${n} key terms in oil and gas economics – explained simply, with formulas and examples from the Norwegian shelf.`,
+    wikiSearch: 'Search terms …', wikiCategories: 'Categories', wikiAll: 'All', wikiFeatured: 'Essential terms', wikiNoHits: 'No terms match your search.',
+    wikiWhat: (x) => `What is ${x}?`, wikiKeys: 'Key takeaways', wikiUnderstand: (x) => `Understanding ${x}`, wikiFormula: 'Formula and calculation', wikiWhere: 'Where:',
+    wikiExample: 'Example', wikiRelated: 'Related terms', wikiContents: 'Contents', wikiMoreIn: (c) => `More in ${c}`,
+    wikiUse: 'See it in use in Feltverdi →', wikiPrev: 'Previous', wikiNext: 'Next',
     histEyebrow: 'The whole field life', histTitle: 'Historical value',
     histIntro: (y) => `What have the fields on the shelf been worth from first investment to shut-down? This combines actual production and investments from Sodir with historical oil and gas prices, exchange rates and inflation – plus the model forecast for the remaining years. All amounts are in real ${y} terms.`,
     histKpiPre: 'Value created before tax', histKpiPreSub: (p) => `whole life · ${p} already realised`,

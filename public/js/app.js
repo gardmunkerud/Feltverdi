@@ -301,7 +301,7 @@
 
   function explorerHead(mode) {
     return `<div class="explorer-head">
-      <div class="seg" role="group" aria-label="Modus">
+      <div class="seg seg-toggle" id="mode-toggle" data-current="${mode}" role="group" aria-label="Modus">
         <button type="button" data-mode="field" class="${mode === 'field' ? 'on' : ''}">${t('modeField')}</button>
         <button type="button" data-mode="company" class="${mode === 'company' ? 'on' : ''}">${t('modeCompany')}</button>
       </div>
@@ -309,9 +309,10 @@
     </div>`;
   }
   function wireExplorer(el, mode) {
-    $$('[data-mode]', el).forEach((b) => b.addEventListener('click', () => {
-      location.hash = b.dataset.mode === 'field' ? `#/felt/${state.lastField}` : `#/selskap/${state.lastCompany}`;
-    }));
+    // Two-way toggle: a click anywhere in the box switches to the other mode
+    $('#mode-toggle', el).addEventListener('click', () => {
+      location.hash = mode === 'field' ? `#/selskap/${state.lastCompany}` : `#/felt/${state.lastField}`;
+    });
     if (mode === 'field') {
       const items = state.data.fields.map((f) => ({ name: f.name, sub: tmap('area', f.area), slug: f.slug })).sort((a, b) => a.name.localeCompare(b.name, 'nb'));
       picker($('#picker', el), items, t('searchField'), (i) => { location.hash = `#/felt/${i.slug}`; });

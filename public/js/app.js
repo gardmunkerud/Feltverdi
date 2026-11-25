@@ -733,6 +733,10 @@
   const bySlug = (s) => WIKI().find((e) => e.slug === s);
   // English rendering of formulas written with Norwegian words (longest phrases first) + decimal point
   const EN_FORMULA = [
+    ['avregnes mot endelig skatt året etter', 'settled against final tax the year after'], ['Anslått skatt for inntektsåret', 'Estimated tax for the income year'],
+    ['Skattepliktig inntekt (olje)', 'Taxable income (oil)'], ['Særskattegrunnlag', 'Special tax base'], ['Fremført verdi', 'Carried-forward value'],
+    ['Utbetaling', 'Payout'], ['Underskudd', 'Loss'], ['Skatteverdi', 'Tax value'], ['Normpris', 'Norm price'], ['Solgt volum', 'Volume sold'],
+    ['Før 2022', 'Before 2022'], ['Fra 2022', 'From 2022'], ['fremført', 'carried forward'], ['(år 0)', '(year 0)'], ['Termin', 'Instalment'],
     ['Skatt + avgifter + statens kontantstrøm', 'Tax + fees + state cash flow'], ['Faste kostnader + variable kostnader', 'Fixed costs + variable costs'],
     ['netto kontantstrøm siden virkningsdato', 'net cash flow since effective date'], ['Lete- og utbyggingskostnader', 'Exploration and development costs'],
     ['Betaling ved gjennomføring', 'Payment at closing'], ['Produksjon (fat o.e./d)', 'Production (boe/d)'], ['Tilstedeværende volum', 'Volume in place'],

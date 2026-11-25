@@ -360,13 +360,194 @@ window.FV_WIKI = [
     title: { nb: 'Petroleumsskatt på norsk sokkel', en: 'Norwegian petroleum tax' },
     short: { nb: 'Selskapsskatt på 22 % og særskatt på 71,8 % som til sammen gir en marginalskatt på 78 %.', en: 'Corporate tax of 22 % and special tax of 71.8 %, giving a combined marginal tax rate of 78 %.' },
     keys: {
-      nb: ['Staten tar 78 % av overskuddet, men bærer også 78 % av kostnadene.', 'Siden 2022 er særskatten en kontantstrømskatt: investeringer trekkes fra umiddelbart.', 'Skatteverdien av underskudd i særskatten utbetales.'],
-      en: ['The state takes 78 % of profit, but also carries 78 % of costs.', 'Since 2022 the special tax has been a cash-flow tax: investments are deducted immediately.', 'The tax value of losses in the special tax is paid out.'],
+      nb: ['To skattegrunnlag: alminnelig inntekt (22 %) og særskattegrunnlaget (71,8 %). Betalt selskapsskatt trekkes fra i særskattegrunnlaget, slik at marginalskatten blir 78 %.', 'Investeringer avskrives over seks år i selskapsskatten, men kostnadsføres umiddelbart i særskatten (kontantstrømskatt fra 2022).', 'Skatteverdien av underskudd i særskatten utbetales året etter; underskudd i selskapsskatten fremføres.', 'Skatten betales forskuddsvis i ti terminer – fem i inntektsåret og fem året etter.'],
+      en: ['Two tax bases: ordinary income (22 %) and the special tax base (71.8 %). Corporate tax paid is deducted in the special tax base, so the marginal rate becomes 78 %.', 'Investments are depreciated over six years in the corporate tax, but expensed immediately in the special tax (cash-flow tax from 2022).', 'The tax value of special tax losses is paid out the year after; corporate tax losses are carried forward.', 'The tax is paid in advance in ten instalments – five in the income year and five the year after.'],
     },
-    body: { nb: '<p>I selskapsskatten avskrives investeringer over seks år. I særskatten trekkes investeringer fra samme år, og selskapsskatten er fradragsberettiget, slik at den samlede marginalskatten blir 22 % + 71,8 % × (1 − 0,22) = 78 %.</p><p>Systemet er nøytralt i den forstand at et prosjekt som er lønnsomt før skatt, også er lønnsomt etter skatt. Det gjør også at besparelser og [[synergies|synergier]] bare er verdt 22 % for eieren.</p>', en: '<p>In the corporate tax, investments are depreciated over six years. In the special tax, investments are deducted in the same year, and the corporate tax is deductible, so the combined marginal tax is 22 % + 71.8 % × (1 − 0.22) = 78 %.</p><p>The system is neutral in the sense that a project that is profitable before tax is also profitable after tax. It also means that savings and [[synergies|synergies]] are worth only 22 % to the owner.</p>' },
-    formula: { expr: 'Skatt = 0,22 &middot; (I &minus; D &minus; Avskr.) + 0,718 &middot; (I &minus; D &minus; Inv. &minus; Selskapsskatt)', vars: [['I', 'Inntekter (normpris)', 'Revenue (norm price)'], ['D', 'Driftskostnader', 'Operating costs'], ['Avskr.', 'Seksårig avskrivning av investeringer', 'Six-year depreciation of investments'], ['Inv.', 'Årets investeringer', 'This year\'s investments']] },
-    example: { nb: '<p>Inntekter 100, drift 20, investeringer 30 (avskrivning 5): selskapsskatt 0,22 × 75 = 16,5; særskatt 0,718 × (100 − 20 − 30 − 16,5) = 24,1. Samlet skatt <strong>40,6</strong>.</p>', en: '<p>Revenue 100, opex 20, investments 30 (depreciation 5): corporate tax 0.22 × 75 = 16.5; special tax 0.718 × (100 − 20 − 30 − 16.5) = 24.1. Total tax <strong>40.6</strong>.</p>' },
-    related: ['government-take', 'tax-refund', 'synergies', 'decommissioning'],
+    body: {
+      nb: `<p>Petroleumsskatten bygger på den vanlige selskapsskatten, men med en ekstra særskatt fordi utvinning av olje og gass gir en grunnrente – en avkastning ut over det som er normalt for kapital. Systemet er laget for å være <em>nøytralt</em>: et prosjekt som er lønnsomt før skatt, skal også være lønnsomt etter skatt.</p>
+<h3>Slik beregnes skattegrunnlaget</h3>
+<ul>
+<li><strong>Inntekter:</strong> olje som selges til nærstående selskaper skattlegges til <a href="#/wiki/norm-price">normpris</a>, fastsatt av Petroleumsprisrådet. Gass skattlegges til faktisk salgspris.</li>
+<li><strong>Fradrag:</strong> alle relevante kostnader – drift, leting, forskning og utvikling, fjerning og investeringer. Underskudd og letekostnader på ett felt kan trekkes fra mot inntekter fra andre felt på sokkelen.</li>
+<li><strong>Finanskostnader</strong> (renter) er bare fradragsberettiget i selskapsskatten, ikke i særskattegrunnlaget.</li>
+</ul>
+<h3>To skattegrunnlag</h3>
+<div class="tbl-wrap"><table><thead><tr><th></th><th>Selskapsskatt (alminnelig inntekt)</th><th>Særskatt</th></tr></thead><tbody>
+<tr><td>Sats</td><td>22 %</td><td>71,8 %</td></tr>
+<tr><td>Investeringer</td><td>Lineær avskrivning over 6 år fra investeringsåret</td><td>Kostnadsføres umiddelbart (fra 2022)</td></tr>
+<tr><td>Renter</td><td>Fradrag</td><td>Ikke fradrag</td></tr>
+<tr><td>Selskapsskatt</td><td>–</td><td>Betalt selskapsskatt trekkes fra</td></tr>
+<tr><td>Underskudd</td><td>Fremføres</td><td>Skatteverdien utbetales året etter</td></tr>
+</tbody></table></div>
+<p>Fordi selskapsskatten trekkes fra i særskattegrunnlaget, blir den samlede marginalskatten 22 % + 71,8 % × (1 − 0,22) = 78 %. Les mer om <a href="#/wiki/tax-depreciation">avskrivninger</a>, <a href="#/wiki/tax-losses">underskudd</a> og <a href="#/wiki/tax-instalments">terminskatt</a>.</p>
+<p>I tillegg kommer CO₂-avgift og arealavgift, og staten er direkte eier gjennom SDØE (Petoro). Feltverdi forenkler ved å regne skatten i samme år som inntekten og anta at alle fradrag kan brukes fullt ut.</p>`,
+      en: `<p>The petroleum tax builds on the ordinary corporate tax, with an additional special tax because oil and gas production earns a resource rent – a return above what is normal for capital. The system is designed to be <em>neutral</em>: a project that is profitable before tax should also be profitable after tax.</p>
+<h3>How the tax base is calculated</h3>
+<ul>
+<li><strong>Revenue:</strong> oil sold to affiliated companies is taxed at the <a href="#/wiki/norm-price">norm price</a> set by the Petroleum Price Council. Gas is taxed at the actual sales price.</li>
+<li><strong>Deductions:</strong> all relevant costs – operations, exploration, research and development, decommissioning and investments. Losses and exploration costs on one field can be deducted against income from other fields on the shelf.</li>
+<li><strong>Financial costs</strong> (interest) are deductible only in the corporate tax, not in the special tax base.</li>
+</ul>
+<h3>Two tax bases</h3>
+<div class="tbl-wrap"><table><thead><tr><th></th><th>Corporate tax (ordinary income)</th><th>Special tax</th></tr></thead><tbody>
+<tr><td>Rate</td><td>22 %</td><td>71.8 %</td></tr>
+<tr><td>Investments</td><td>Straight-line depreciation over 6 years from the year incurred</td><td>Expensed immediately (from 2022)</td></tr>
+<tr><td>Interest</td><td>Deductible</td><td>Not deductible</td></tr>
+<tr><td>Corporate tax</td><td>–</td><td>Corporate tax paid is deducted</td></tr>
+<tr><td>Losses</td><td>Carried forward</td><td>Tax value paid out the year after</td></tr>
+</tbody></table></div>
+<p>Because the corporate tax is deducted in the special tax base, the combined marginal rate is 22 % + 71.8 % × (1 − 0.22) = 78 %. Read more about <a href="#/wiki/tax-depreciation">depreciation</a>, <a href="#/wiki/tax-losses">losses</a> and <a href="#/wiki/tax-instalments">instalment tax</a>.</p>
+<p>In addition there is a CO₂ tax and an area fee, and the state is a direct owner through the SDFI (Petoro). Feltverdi simplifies by taxing income in the same year and assuming all deductions can be used in full.</p>`,
+    },
+    formula: { expr: 'Skatt = 0,22 &middot; (I &minus; D &minus; R &minus; Avskr.) + 0,718 &middot; (I &minus; D &minus; Inv. &minus; Selskapsskatt)', vars: [['I', 'Inntekter (normpris for olje, faktisk pris for gass)', 'Revenue (norm price for oil, actual price for gas)'], ['D', 'Driftskostnader, letekostnader og fjerning', 'Operating, exploration and decommissioning costs'], ['R', 'Netto finanskostnader (bare i selskapsskatten)', 'Net financial costs (corporate tax only)'], ['Avskr.', 'Seksårig lineær avskrivning av investeringer', 'Six-year straight-line depreciation of investments'], ['Inv.', 'Årets investeringer (kostnadsføres umiddelbart)', 'This year\'s investments (expensed immediately)']] },
+    example: { nb: '<p>Inntekter 100, drift 20, investeringer 30 (avskrivning 30/6 = 5), ingen renter: selskapsskatt 0,22 × (100 − 20 − 5) = 16,5; særskatt 0,718 × (100 − 20 − 30 − 16,5) = 24,1. Samlet skatt <strong>40,6</strong>. Over hele avskrivningsperioden blir skatten 78 % av overskuddet etter alle kostnader.</p>', en: '<p>Revenue 100, opex 20, investments 30 (depreciation 30/6 = 5), no interest: corporate tax 0.22 × (100 − 20 − 5) = 16.5; special tax 0.718 × (100 − 20 − 30 − 16.5) = 24.1. Total tax <strong>40.6</strong>. Over the whole depreciation period the tax becomes 78 % of profit after all costs.</p>' },
+    related: ['tax-depreciation', 'tax-losses', 'tax-instalments', 'norm-price', 'government-take', 'synergies'],
+  },
+  {
+    slug: 'tax-depreciation', cat: 'tax', featured: true,
+    title: { nb: 'Avskrivning og kostnadsføring av investeringer', en: 'Depreciation and expensing of investments' },
+    short: { nb: 'Hvordan investeringer trekkes fra i petroleumsskatten: over seks år i selskapsskatten og umiddelbart i særskatten.', en: 'How investments are deducted in the petroleum tax: over six years in the corporate tax and immediately in the special tax.' },
+    keys: {
+      nb: ['Selskapsskatt: lineær avskrivning over seks år, med start i året investeringen skjer.', 'Særskatt: full kostnadsføring samme år (kontantstrømskatt fra inntektsåret 2022).', 'Nesten hele skatteverdien (71,8 av 78 prosentpoeng) kommer i investeringsåret – staten finansierer i praksis 78 % av investeringen.', 'Tidligere fantes et friinntektsfradrag («uplift»); det er faset ut for nye investeringer.'],
+      en: ['Corporate tax: straight-line depreciation over six years, starting in the year the investment is made.', 'Special tax: fully expensed in the same year (cash-flow tax from income year 2022).', 'Almost all of the tax value (71.8 of 78 percentage points) arrives in the investment year – the state effectively finances 78 % of the investment.', 'There used to be an extra deduction ("uplift"); it has been phased out for new investments.'],
+    },
+    body: {
+      nb: `<p>Før 2022 ble investeringer avskrevet over seks år i begge skattegrunnlagene, og i særskatten fikk selskapene i tillegg et friinntektsfradrag («uplift») på 5,2 % per år i fire år. Fra inntektsåret 2022 ble særskatten lagt om til en <strong>kontantstrømskatt</strong>: investeringene trekkes fra i sin helhet samme år som de påløper.</p>
+<p>I selskapsskatten gjelder fortsatt <strong>lineær avskrivning over seks år</strong>, med første avskrivning i investeringsåret. Fordi betalt selskapsskatt trekkes fra i særskattegrunnlaget, «lekker» en del av selskapsskatteffekten tilbake: hver avskrivningskrone gir netto 22 % × (1 − 0,718) = 6,2 øre i skatteverdi, fordelt over seks år.</p>
+<h3>Overgangsregler (uplift)</h3>
+<ul>
+<li><strong>2020–2021</strong> (midlertidig skattepakke): umiddelbar avskrivning i særskatten pluss 24 % uplift.</li>
+<li><strong>2022:</strong> uplift satt til 17,69 % da kontantstrømskatten ble innført.</li>
+<li><strong>Fra 2023:</strong> redusert til 12,4 % for investeringer som omfattes av overgangsreglene (prosjekter med utbyggingsplan levert innen utgangen av 2022).</li>
+</ul>
+<p>Feltverdi bruker reglene for nye investeringer (ingen uplift).</p>`,
+      en: `<p>Before 2022, investments were depreciated over six years in both tax bases, and in the special tax companies also received an extra deduction ("uplift") of 5.2 % per year for four years. From income year 2022 the special tax became a <strong>cash-flow tax</strong>: investments are deducted in full in the year they are incurred.</p>
+<p>The corporate tax still uses <strong>straight-line depreciation over six years</strong>, with the first depreciation in the investment year. Because corporate tax paid is deducted in the special tax base, part of the corporate tax effect "leaks" back: each krone of depreciation gives a net tax value of 22 % × (1 − 0.718) = 6.2 øre, spread over six years.</p>
+<h3>Transitional rules (uplift)</h3>
+<ul>
+<li><strong>2020–2021</strong> (temporary tax package): immediate depreciation in the special tax plus 24 % uplift.</li>
+<li><strong>2022:</strong> uplift set at 17.69 % when the cash-flow tax was introduced.</li>
+<li><strong>From 2023:</strong> reduced to 12.4 % for investments covered by the transitional rules (projects with a development plan submitted by the end of 2022).</li>
+</ul>
+<p>Feltverdi uses the rules for new investments (no uplift).</p>`,
+    },
+    formula: { expr: `Skatteverdi = 0,718 &middot; Inv. (år 0) + &sum;<sub>k=0</sub><sup>5</sup> 0,22 &middot; (1 &minus; 0,718) &middot; ${F('Inv.', '6')}`, vars: [['Inv.', 'Investering i år 0', 'Investment in year 0'], ['k', 'År 0–5 i avskrivningsperioden', 'Years 0–5 of the depreciation period']] },
+    example: {
+      nb: `<p>En investering på 100 i år 0 gir disse skattefradragene:</p>
+<div class="tbl-wrap"><table><thead><tr><th>År</th><th class="r">Særskatt (71,8 %)</th><th class="r">Selskapsskatt netto (6,2 % / 6)</th><th class="r">Sum</th></tr></thead><tbody>
+<tr><td>0</td><td class="r">71,8</td><td class="r">1,03</td><td class="r">72,8</td></tr>
+<tr><td>1–5</td><td class="r">–</td><td class="r">1,03 per år</td><td class="r">5,2</td></tr>
+<tr><td><strong>Totalt</strong></td><td class="r"><strong>71,8</strong></td><td class="r"><strong>6,2</strong></td><td class="r"><strong>78,0</strong></td></tr>
+</tbody></table></div>
+<p>Selskapet bærer altså bare 22 av 100 kroner selv, og 93 % av skattefradraget kommer i investeringsåret.</p>`,
+      en: `<p>An investment of 100 in year 0 gives these tax deductions:</p>
+<div class="tbl-wrap"><table><thead><tr><th>Year</th><th class="r">Special tax (71.8 %)</th><th class="r">Corporate tax net (6.2 % / 6)</th><th class="r">Total</th></tr></thead><tbody>
+<tr><td>0</td><td class="r">71.8</td><td class="r">1.03</td><td class="r">72.8</td></tr>
+<tr><td>1–5</td><td class="r">–</td><td class="r">1.03 per year</td><td class="r">5.2</td></tr>
+<tr><td><strong>Total</strong></td><td class="r"><strong>71.8</strong></td><td class="r"><strong>6.2</strong></td><td class="r"><strong>78.0</strong></td></tr>
+</tbody></table></div>
+<p>The company bears only 22 of every 100 kroner itself, and 93 % of the tax deduction arrives in the investment year.</p>`,
+    },
+    related: ['ncs-petroleum-tax', 'tax-losses', 'capex', 'tax-instalments'],
+  },
+  {
+    slug: 'tax-losses', cat: 'tax', featured: true,
+    title: { nb: 'Underskudd og utbetaling av skatteverdi', en: 'Tax losses and refund of their tax value' },
+    short: { nb: 'Underskudd i særskatten gir utbetaling av skatteverdien året etter; underskudd i selskapsskatten fremføres mot framtidige inntekter.', en: 'Losses in the special tax give a refund of the tax value the year after; losses in the corporate tax are carried forward against future income.' },
+    keys: {
+      nb: ['Skatteverdien av underskudd i særskattegrunnlaget (71,8 %) utbetales ved skatteoppgjøret året etter at underskuddet oppsto.', 'Underskudd i selskapsskatten fremføres og trekkes fra mot senere overskudd.', 'Den fremførte selskapsskattedelen er netto verdt 6,2 % fordi lavere selskapsskatt gir høyere særskatt senere.', 'Gjelder også letekostnader – derfor kan nye selskaper uten produksjon lete på sokkelen.'],
+      en: ['The tax value of losses in the special tax base (71.8 %) is paid out at the tax settlement the year after the loss arose.', 'Losses in the corporate tax are carried forward and deducted against later profits.', 'The carried-forward corporate tax part is worth a net 6.2 % because lower corporate tax gives higher special tax later.', 'This also applies to exploration costs – which is why new companies without production can explore on the shelf.'],
+    },
+    body: {
+      nb: `<p>Et selskap med større kostnader enn inntekter – for eksempel et nytt selskap som leter eller bygger ut et felt – går med underskudd. Hvordan underskuddet behandles, avgjør hvor mye av kostnadene staten faktisk bærer, og når.</p>
+<h3>Særskatten: utbetaling</h3>
+<p>Er særskattegrunnlaget negativt, beregnes en negativ skatt på 71,8 %. Denne skatteverdien <strong>utbetales ved skatteoppgjøret året etter</strong>. Ordningen gjelder alle kostnader, også leting og investeringer, og avløste den tidligere <a href="#/wiki/tax-refund">leterefusjonen</a>.</p>
+<h3>Selskapsskatten: fremføring</h3>
+<p>Underskudd i alminnelig inntekt <strong>fremføres</strong> og trekkes fra når selskapet senere får overskudd. Når selskapsskatten senere blir lavere, blir fradraget for betalt selskapsskatt i særskatten tilsvarende mindre. Netto er den fremførte delen derfor verdt 22 % × (1 − 0,718) = 6,2 % av underskuddet.</p>
+<p>Underskudd og letekostnader på ett felt kan trekkes fra mot inntekter fra andre felt (ingen feltvis avgrensning). I 2020–2021 kunne selskaper også få utbetalt skatteverdien av underskudd etter midlertidige regler.</p>
+<p>Feltverdi forenkler ved å anta at eieren har skattepliktig inntekt fra andre felt, slik at fradrag gir full skatteeffekt samme år.</p>`,
+      en: `<p>A company with costs higher than its revenue – for example a new company that explores or develops a field – makes a loss. How the loss is treated decides how much of the costs the state actually carries, and when.</p>
+<h3>Special tax: refund</h3>
+<p>If the special tax base is negative, a negative tax of 71.8 % is calculated. This tax value is <strong>paid out at the tax settlement the year after</strong>. The scheme covers all costs, including exploration and investments, and replaced the former <a href="#/wiki/tax-refund">exploration refund</a>.</p>
+<h3>Corporate tax: carry-forward</h3>
+<p>Losses in ordinary income are <strong>carried forward</strong> and deducted when the company later makes a profit. When the corporate tax later becomes lower, the deduction for corporate tax paid in the special tax becomes correspondingly smaller. Net, the carried-forward part is therefore worth 22 % × (1 − 0.718) = 6.2 % of the loss.</p>
+<p>Losses and exploration costs on one field can be deducted against income from other fields (no field-by-field ring-fence). In 2020–2021 companies could also have the tax value of losses paid out under temporary rules.</p>
+<p>Feltverdi simplifies by assuming the owner has taxable income from other fields, so that deductions give full tax effect in the same year.</p>`,
+    },
+    formula: { expr: 'Utbetaling<sub>t+1</sub> = 0,718 &middot; |Særskattegrunnlag<sub>t</sub>| &nbsp;&nbsp;&nbsp; Fremført verdi &asymp; 0,22 &middot; (1 &minus; 0,718) &middot; |Underskudd<sub>t</sub>|', vars: [['t', 'Året underskuddet oppstår', 'The year the loss arises'], ['|·|', 'Underskuddets størrelse', 'The size of the loss']] },
+    example: {
+      nb: '<p>Et nytt selskap uten produksjon bruker 500 mill. kroner på leting i 2026. Ved skatteoppgjøret i 2027 får det utbetalt 0,718 × 500 = <strong>359 mill. kroner</strong>. Underskuddet på 500 i selskapsskatten fremføres; når selskapet senere får overskudd, er det netto verdt om lag <strong>31 mill. kroner</strong> (6,2 %). Selskapet bærer altså selv om lag 110 mill. kroner (22 %), og en del av fradraget kommer først når feltet produserer.</p>',
+      en: '<p>A new company without production spends NOK 500 m on exploration in 2026. At the 2027 tax settlement it receives 0.718 × 500 = <strong>NOK 359 m</strong>. The loss of 500 in the corporate tax is carried forward; when the company later makes a profit it is worth a net <strong>NOK 31 m</strong> (6.2 %). The company itself therefore bears about NOK 110 m (22 %), and part of the deduction only arrives once the field produces.</p>',
+    },
+    related: ['ncs-petroleum-tax', 'tax-depreciation', 'tax-refund', 'tax-instalments', 'rbl'],
+  },
+  {
+    slug: 'tax-instalments', cat: 'tax', featured: true,
+    title: { nb: 'Terminskatt – forskuddsbetaling i ti terminer', en: 'Instalment tax – advance payment in ten instalments' },
+    short: { nb: 'Oljeselskapene betaler petroleumsskatt forskuddsvis: fem terminer i inntektsåret og fem i året etter.', en: 'Oil companies pay petroleum tax in advance: five instalments in the income year and five the year after.' },
+    keys: {
+      nb: ['Fra inntektsåret 2025 betales skatten i ti terminer (tidligere seks).', 'Terminene forfaller 1. august–1. desember i inntektsåret og 1. februar–1. juni året etter.', 'Oljeskattekontoret fastsetter terminskatten om sommeren og kan revidere den i januar.', 'Endelig skatteoppgjør er klart senest 1. desember året etter, med avregning mot innbetalt terminskatt.'],
+      en: ['From income year 2025 the tax is paid in ten instalments (previously six).', 'The instalments fall due 1 August–1 December in the income year and 1 February–1 June the year after.', 'The Petroleum Tax Office sets the instalment tax in the summer and can revise it in January.', 'The final tax settlement is ready by 1 December the year after, with a settlement against instalments paid.'],
+    },
+    body: {
+      nb: `<p>Petroleumsskatt betales ikke etterskuddsvis som en vanlig restskatt, men som <strong>terminskatt</strong> mens inntekten opptjenes (petroleumsskatteloven § 7). Det gir staten jevne inntekter og reduserer risikoen for store etterbetalinger.</p>
+<h3>Forfallsdatoer (fra inntektsåret 2025)</h3>
+<div class="tbl-wrap"><table><thead><tr><th>Termin</th><th>Forfall</th><th>Termin</th><th>Forfall</th></tr></thead><tbody>
+<tr><td>1</td><td>1. august (inntektsåret)</td><td>6</td><td>1. februar (året etter)</td></tr>
+<tr><td>2</td><td>1. september</td><td>7</td><td>1. mars</td></tr>
+<tr><td>3</td><td>1. oktober</td><td>8</td><td>1. april</td></tr>
+<tr><td>4</td><td>1. november</td><td>9</td><td>2. mai</td></tr>
+<tr><td>5</td><td>1. desember</td><td>10</td><td>1. juni</td></tr>
+</tbody></table></div>
+<h3>Slik fastsettes terminskatten</h3>
+<ol>
+<li><strong>Juni/juli i inntektsåret:</strong> Oljeskattekontoret fastsetter terminskatten basert på selskapenes faktiske tall for første halvår og anslag for resten av året.</li>
+<li><strong>Underveis:</strong> selskapene kan betale inn mer enn fastsatt; ekstra innbetalinger fordeles på 2.–4. eller 7.–9. termin. Det beregnes rente når de fem første og fem siste terminene er ulike.</li>
+<li><strong>Januar året etter:</strong> terminskatten kan revideres før 6. termin, hovedsakelig på grunnlag av faktiske tall.</li>
+<li><strong>Senest 1. desember året etter:</strong> skatteoppgjøret er klart, og det gjøres en avregning mot innbetalt terminskatt.</li>
+</ol>
+<p>Fram til inntektsåret 2024 ble skatten betalt i seks terminer – tre i inntektsåret og tre året etter.</p>
+<h3>Betydning for verdsettelse og regnskap</h3>
+<p>Fordi halvparten av skatten for et år betales i første halvår året etter, har oljeselskapene alltid en stor <strong>betalbar skatt</strong> i balansen ved årsskiftet. Ved oppkjøp må dette tas med i kjøpesummen – se <a href="#/wiki/effective-date">virkningsdato</a>. Feltverdi forenkler ved å regne skatten i samme år som inntekten.</p>`,
+      en: `<p>Petroleum tax is not paid in arrears like an ordinary tax bill, but as <strong>instalment tax</strong> while the income is earned (Petroleum Taxation Act section 7). This gives the state a steady income and reduces the risk of large back payments.</p>
+<h3>Due dates (from income year 2025)</h3>
+<div class="tbl-wrap"><table><thead><tr><th>Instalment</th><th>Due</th><th>Instalment</th><th>Due</th></tr></thead><tbody>
+<tr><td>1</td><td>1 August (income year)</td><td>6</td><td>1 February (following year)</td></tr>
+<tr><td>2</td><td>1 September</td><td>7</td><td>1 March</td></tr>
+<tr><td>3</td><td>1 October</td><td>8</td><td>1 April</td></tr>
+<tr><td>4</td><td>1 November</td><td>9</td><td>2 May</td></tr>
+<tr><td>5</td><td>1 December</td><td>10</td><td>1 June</td></tr>
+</tbody></table></div>
+<h3>How the instalment tax is set</h3>
+<ol>
+<li><strong>June/July of the income year:</strong> the Petroleum Tax Office sets the instalment tax based on the companies' actual figures for the first half-year and estimates for the rest of the year.</li>
+<li><strong>Along the way:</strong> companies may pay more than assessed; extra payments are spread over instalments 2–4 or 7–9. Interest is calculated when the first five and last five instalments differ.</li>
+<li><strong>January of the following year:</strong> the instalment tax may be revised before the 6th instalment, mainly on the basis of actual figures.</li>
+<li><strong>By 1 December of the following year:</strong> the tax settlement is ready, and the tax assessed is settled against the instalments paid.</li>
+</ol>
+<p>Up to income year 2024 the tax was paid in six instalments – three in the income year and three the year after.</p>
+<h3>Why it matters for valuation and accounts</h3>
+<p>Because half of a year's tax is paid in the first half of the following year, oil companies always carry a large <strong>tax payable</strong> on the balance sheet at year-end. In acquisitions this must be reflected in the price – see <a href="#/wiki/effective-date">effective date</a>. Feltverdi simplifies by taxing income in the same year.</p>`,
+    },
+    formula: { expr: `Termin<sub>i</sub> &asymp; ${F('Anslått skatt for inntektsåret', '10')} &nbsp;&nbsp; (avregnes mot endelig skatt året etter)`, vars: [['Termin<sub>i</sub>', 'Innbetaling i termin i = 1–10', 'Payment in instalment i = 1–10']] },
+    example: {
+      nb: '<p>Et selskap venter 12 mrd. kroner i petroleumsskatt for 2026. Det betaler 1,2 mrd. kroner hver måned fra august til desember 2026 (6 mrd.), og etter en revisjon i januar 2027 betaler det resten fordelt på februar–juni 2027. Ved årsskiftet 2026/27 står det derfor om lag <strong>6 mrd. kroner i betalbar skatt</strong> i balansen. Det forklarer også hvorfor Vår Energi skal betale om lag 1,4 mrd. dollar i 2026-skatt for ConocoPhillips Norge i første halvår 2027.</p>',
+      en: '<p>A company expects NOK 12 bn of petroleum tax for 2026. It pays NOK 1.2 bn each month from August to December 2026 (NOK 6 bn), and after a revision in January 2027 it pays the rest over February–June 2027. At the turn of 2026/27 it therefore carries about <strong>NOK 6 bn of tax payable</strong> on the balance sheet. This also explains why Vår Energi will pay about 1.4 bn dollars of 2026 tax for ConocoPhillips Norway in the first half of 2027.</p>',
+    },
+    related: ['ncs-petroleum-tax', 'tax-losses', 'effective-date', 'free-cash-flow'],
+  },
+  {
+    slug: 'norm-price', cat: 'tax',
+    title: { nb: 'Normpris', en: 'Norm price' },
+    short: { nb: 'Skattemessig oljepris fastsatt av Petroleumsprisrådet for salg mellom nærstående selskaper.', en: 'The oil price for tax purposes, set by the Petroleum Price Council for sales between affiliated companies.' },
+    keys: {
+      nb: ['Hindrer at selskaper flytter overskudd ut av Norge ved å selge olje billig til egne selskaper.', 'Fastsettes for hver oljekvalitet basert på markedspriser.', 'For gass brukes faktisk salgspris.'],
+      en: ['Prevents companies from moving profit out of Norway by selling oil cheaply to their own affiliates.', 'Set for each crude quality based on market prices.', 'For gas the actual sales price is used.'],
+    },
+    body: { nb: '<p>Mye av oljen fra sokkelen selges internt i konsernene, for eksempel til egne handelsselskaper. For å sikre at skattegrunnlaget gjenspeiler markedsverdien, fastsetter Petroleumsprisrådet en normpris som skal brukes når skattepliktig inntekt beregnes. Normprisen følger i praksis markedsprisene for de ulike oljekvalitetene, som <a href="#/wiki/brent">Brent</a>.</p>', en: '<p>Much of the oil from the shelf is sold within corporate groups, for example to their own trading companies. To ensure the tax base reflects market value, the Petroleum Price Council sets a norm price that must be used when taxable income is calculated. In practice the norm price follows market prices for the different crude qualities, such as <a href="#/wiki/brent">Brent</a>.</p>' },
+    formula: { expr: 'Skattepliktig inntekt (olje) = Normpris &times; Solgt volum', vars: [] },
+    example: { nb: '<p>Selger et selskap olje til sitt eget handelsselskap for 70 dollar fatet, mens normprisen er 75 dollar, skattlegges salget som om prisen var 75 dollar.</p>', en: '<p>If a company sells oil to its own trading company at 70 dollars a barrel while the norm price is 75 dollars, the sale is taxed as if the price were 75 dollars.</p>' },
+    related: ['ncs-petroleum-tax', 'brent', 'netback'],
   },
   {
     slug: 'government-take', cat: 'tax',
@@ -379,25 +560,25 @@ window.FV_WIKI = [
     body: { nb: '<p>Statens andel måles ofte som skatt delt på overskudd før skatt over hele levetiden. Feltverdi viser «skatt til staten» som nåverdien av skatten for hvert felt.</p>', en: '<p>Government take is often measured as tax divided by pre-tax profit over the whole field life. Feltverdi shows "tax to the state" as the present value of tax for each field.</p>' },
     formula: { expr: `Statens andel = ${F('Skatt + avgifter + statens kontantstrøm', 'Overskudd før skatt')}`, vars: [] },
     example: { nb: '<p>Over hele levetiden har feltene på sokkelen skapt om lag 2 800 mrd. dollar før skatt, hvorav om lag 78 % er skatt til staten (Feltverdis historiske visning, forenklet).</p>', en: '<p>Over their whole life the fields on the shelf have created about 2,800 bn dollars before tax, of which about 78 % is tax to the state (Feltverdi\'s historical view, simplified).</p>' },
-    related: ['ncs-petroleum-tax', 'tax-refund'],
+    related: ['ncs-petroleum-tax', 'tax-losses'],
     feltverdi: '#/historisk',
   },
   {
     slug: 'tax-refund', cat: 'tax',
-    title: { nb: 'Leterefusjon og utbetaling av underskudd', en: 'Exploration refund and loss refunds' },
-    short: { nb: 'Ordninger der staten betaler ut skatteverdien av kostnader for selskaper uten skattepliktig inntekt.', en: 'Schemes in which the state pays out the tax value of costs for companies without taxable income.' },
+    title: { nb: 'Leterefusjon', en: 'Exploration refund' },
+    short: { nb: 'Ordningen fra 2005 til 2021 der staten refunderte 78 % av letekostnadene til selskaper uten skattepliktig inntekt. Erstattet av utbetaling av underskudd i særskatten.', en: 'The 2005–2021 scheme in which the state refunded 78 % of exploration costs to companies without taxable income. Replaced by refunds of special tax losses.' },
     keys: {
-      nb: ['Leterefusjonen gir 78 % av letekostnadene tilbake.', 'Gjør det mulig for nye selskaper å lete uten produksjon.', 'Senker inngangsterskelen på norsk sokkel.'],
-      en: ['The exploration refund returns 78 % of exploration costs.', 'Makes it possible for new companies to explore without production.', 'Lowers the barrier to entry on the Norwegian shelf.'],
+      nb: ['Fra 2005 til 2021 fikk selskaper uten produksjon 78 % av letekostnadene refundert året etter.', 'Fra 2022 gjelder i stedet utbetaling av skatteverdien av alle underskudd i særskatten (71,8 %).', 'Begge ordningene senker terskelen for nye selskaper på sokkelen.'],
+      en: ['From 2005 to 2021, companies without production had 78 % of exploration costs refunded the year after.', 'From 2022, the tax value of all special tax losses (71.8 %) is paid out instead.', 'Both schemes lower the barrier to entry for new companies on the shelf.'],
     },
-    body: { nb: '<p>Selskaper uten produksjon får skatteverdien av letekostnadene utbetalt året etter. Mange av de nye norske oljeselskapene de siste 20 årene ble mulige på grunn av denne ordningen. Bankene låner ofte ut penger mot refusjonen.</p>', en: '<p>Companies without production have the tax value of their exploration costs paid out the following year. Many of the new Norwegian oil companies over the last 20 years were made possible by this scheme. Banks often lend against the refund.</p>' },
-    formula: { expr: 'Refusjon = 0,78 &times; Letekostnader', vars: [] },
-    example: { nb: '<p>En letebrønn til 400 mill. kroner koster et nytt selskap uten produksjon <strong>88 mill. kroner</strong> etter refusjon.</p>', en: '<p>An exploration well costing NOK 400 m costs a new company without production <strong>NOK 88 m</strong> after the refund.</p>' },
-    related: ['ncs-petroleum-tax', 'carry', 'rbl'],
+    body: { nb: '<p>Leterefusjonen gjorde det mulig for mange nye selskaper å lete på sokkelen uten egen produksjon, og bankene lånte ut mot refusjonene. Med kontantstrømskatten fra 2022 ble ordningen erstattet av en generell regel: skatteverdien av underskudd i særskatten utbetales året etter, mens selskapsskattedelen fremføres. Se <a href="#/wiki/tax-losses">underskudd og utbetaling av skatteverdi</a>.</p>', en: '<p>The exploration refund made it possible for many new companies to explore on the shelf without their own production, and banks lent against the refunds. With the cash-flow tax from 2022 the scheme was replaced by a general rule: the tax value of special tax losses is paid out the year after, while the corporate tax part is carried forward. See <a href="#/wiki/tax-losses">tax losses and refund of their tax value</a>.</p>' },
+    formula: { expr: 'Før 2022: Refusjon = 0,78 &times; Letekostnader &nbsp;&nbsp; Fra 2022: Utbetaling = 0,718 &times; Letekostnader (+ 6,2 % fremført)', vars: [] },
+    example: { nb: '<p>En letebrønn til 400 mill. kroner ga før 2022 en refusjon på 312 mill. kroner. I dag gir den en utbetaling på 287 mill. kroner året etter, og et fremført underskudd i selskapsskatten verdt netto om lag 25 mill. kroner når selskapet får overskudd.</p>', en: '<p>An exploration well costing NOK 400 m gave a refund of NOK 312 m before 2022. Today it gives a payout of NOK 287 m the year after, plus a carried-forward corporate tax loss worth a net NOK 25 m or so once the company makes a profit.</p>' },
+    related: ['tax-losses', 'ncs-petroleum-tax', 'carry', 'rbl'],
   },
   // ---------------- Markets ----------------
   {
-    slug: 'brent', cat: 'markets',
+    slug: 'brent', cat: 'markets', featured: true,
     title: { nb: 'Brent', en: 'Brent' },
     short: { nb: 'Referanseprisen for råolje fra Nordsjøen, brukt for om lag to tredjedeler av verdens oljehandel.', en: 'The benchmark price for North Sea crude, used for about two thirds of global oil trade.' },
     keys: {

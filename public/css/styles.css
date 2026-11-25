@@ -309,6 +309,15 @@ th .info { text-transform: none; letter-spacing: 0; }
 .wiki-article h2 { font-size: 24px; margin-bottom: 12px; }
 .wiki-article p { color: var(--text-2); font-size: 17px; line-height: 1.65; margin: 0 0 14px; }
 .wiki-lead { font-size: 19px !important; color: var(--text) !important; }
+.wiki-article h3 { font-size: 19px; color: var(--text); margin: 24px 0 8px; letter-spacing: -0.015em; }
+.wiki-article section ul, .wiki-article section ol { color: var(--text-2); font-size: 17px; line-height: 1.6; padding-left: 22px; margin: 0 0 14px; }
+.wiki-article section li { margin: 6px 0; }
+.wiki-article .tbl-wrap { margin: 6px 0 16px; }
+.wiki-article table { font-size: 15px; }
+.wiki-article th { white-space: normal; }
+.wiki-article td { white-space: normal; color: var(--text-2); }
+.wiki-example .tbl-wrap { margin: 10px 0; }
+.wiki-example p + .tbl-wrap, .wiki-example .tbl-wrap + p { margin-top: 10px !important; }
 .wiki-keys { margin-top: 28px; background: var(--accent-soft); border-left: 4px solid var(--accent); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; padding: 20px 24px; }
 .wiki-keys h2 { font-size: 15px !important; text-transform: uppercase; letter-spacing: .08em; color: var(--accent); margin-bottom: 10px !important; }
 .wiki-keys ul { margin: 0; padding-left: 20px; }
@@ -340,7 +349,7 @@ th .info { text-transform: none; letter-spacing: 0; }
 .wiki-toc h3 { font-size: 13px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin-bottom: 10px; }
 .wiki-toc ol, .wiki-toc ul { margin: 0; padding-left: 18px; font-size: 14px; line-height: 1.5; }
 .wiki-toc li { margin: 5px 0; color: var(--muted); }
-.wiki-toc button { appearance: none; border: 0; background: none; color: var(--link); font: inherit; padding: 0; cursor: pointer; text-align: left; }
+.wiki-toc button { appearance: none; border: 0; background: none; color: var(--link); font: inherit; padding: 0; cursor: pointer; text-align: left; display: inline; line-height: inherit; vertical-align: baseline; }
 .wiki-toc button:hover { text-decoration: underline; }
 @media (max-width: 1080px) { .wiki-feature-grid { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 900px) {

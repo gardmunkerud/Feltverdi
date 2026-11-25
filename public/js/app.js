@@ -375,6 +375,10 @@
         <div class="card"><div class="card-head"><h2>${t('prodChart')}</h2><span class="muted">${t('prodChartSub')}</span></div><div class="chart-box"><canvas id="c-prod"></canvas></div></div>
         <div class="card"><div class="card-head"><h2>${t('cfChart')}</h2><span class="muted">${t('cfChartSub', state.cur)}</span></div><div class="chart-box"><canvas id="c-cf"></canvas></div></div>
       </div>
+      ${v.kind !== 'none' || f.prod.some((p) => p[5] > 0) ? `<div class="card section-gap">
+        <div class="card-head"><h2>${t('cumChart')}</h2><span class="muted">${t('cumChartSub')}</span></div>
+        <div class="chart-box" style="height:320px"><canvas id="c-cum"></canvas></div>
+      </div>` : ''}
       ${lifeCard(f, k)}
       <div class="grid g-2 section-gap">
         <div class="card">
@@ -469,6 +473,56 @@
     setTimeout(() => URL.revokeObjectURL(a.href), 1000);
   }
 
+  // Whole-life chart: cumulative production (MMboe, left) + annual rate (kboe/d, right), history and forecast
+  function drawCumChart(f, v, k) {
+    const canvas = $('#c-cum');
+    if (!canvas || !window.Chart) return;
+    const y0 = state.data.lastFullYear;
+    const hist = f.prod.filter((p) => p[0] <= y0 && p[5] > 0);
+    const fc = v.years.filter((r) => r.q > 0);
+    if (!hist.length && !fc.length) return;
+    const first = hist.length ? hist[0][0] : fc[0].year;
+    const last = fc.length ? fc[fc.length - 1].year : y0;
+    const labels = []; for (let y = first; y <= last; y++) labels.push(y);
+    const histQ = new Map(hist.map((p) => [p[0], p[5] * BOE * k]));   // MMboe per year
+    const fcQ = new Map(fc.map((r) => [r.year, r.q * k]));
+    let c = 0; const cumHist = [], cumFc = [];
+    for (const y of labels) {
+      if (y <= y0) { c += histQ.get(y) || 0; cumHist.push(c); cumFc.push(y === y0 ? c : null); }
+      else { c += fcQ.get(y) || 0; cumHist.push(null); cumFc.push(c); }
+    }
+    if (!hist.length) cumFc[0] = cumFc[0] ?? 0;
+    const rateHist = labels.map((y) => (y <= y0 && histQ.has(y) ? kboed(histQ.get(y)) : null));
+    const rateFc = labels.map((y) => (y > y0 && fcQ.has(y) ? kboed(fcQ.get(y)) : null));
+    const sodirTotal = f.rec ? f.rec.oe * BOE * k : null;
+    const datasets = [
+      { type: 'bar', label: t('cumRateHist'), data: rateHist, backgroundColor: color(COLORS.text, 0.28), borderRadius: 2, yAxisID: 'y1', order: 3 },
+      { type: 'bar', label: t('cumRateFc'), data: rateFc, backgroundColor: COLORS.accentSoft, borderColor: COLORS.accent, borderWidth: 1, borderRadius: 2, yAxisID: 'y1', order: 3 },
+      { type: 'line', label: t('cumHist'), data: cumHist, borderColor: COLORS.ink, backgroundColor: color(COLORS.ink, 0.06), fill: true, borderWidth: 2.5, pointRadius: 0, tension: 0.15, yAxisID: 'y', order: 1 },
+      { type: 'line', label: t('cumFc'), data: cumFc, borderColor: COLORS.accent, borderDash: [6, 4], borderWidth: 2.5, pointRadius: 0, tension: 0.15, yAxisID: 'y', order: 1 },
+    ];
+    if (sodirTotal) datasets.push({ type: 'line', label: t('cumSodir'), data: labels.map(() => sodirTotal), borderColor: COLORS.oil, borderDash: [2, 4], borderWidth: 1.5, pointRadius: 0, yAxisID: 'y', order: 2 });
+    charts.push(new Chart(canvas, {
+      data: { labels, datasets },
+      options: {
+        maintainAspectRatio: false, interaction: { mode: 'index', intersect: false },
+        scales: {
+          x: { stacked: true, grid: { display: false }, ticks: { maxTicksLimit: 12 } },
+          y: { beginAtZero: true, title: { display: true, text: t('mmboe') }, ticks: { callback: (x) => nf(x) } },
+          y1: { position: 'right', beginAtZero: true, stacked: true, grid: { display: false }, title: { display: true, text: t('kboed') }, ticks: { callback: (x) => nf(x) } },
+        },
+        plugins: { tooltip: { callbacks: { label: (ctx) => ctx.raw == null ? null : `${ctx.dataset.label}: ${nf(ctx.raw, ctx.dataset.yAxisID === 'y1' ? 1 : 0)} ${ctx.dataset.yAxisID === 'y1' ? t('kboed') : t('mmboe')}` } } },
+      },
+    }));
+  }
+  // Colour with alpha from a CSS colour string (hex or rgb[a])
+  function color(c, a) {
+    if (!c) return `rgba(128,128,128,${a})`;
+    if (c.startsWith('#')) { const h = c.length === 4 ? c.slice(1).split('').map((x) => x + x).join('') : c.slice(1, 7); const n = parseInt(h, 16); return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${a})`; }
+    const m = c.match(/rgba?\(([^)]+)\)/); if (m) { const p = m[1].split(',').map((s) => s.trim()); return `rgba(${p[0]},${p[1]},${p[2]},${a})`; }
+    return c;
+  }
+
   function drawFieldCharts(f, v, k) {
     if (!window.Chart) return;
     const y0 = state.data.lastFullYear;
@@ -496,6 +550,7 @@
         plugins: { tooltip: { callbacks: { label: (c) => c.raw == null ? null : `${c.dataset.label}: ${nf(c.raw, 1)}` } } },
       },
     }));
+    drawCumChart(f, v, k);
     const cf = v.years;
     let cum = 0;
     const cumPv = cf.map((r) => { cum += r.pv * k; return toCur(cum); });

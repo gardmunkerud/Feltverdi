@@ -64,6 +64,9 @@
     state.data = await res.json();
     try { const c = await fetch('/data/coast.json'); if (c.ok) state.coast = await c.json(); } catch { /* map without coastline */ }
     try { const h = await fetch('/data/history.json'); if (h.ok) state.hist = await h.json(); } catch { /* historical page unavailable */ }
+    try { const d = await fetch('/data/deals.json'); if (d.ok) { state.deals = await d.json(); state.deals.deals.sort((a, b) => b.date.localeCompare(a.date)); } } catch { /* deals unavailable */ }
+    try { const m = await fetch('/data/deal-metrics.json'); if (m.ok) state.dealMetrics = await m.json(); } catch { /* deal metrics unavailable */ }
+    renderTicker();
     state.companies = V.companies(state.data.fields).map((c) => ({ ...c, slug: slugify(c.name) }));
     $('#snapshot').textContent = state.data.generated;
     recompute();
@@ -82,6 +85,7 @@
     $$('[data-lang]').forEach((b) => b.classList.toggle('on', b.dataset.lang === state.lang));
     $$('[data-cur]').forEach((b) => b.classList.toggle('on', b.dataset.cur === state.cur));
     renderAssumptions();
+    if (state.deals) renderTicker();
   }
   const ASSUMPTIONS = [
     { k: 'brent', label: 'brent', min: 40, max: 130, step: 1, fmt: (v) => `$${nf(v)}`, hint: 'brentHint' },
@@ -892,6 +896,141 @@
     const cc = $('.crumb-cat', el); if (cc) cc.addEventListener('click', () => { (state.wiki || (state.wiki = { q: '', cat: '' })).cat = cc.dataset.cat; state.wiki.q = ''; location.hash = '#/wiki'; });
   }
 
+  // ----- Deals: ticker + list of NCS transactions -----
+  const DEAL_TYPES = ['merger', 'corporate', 'asset', 'swap'];
+  function dealDate(d) {
+    const dt = new Date(d.date + 'T12:00:00');
+    const opts = d.datePrecision === 'month' ? { month: 'long', year: 'numeric' } : { day: 'numeric', month: 'short', year: 'numeric' };
+    return new Intl.DateTimeFormat(locale(), opts).format(dt);
+  }
+  // Deal values are shown in nominal USD as reported at announcement
+  function renderTicker() {
+    const box = $('#ticker');
+    if (!box || !state.deals) return;
+    const latest = state.deals.deals.slice(0, 5);
+    const item = (d) => `<a href="#/deals/${d.id}" class="tick-item"><span class="tick-date">${esc(dealDate(d))}</span><span class="tick-type t-${d.type}">${esc(t('dealType_' + d.type))}</span><span class="tick-title">${esc(d.title[state.lang])}</span>${d.valueUsdM != null ? `<span class="tick-val">USD ${d.valueUsdM >= 1000 ? nf(d.valueUsdM / 1000, 2) + ' ' + t('bn') : nf(d.valueUsdM, Number.isInteger(d.valueUsdM) ? 0 : 1) + ' ' + t('mn')}</span>` : ''}</a>`;
+    const items = latest.map(item).join('<span class="tick-sep" aria-hidden="true">•</span>');
+    box.innerHTML = `<div class="wrap ticker-inner"><a class="tick-label" href="#/deals">${t('tickerLabel')}</a>
+      <div class="tick-viewport"><div class="tick-track"><div class="tick-set">${items}</div><div class="tick-set" aria-hidden="true">${items.replace(/href=/g, 'tabindex="-1" href=')}</div></div></div></div>`;
+    box.hidden = false;
+  }
+
+  // Assessment block for one deal: verdict, confidence, key metrics (Sodir-based) and written rationale
+  function dealAssessment(d, m) {
+    const a = d.assessment;
+    if (!a) return '';
+    const base = state.dealMetrics ? state.dealMetrics.baseYear : 2026;
+    const usd = (v) => (v >= 1000 ? `${nf(v / 1000, 2)} ${t('bn')}` : `${nf(v, 0)} ${t('mn')}`);
+    const cells = [];
+    if (m) {
+      cells.push([t('dmProd'), `${nf(m.prodKboed, 1)} ${t('kboed')}`]);
+      cells.push([t('dmRem'), `${nf(m.remMmboe, 0)} ${t('mmboe')}`]);
+      if (m.perFlowing) cells.push([t('dmFlowing'), `USD ${nf(m.perFlowing, 0)}`]);
+      if (m.perBoe) cells.push([t('dmPerBoe'), `USD ${nf(m.perBoe, 1)} <span class="muted">(${nf(m.perBoePctBrent, 0)} % ${t('dmOfBrent')})</span>`]);
+      cells.push([t('dmHindsight', base), `USD ${usd(m.hindsightValue)}`]);
+      if (m.ratio && !m.partial) cells.push([t('dmRatio'), `${nf(m.ratio, 2)}× <span class="muted">(${nf(m.relative, 2)}× ${t('dmMedian')})</span>`]);
+      if (m.reserveGrowth && m.year < state.data.lastFullYear) cells.push([t('dmGrowth'), `${nf(m.reserveGrowth, 2)}×`]);
+    }
+    return `<div class="deal-assess v-${a.verdict}">
+      <div class="da-head"><span class="verdict v-${a.verdict}">${esc(t('verdict_' + a.verdict))}</span><span class="muted">${t('dealsConfidence')}: ${esc(t('conf_' + a.confidence))}</span></div>
+      ${cells.length ? `<dl class="da-metrics">${cells.map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${v}</dd></div>`).join('')}</dl>` : ''}
+      <p>${esc(a.text[state.lang])}</p>
+      ${m && m.items && m.items.length ? `<p class="da-stakes muted">${t('dmStakes')}: ${m.items.slice(0, 8).map((i) => `<a href="#/felt/${i.slug}">${esc(i.field)}</a> ${nf(i.share, i.share % 1 ? 2 : 0)} %`).join(' · ')}${m.items.length > 8 ? ' …' : ''}</p>` : ''}
+    </div>`;
+  }
+
+  function viewDeals(el, focusId) {
+    if (!state.deals) { el.innerHTML = `<div class="empty">${t('loadError')}</div>`; return; }
+    const D = state.dealsUi || (state.dealsUi = { q: '', type: '', status: '', verdict: '' });
+    const all = state.deals.deals;
+    const DM = (state.dealMetrics && state.dealMetrics.metrics) || {};
+    const fold = (s) => s.toLowerCase().normalize('NFKD').replace(/[̀-ͯ]/g, '');
+    const q = fold(D.q.trim());
+    const list = all.filter((d) => (!D.type || d.type === D.type) && (!D.status || d.status === D.status) && (!D.verdict || (d.assessment && d.assessment.verdict === D.verdict)) &&
+      (!q || fold([d.title[state.lang], d.summary[state.lang], ...d.parties, ...d.fields].join(' ')).includes(q)));
+    const disclosed = all.filter((d) => d.valueUsdM != null);
+    const largest = [...disclosed].sort((a, b) => b.valueUsdM - a.valueUsdM)[0];
+    const years = [...new Set(all.map((d) => +d.date.slice(0, 4)))].sort((a, b) => a - b);
+    const byYear = new Map(years.map((y) => [y, { n: 0, v: 0 }]));
+    for (const d of all) { const o = byYear.get(+d.date.slice(0, 4)); o.n++; o.v += d.valueUsdM || 0; }
+    const groups = new Map();
+    for (const d of list) { const y = d.date.slice(0, 4); if (!groups.has(y)) groups.set(y, []); groups.get(y).push(d); }
+    const fieldLink = (n) => { const s = slugify(n); return fieldBySlug(s) ? `<a class="tag" href="#/felt/${s}">${esc(n)}</a>` : `<span class="tag">${esc(n)}</span>`; };
+    el.innerHTML = `
+      <section class="hero hero-grid">
+        <div>
+          <div class="eyebrow">${t('dealsEyebrow')}</div>
+          <h1>Deals</h1>
+          <p class="hero-sub">${t('dealsIntro', all.length, years[0], years[years.length - 1])}</p>
+        </div>
+      </section>
+      <div class="kpis">
+        <div class="kpi hl"><div class="l">${t('dealsKpiCount')}</div><div class="v">${all.length}</div><div class="s">${years[0]}–${years[years.length - 1]}</div></div>
+        <div class="kpi"><div class="l">${t('dealsKpiValue')}</div><div class="v">USD ${nf(disclosed.reduce((s, d) => s + d.valueUsdM, 0) / 1000, 1)} ${t('bn')}</div><div class="s">${t('dealsKpiValueSub', disclosed.length)}</div></div>
+        <div class="kpi"><div class="l">${t('dealsKpiLargest')}</div><div class="v">USD ${nf(largest.valueUsdM / 1000, 1)} ${t('bn')}</div><div class="s">${esc(largest.parties.join(' / '))}</div></div>
+        <div class="kpi"><div class="l">${t('dealsKpiPending')}</div><div class="v">${all.filter((d) => d.status === 'pending').length}</div><div class="s">${t('dealsKpiPendingSub')}</div></div>
+      </div>
+      <div class="grid g-2 section-gap">
+        <div class="card">
+          <div class="card-head"><h2>${t('dealsChart')}</h2><span class="muted">${t('dealsChartSub')}</span></div>
+          <div class="chart-box" style="height:260px"><canvas id="c-deals"></canvas></div>
+        </div>
+        <div class="card deal-method">
+          <div class="card-head"><h2>${t('dealsMethodTitle')}</h2></div>
+          ${t('dealsMethod', state.dealMetrics ? nf(state.dealMetrics.baseline, 2) : '–', state.dealMetrics ? state.dealMetrics.n : 0, pct((state.dealMetrics ? state.dealMetrics.discount : 0.08) * 100, 0))}
+          <div class="verdict-legend">${['cheap', 'fair', 'full', 'expensive'].map((v) => `<span class="verdict v-${v}">${t('verdict_' + v)}</span><span class="muted">${t('verdictRule_' + v)}</span>`).join('')}</div>
+        </div>
+      </div>
+      <div class="card section-gap">
+        <div class="filters">
+          <input type="search" id="dq" placeholder="${t('dealsSearch')}" value="${esc(D.q)}" aria-label="${t('dealsSearch')}">
+          <div class="wiki-cats deal-types" role="group" aria-label="${t('dealsTypeLabel')}">
+            <button type="button" data-dtype="" class="${!D.type ? 'on' : ''}">${t('wikiAll')}</button>
+            ${DEAL_TYPES.map((k) => `<button type="button" data-dtype="${k}" class="${D.type === k ? 'on' : ''}">${t('dealType_' + k)}</button>`).join('')}
+          </div>
+          <select id="dst" aria-label="Status"><option value="">${t('dealsAllStatus')}</option><option value="completed"${D.status === 'completed' ? ' selected' : ''}>${t('dealStatus_completed')}</option><option value="pending"${D.status === 'pending' ? ' selected' : ''}>${t('dealStatus_pending')}</option></select>
+          <select id="dvd" aria-label="${t('dealsVerdictLabel')}"><option value="">${t('dealsAllVerdicts')}</option>${['cheap', 'fair', 'full', 'expensive', 'early', 'na'].map((v) => `<option value="${v}"${D.verdict === v ? ' selected' : ''}>${t('verdict_' + v)}</option>`).join('')}</select>
+          <span class="muted" style="align-self:center;margin-left:auto">${list.length} / ${all.length}</span>
+        </div>
+        ${list.length ? [...groups.entries()].map(([y, ds]) => `
+          <div class="deal-year"><div class="az-letter">${y}</div><div class="deal-list">
+          ${ds.map((d) => `<article class="deal ${d.id === focusId ? 'focus' : ''}" id="deal-${d.id}">
+            <div class="deal-top"><span class="deal-date">${esc(dealDate(d))}</span><span class="tick-type t-${d.type}">${esc(t('dealType_' + d.type))}</span><span class="tag ${d.status === 'completed' ? 'prod' : 'appr'}">${esc(t('dealStatus_' + d.status))}${d.completed && d.status === 'completed' ? ` ${esc(new Intl.DateTimeFormat(locale(), { month: 'short', year: 'numeric' }).format(new Date(d.completed + 'T12:00:00')))}` : ''}</span></div>
+            <h3>${esc(d.title[state.lang])}</h3>
+            <p>${esc(d.summary[state.lang])}</p>
+            <div class="deal-meta">
+              <div><span class="l">${t('dealsParties')}</span>${d.parties.map((p) => `<span class="tag">${esc(p)}</span>`).join('')}</div>
+              ${d.fields.length ? `<div><span class="l">${t('dealsFields')}</span>${d.fields.map(fieldLink).join('')}</div>` : ''}
+            </div>
+            ${dealAssessment(d, DM[d.id])}
+            <div class="deal-foot"><div><span class="deal-val">${d.valueUsdM == null ? t('dealsNoValue') : `USD ${d.valueUsdM >= 1000 ? nf(d.valueUsdM / 1000, 2) + ' ' + t('bn') : nf(d.valueUsdM, Number.isInteger(d.valueUsdM) ? 0 : 1) + ' ' + t('mn')}`}</span> <span class="muted">${esc(d.valueNote[state.lang])}</span></div>
+              <a href="${esc(d.source)}" target="_blank" rel="noopener">${t('dealsSource')}</a></div>
+          </article>`).join('')}
+          </div></div>`).join('') : `<div class="empty">${t('dealsNoHits')}</div>`}
+        <p class="muted" style="font-size:13px;margin:18px 2px 0">${t('dealsNote', state.deals.updated)}</p>
+      </div>`;
+    const input = $('#dq', el); let tm;
+    input.addEventListener('input', () => { clearTimeout(tm); tm = setTimeout(() => { D.q = input.value; route({ keepScroll: true, refocus: '#dq' }); }, 150); });
+    $$('[data-dtype]', el).forEach((b) => b.addEventListener('click', () => { D.type = b.dataset.dtype; route({ keepScroll: true }); }));
+    $('#dst', el).addEventListener('change', (e) => { D.status = e.target.value; route({ keepScroll: true }); });
+    $('#dvd', el).addEventListener('change', (e) => { D.verdict = e.target.value; route({ keepScroll: true }); });
+    if (window.Chart) {
+      charts.push(new Chart($('#c-deals'), {
+        data: { labels: years, datasets: [
+          { type: 'bar', label: t('dealsChartValue'), data: years.map((y) => byYear.get(y).v / 1000), backgroundColor: COLORS.accent, borderRadius: 3, yAxisID: 'y' },
+          { type: 'line', label: t('dealsChartCount'), data: years.map((y) => byYear.get(y).n), borderColor: COLORS.oil, backgroundColor: COLORS.oil, borderWidth: 2, pointRadius: 3, tension: 0.2, yAxisID: 'y1' },
+        ] },
+        options: { maintainAspectRatio: false, interaction: { mode: 'index', intersect: false },
+          scales: { x: { grid: { display: false } }, y: { beginAtZero: true, title: { display: true, text: `USD ${t('bn')}` }, ticks: { callback: (x) => nf(x) } }, y1: { position: 'right', beginAtZero: true, grid: { display: false }, ticks: { precision: 0 }, title: { display: true, text: t('dealsChartCount') } } },
+          plugins: { tooltip: { callbacks: { label: (c) => c.dataset.yAxisID === 'y' ? `${c.dataset.label}: USD ${nf(c.raw, 1)} ${t('bn')}` : `${c.dataset.label}: ${c.raw}` } } } },
+      }));
+    }
+    if (focusId) {
+      const card = $('#deal-' + CSS.escape(focusId), el);
+      if (card) setTimeout(() => window.scrollTo({ top: card.getBoundingClientRect().top + window.scrollY - 140, behavior: 'smooth' }), 50);
+    }
+  }
+
   function viewMethod(el) {
     el.innerHTML = `<article class="prose"><div class="eyebrow">Feltverdi.no</div><h1>${t('methodTitle')}</h1>${window.FV_METHOD[state.lang]}</article>`;
   }
@@ -943,6 +1082,7 @@
     else if (page === 'metode') { nav = 'method'; viewMethod(view); }
     else if (page === 'historisk') { nav = 'hist'; viewHistory(view); }
     else if (page === 'wiki') { nav = 'wiki'; viewWiki(view, arg ? decodeURIComponent(arg) : null); }
+    else if (page === 'deals') { nav = 'deals'; viewDeals(view, arg ? decodeURIComponent(arg) : null); }
     else if (!page) viewHome(view);
     else viewNotFound(view);
     $$('[data-nav]').forEach((a) => a.classList.toggle('active', a.dataset.nav === nav));

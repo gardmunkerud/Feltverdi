@@ -56,6 +56,27 @@ Simplifications:
 - **Investments:** pipelines and onshore facilities aren't included in the field investments, which matters for Snøhvit, Ormen Lange and Troll.
 - **NGL:** priced at 60% of Brent.
 
+## Deals
+
+The list of deals lives in `public/data/deals.json`. Each deal has a date, type, parties, fields, value, a source link and a written assessment.
+
+`node scripts/evaluate-deals.js` writes `public/data/deal-metrics.json`. For each deal with an identifiable Norwegian package, it calculates:
+- the stakes that changed hands (from Sodir's licence history)
+- production the year before and Sodir's reserves at the time
+- price per flowing barrel and per barrel of reserves
+- the **value in hindsight**: actual cash flow after the deal plus the Feltverdi forecast, discounted at 8% real
+
+Price divided by value is compared with the median for all complete deals, and that comparison gives the verdict:
+
+| Verdict | Price/value relative to the median |
+|---|---|
+| Low price | below 0.8× |
+| Market-level | 0.8–1.1× |
+| Fully priced | 1.1–1.4× |
+| High price | above 1.4× |
+
+To add a new deal: add it to `deals.json` and add its seller in `SPEC` in the script, then run `node scripts/evaluate-deals.js` and write the assessment.
+
 ## Hosting (Vercel)
 
 `vercel.json` contains the setup:

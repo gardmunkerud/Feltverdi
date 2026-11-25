@@ -1090,6 +1090,15 @@
     if (focusSel) { const i = $(focusSel); if (i) { i.focus(); i.setSelectionRange(i.value.length, i.value.length); } }
   }
   window.addEventListener('hashchange', () => route());
+  // Hide the deals ticker when scrolled down (with a small hysteresis so it doesn't flicker)
+  const topBar = $('.top');
+  let tickerHidden = false;
+  const onScroll = () => {
+    const y = window.scrollY;
+    if (!tickerHidden && y > 40) { tickerHidden = true; topBar.classList.add('scrolled'); }
+    else if (tickerHidden && y < 8) { tickerHidden = false; topBar.classList.remove('scrolled'); }
+  };
+  window.addEventListener('scroll', onScroll, { passive: true });
   try { window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => route({ keepScroll: true })); } catch { /* old browsers */ }
 
   // ---------- boot ----------

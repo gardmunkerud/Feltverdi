@@ -366,7 +366,11 @@ th .info { text-transform: none; letter-spacing: 0; }
 }
 
 /* Deals ticker (top ribbon) */
-.ticker { background: var(--text); color: var(--bg); font-size: 13px; letter-spacing: -0.005em; }
+.ticker { background: var(--text); color: var(--bg); font-size: 13px; letter-spacing: -0.005em; max-height: 34px; overflow: hidden; transition: max-height .25s ease, opacity .2s ease; }
+/* Ticker folds away once the user scrolls down, and returns at the top of the page */
+.top.scrolled .ticker { max-height: 0; opacity: 0; pointer-events: none; }
+.top.scrolled .ticker .tick-track { animation-play-state: paused; }
+@media (prefers-reduced-motion: reduce) { .ticker { transition: none; } }
 .ticker-inner { display: flex; align-items: center; gap: 14px; height: 34px; }
 .tick-label { flex: none; color: var(--bg) !important; font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: .1em; text-decoration: none !important; padding-right: 14px; border-right: 1px solid color-mix(in srgb, var(--bg) 25%, transparent); }
 .tick-viewport { flex: 1; overflow: hidden; position: relative; mask-image: linear-gradient(90deg, transparent, #000 4%, #000 96%, transparent); -webkit-mask-image: linear-gradient(90deg, transparent, #000 4%, #000 96%, transparent); }

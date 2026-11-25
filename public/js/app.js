@@ -8,7 +8,19 @@
   const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const slugify = (s) => s.toLowerCase().replace(/æ/g, 'ae').replace(/ø/g, 'o').replace(/å/g, 'a').normalize('NFKD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
   const BOE = V.BOE_PER_SM3;
-  const COLORS = { oil: '#f5a524', gas: '#38bdf8', ngl: '#a78bfa', mixed: '#2dd4bf', shut: '#4b5563', accent: '#22d3ee', indigo: '#818cf8', grid: 'rgba(255,255,255,0.06)', text: '#b6c2d6' };
+  // Colours come from the CSS custom properties (granite palette), so charts and map follow light/dark mode.
+  let COLORS = {};
+  function refreshColors() {
+    const cs = getComputedStyle(document.documentElement);
+    const v = (n) => cs.getPropertyValue('--' + n).trim();
+    COLORS = { oil: v('oil'), gas: v('gas'), ngl: v('ngl'), mixed: v('mixed'), shut: v('shut'), accent: v('accent'), accentSoft: v('accent-soft'),
+      grid: v('grid'), text: v('text-2'), ink: v('text'), neg: v('neg'), land: v('land'), surface: v('surface-solid'), border: v('border-strong') };
+    if (window.Chart) {
+      Chart.defaults.color = COLORS.text;
+      Chart.defaults.borderColor = COLORS.grid;
+      Object.assign(Chart.defaults.plugins.tooltip, { backgroundColor: COLORS.surface, titleColor: COLORS.ink, bodyColor: COLORS.text, borderColor: COLORS.border });
+    }
+  }
 
   // ---------- state & persistence ----------
   const store = {
@@ -142,9 +154,9 @@
     Chart.defaults.borderColor = COLORS.grid;
     Chart.defaults.plugins.legend.labels.boxWidth = 10;
     Chart.defaults.plugins.legend.labels.boxHeight = 10;
-    Chart.defaults.plugins.tooltip.backgroundColor = '#0e1626';
-    Chart.defaults.plugins.tooltip.borderColor = 'rgba(255,255,255,0.16)';
     Chart.defaults.plugins.tooltip.borderWidth = 1;
+    Chart.defaults.plugins.tooltip.cornerRadius = 4;
+    Chart.defaults.plugins.legend.labels.usePointStyle = true;
     Chart.defaults.plugins.tooltip.padding = 10;
   }
 
@@ -238,7 +250,7 @@
       maxBounds: [[46, -30], [83, 50]] }).setView([65.2, 9], 4);
     map.attributionControl.setPrefix(false);
     if (state.coast) {
-      L.geoJSON(state.coast, { interactive: false, style: { stroke: false, fillColor: '#18233a', fillOpacity: 1 } }).addTo(map);
+      L.geoJSON(state.coast, { interactive: false, style: { stroke: false, fillColor: COLORS.land, fillOpacity: 1 } }).addTo(map);
     }
     map.attributionControl.addAttribution('<a href="https://www.naturalearthdata.com" target="_blank" rel="noopener">Natural Earth</a> · Sodir');
     const seaLabel = (latlng, key) => L.marker(latlng, { interactive: false, keyboard: false, icon: L.divIcon({ className: 'sea-label', html: esc(tmap('area', key)), iconSize: [140, 16], iconAnchor: [70, 8] }) }).addTo(map);
@@ -250,7 +262,7 @@
       const v = state.vals.get(f.slug);
       const r = v.npv > 0 ? 4 + 26 * Math.sqrt(v.npv / maxNpv) : 3;
       const c = hcColor(f);
-      const m = L.circleMarker([f.lat, f.lon], { radius: r, color: c, weight: 1.2, opacity: 0.95, fillColor: c, fillOpacity: f.status === 'Shut down' ? 0.25 : 0.38 }).addTo(map);
+      const m = L.circleMarker([f.lat, f.lon], { radius: r, color: c, weight: 1.2, opacity: 0.95, fillColor: c, fillOpacity: f.status === 'Shut down' ? 0.25 : 0.5 }).addTo(map);
       m.bindTooltip(`<strong>${esc(f.name)}</strong><br>${esc(tmap('status', f.status))}<br>${money(v.npv)}`, { className: 'fv-tip', direction: 'top', offset: [0, -r] });
       m.on('click', () => { location.hash = `#/felt/${f.slug}`; });
     }
@@ -448,7 +460,7 @@
           ds(t('oil'), (p) => p[1] + p[4], COLORS.oil),
           ds(t('gasProd'), (p) => p[2], COLORS.gas),
           ds(t('ngl'), (p) => p[3], COLORS.ngl),
-          { type: 'line', label: t('forecast'), data: fcLine, borderColor: COLORS.accent, backgroundColor: 'rgba(34,211,238,0.12)', borderDash: [6, 4], borderWidth: 2, pointRadius: 0, fill: true, tension: 0.25, spanGaps: false },
+          { type: 'line', label: t('forecast'), data: fcLine, borderColor: COLORS.accent, backgroundColor: COLORS.accentSoft, borderDash: [6, 4], borderWidth: 2, pointRadius: 0, fill: true, tension: 0.25, spanGaps: false },
         ],
       },
       options: {
@@ -464,7 +476,7 @@
       data: {
         labels: cf.map((r) => r.year),
         datasets: [
-          { type: 'bar', label: t('fcf'), data: cf.map((r) => toCur(r.fcf * k)), backgroundColor: cf.map((r) => (r.fcf < 0 ? 'rgba(248,113,113,0.7)' : 'rgba(129,140,248,0.75)')), borderRadius: 3, yAxisID: 'y' },
+          { type: 'bar', label: t('fcf'), data: cf.map((r) => toCur(r.fcf * k)), backgroundColor: cf.map((r) => (r.fcf < 0 ? COLORS.neg : COLORS.gas)), borderRadius: 2, yAxisID: 'y' },
           { type: 'line', label: t('cumPv'), data: cumPv, borderColor: COLORS.accent, borderWidth: 2, pointRadius: 0, tension: 0.25, yAxisID: 'y1' },
         ],
       },
@@ -589,6 +601,7 @@
     const y = window.scrollY;
     const focusSel = opts.refocus;
     cleanup();
+    refreshColors();
     const [, page, arg] = (location.hash || '#/').replace(/^#/, '').split('/');
     let nav = 'home';
     if (page === 'felt') { nav = 'value'; viewField(view, arg ? decodeURIComponent(arg) : state.lastField); }
@@ -602,6 +615,7 @@
     if (focusSel) { const i = $(focusSel); if (i) { i.focus(); i.setSelectionRange(i.value.length, i.value.length); } }
   }
   window.addEventListener('hashchange', () => route());
+  try { window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => route({ keepScroll: true })); } catch { /* old browsers */ }
 
   // ---------- boot ----------
   applyChrome();

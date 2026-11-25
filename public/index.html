@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="nb">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Feltverdi.no – Hva er feltene på norsk sokkel verdt?</title>
+  <meta name="description" content="Feltverdi.no anslår verdien av alle olje- og gassfelt på norsk kontinentalsokkel – per felt og per selskap – basert på åpne data fra Sokkeldirektoratet.">
+  <meta name="theme-color" content="#070b14">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/vendor/leaflet/leaflet.css">
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <div class="glow" aria-hidden="true"></div>
+
+  <header class="top">
+    <div class="wrap top-inner">
+      <a href="#/" class="brand" aria-label="Feltverdi – til forsiden">
+        <img src="/logo.svg" alt="" width="34" height="34">
+        <span class="wordmark">Feltverdi<span>.no</span></span>
+      </a>
+      <nav class="nav" aria-label="Hovedmeny">
+        <a href="#/" data-nav="home" data-i18n="navHome">Oversikt</a>
+        <a href="#/felt" data-nav="value" data-i18n="navValue">Verdsett</a>
+        <a href="#/rangering" data-nav="rank" data-i18n="navRank">Rangering</a>
+        <a href="#/metode" data-nav="method" data-i18n="navMethod">Metode</a>
+      </nav>
+      <div class="top-actions">
+        <div class="seg seg-sm seg-toggle" data-toggle="cur" role="group" aria-label="Valuta">
+          <button type="button" data-cur="NOK">NOK</button>
+          <button type="button" data-cur="USD">USD</button>
+        </div>
+        <div class="seg seg-sm seg-toggle" data-toggle="lang" role="group" aria-label="Språk / Language">
+          <button type="button" data-lang="nb">NO</button>
+          <button type="button" data-lang="en">EN</button>
+        </div>
+      </div>
+    </div>
+    <div class="assume">
+      <div class="wrap assume-inner" id="assume-bar"></div>
+    </div>
+  </header>
+
+  <main id="view" class="wrap" tabindex="-1"></main>
+
+  <nav class="mnav" aria-label="Meny">
+    <a href="#/" data-nav="home" data-i18n="navHome">Oversikt</a>
+    <a href="#/felt" data-nav="value" data-i18n="navValue">Verdsett</a>
+    <a href="#/rangering" data-nav="rank" data-i18n="navRank">Rangering</a>
+    <a href="#/metode" data-nav="method" data-i18n="navMethod">Metode</a>
+  </nav>
+
+  <footer class="foot">
+    <div class="wrap foot-inner">
+      <p><span data-i18n="footData">Data:</span> <a href="https://factpages.sodir.no" target="_blank" rel="noopener">Sokkeldirektoratet (Sodir) FactPages</a>, <a href="https://data.norge.no/nlod/no/2.0" target="_blank" rel="noopener">NLOD</a> · <span data-i18n="footSnapshot">Datauttrekk</span> <span id="snapshot"></span></p>
+      <p class="muted" data-i18n="footDisclaimer">Forenklede anslag til informasjon og læring – ikke investeringsråd. Feltverdi er ikke tilknyttet Sodir eller rettighetshaverne.</p>
+    </div>
+  </footer>
+
+  <script src="/vendor/chart.umd.js"></script>
+  <script src="/vendor/leaflet/leaflet.js"></script>
+  <script src="/js/valuation.js"></script>
+  <script src="/js/i18n.js"></script>
+  <script src="/js/app.js"></script>
+</body>
+</html>

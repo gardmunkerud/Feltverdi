@@ -1,0 +1,93 @@
+// Tests for the valuation engine (node --test). Uses synthetic fields plus a check against the built data file.
+const test = require('node:test');
+const assert = require('node:assert');
+const fs = require('fs');
+const path = require('path');
+const V = require('../public/js/valuation.js');
+
+const LAST = 2025;
+function field(over = {}) {
+  return {
+    slug: 'test', name: 'Test', status: 'Producing', hc: 'OIL', owners: [['A AS', 60], ['B ASA', 40]], operator: 'A AS',
+    rem: { oil: 10, gas: 0, ngl: 0, cond: 0, oe: 10 }, rec: { oil: 50, gas: 0, ngl: 0, cond: 0, oe: 50 },
+    prod: [[2023, 2.4, 0, 0, 0, 2.4], [2024, 2.2, 0, 0, 0, 2.2], [2025, 2.0, 0, 0, 0, 2.0]],
+    inv: [[2022, 1500], [2023, 1500], [2024, 1500]],
+    ...over,
+  };
+}
+
+test('fitted decline produces (about) the remaining reserves', () => {
+  const v = V.valueField(field(), {}, LAST);
+  const remBoe = 10 * V.BOE_PER_SM3;
+  assert.ok(Math.abs(v.cum - remBoe) / remBoe < 0.02, `cum ${v.cum} vs ${remBoe}`);
+  assert.ok(v.npv > 0);
+  assert.ok(v.endYear > 2026 && v.endYear < 2070);
+});
+
+test('higher prices and lower discount rate increase value; higher opex decreases it', () => {
+  const f = field();
+  const base = V.valueField(f, {}, LAST).npv;
+  assert.ok(V.valueField(f, { brent: 95 }, LAST).npv > base);
+  assert.ok(V.valueField(f, { discount: 0.05 }, LAST).npv > base);
+  assert.ok(V.valueField(f, {}, LAST, { opexBoe: 25 }).npv < base);
+});
+
+test('after-tax margin is roughly 22 % of the pre-tax margin (78 % marginal tax)', () => {
+  const v = V.valueField(field(), { discount: 0.0001 }, LAST);
+  const ops = v.years.filter((y) => y.q > 0);
+  const pre = ops.reduce((s, y) => s + y.rev - y.opex - y.capex, 0);
+  const post = ops.reduce((s, y) => s + y.fcf, 0);
+  assert.ok(Math.abs(post / pre - 0.22) < 0.02, `ratio ${post / pre}`);
+});
+
+test('gas is priced from EUR/MWh', () => {
+  const gasField = field({ hc: 'GAS', rem: { oil: 0, gas: 10, ngl: 0, cond: 0, oe: 10 } });
+  const p = V.realisedPrice(gasField, { ...V.DEFAULTS, gasEur: 35, eurusd: 1.15 });
+  assert.ok(Math.abs(p - 35 * 1.72 * 1.15) < 1e-9);
+});
+
+test('shut-down fields and fields without reserves are worth zero', () => {
+  assert.strictEqual(V.valueField(field({ status: 'Shut down' }), {}, LAST).npv, 0);
+  assert.strictEqual(V.valueField(field({ rem: { oil: 0, gas: 0, ngl: 0, cond: 0, oe: 0 } }), {}, LAST).npv, 0);
+});
+
+test('approved fields start next year after a development year', () => {
+  const v = V.valueField(field({ status: 'Approved for production', prod: [] }), {}, LAST);
+  assert.strictEqual(v.kind, 'new');
+  assert.strictEqual(v.years[0].q, 0);
+  assert.ok(v.years[0].capex > 0);
+  assert.ok(v.years[1].q > 0);
+});
+
+test('plateau fields hold production flat, then decline, and still match reserves', () => {
+  const f = field({ rem: { oil: 30, gas: 0, ngl: 0, cond: 0, oe: 30 }, outlook: { plateau: 'plateau', basis: 'text' } });
+  const v = V.valueField(f, {}, LAST);
+  assert.strictEqual(v.kind, 'plateau');
+  assert.ok(v.plateauYears >= 2, `plateau years ${v.plateauYears}`);
+  const q = v.years.filter((y) => y.q > 0).map((y) => y.q);
+  assert.ok(Math.abs(q[0] - q[1]) < 1e-9, 'flat during plateau');
+  assert.ok(q[v.plateauYears] < q[0], 'declines after plateau');
+  assert.ok(Math.abs(v.cum - 30 * V.BOE_PER_SM3) / (30 * V.BOE_PER_SM3) < 0.02);
+  // user override: no plateau
+  assert.strictEqual(V.valueField(f, {}, LAST, { plateauYears: 0 }).kind, 'decline');
+});
+
+test('company value is the sum of its field shares', () => {
+  const fields = [field(), field({ slug: 'two', name: 'Two', owners: [['B ASA', 100]], operator: 'B ASA' })];
+  const vals = V.valueAll(fields, {}, LAST);
+  const b = V.valueCompany('B ASA', fields, vals);
+  const expect = vals.get('test').npv * 0.4 + vals.get('two').npv;
+  assert.ok(Math.abs(b.npv - expect) < 1e-6);
+  assert.strictEqual(b.operated, 1);
+});
+
+test('built data file values sensibly (if present)', { skip: !fs.existsSync(path.join(__dirname, '..', 'public', 'data', 'fields.json')) }, () => {
+  const d = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'public', 'data', 'fields.json'), 'utf8'));
+  assert.ok(d.fields.length > 100);
+  const vals = V.valueAll(d.fields, {}, d.lastFullYear);
+  const total = [...vals.values()].reduce((s, v) => s + v.npv, 0);
+  assert.ok(total > 20000 && total < 300000, `shelf NPV $${total}MM`);
+  const troll = vals.get('troll');
+  assert.ok(troll && troll.npv > 0);
+  for (const f of d.fields) assert.ok(Math.abs(f.owners.reduce((s, o) => s + o[1], 0) - 100) < 0.6 || !f.owners.length, f.name);
+});

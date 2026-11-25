@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#22d3ee"/>
+      <stop offset="0.55" stop-color="#0ea5e9"/>
+      <stop offset="1" stop-color="#6366f1"/>
+    </linearGradient>
+    <linearGradient id="drop" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#dbeafe"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="16" fill="url(#bg)"/>
+  <!-- droplet -->
+  <path d="M32 10 C32 10 17 28 17 38.5 C17 47 23.7 53 32 53 C40.3 53 47 47 47 38.5 C47 28 32 10 32 10 Z" fill="url(#drop)"/>
+  <!-- rising value line inside the droplet -->
+  <polyline points="22.5,43 28.5,37 33,40 41.5,30.5" fill="none" stroke="#0ea5e9" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="41.5" cy="30.5" r="2.6" fill="#6366f1"/>
+</svg>

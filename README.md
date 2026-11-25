@@ -34,6 +34,17 @@ public/css/styles.css   design (dark theme, Inter font)
 tests/                  node --test
 ```
 
+## Hosting (Vercel)
+
+`vercel.json` contains the setup:
+- the build command `npm run build`
+- the output folder `public`
+- the security headers (CSP and others), plus caching for `/vendor` and `/data`
+
+Every push to `main` deploys automatically once the repository is connected in Vercel.
+
+To update the data: run `npm run build:data` locally, then commit and push the changed `public/data/*.json`.
+
 ## Model (short version)
 
 - **Production:** starts from last year's production and declines exponentially. The decline rate is fitted so that cumulative production until the economic limit equals Sodir's remaining reserves. New fields and fields approved for development get a three-year plateau first.

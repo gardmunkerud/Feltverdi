@@ -4,6 +4,7 @@
   "private": true,
   "description": "Feltverdi.no – estimated value of every field on the Norwegian Continental Shelf, per field and per company",
   "scripts": {
+    "build": "node scripts/copy-vendor.js",
     "build:data": "node scripts/build-data.js",
     "build:vendor": "node scripts/copy-vendor.js",
     "postinstall": "node scripts/copy-vendor.js",

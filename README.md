@@ -101,6 +101,22 @@ Swaps are defined as `legs` in SPEC (what each party gives, plus cash), and each
 
 To add a new deal: add it to `deals.json` and add its seller in `SPEC` in the script, then run `node scripts/evaluate-deals.js` and write the assessment.
 
+### Automatic deal updates
+
+A cloud routine (Claude Code, "Daily NCS deals check") searches public news every morning for new deals on the Norwegian shelf. For each new deal it adds an entry to `public/data/deals.json`, with the source link, Norwegian and English text, and an assessment of `early` or `na`. It then runs the quality check, commits and pushes to `main`, and Vercel publishes the change.
+
+**Quality check:** `npm run validate:deals`. It is also part of `npm test`, and the routine pushes only if every test passes. It checks:
+- required fields, dates and statuses
+- https sources
+- Norwegian and English texts
+- no HTML
+- no duplicate deals (same parties within 45 days)
+- that verdicts calculated from the model have metrics
+
+Field names that are not in Sodir's data are reported as warnings.
+
+The full numerical analysis of a new deal, done with `SPEC` and `scripts/evaluate-deals.js`, needs the raw Sodir data. That data is not in the repository, so the analysis is done locally.
+
 ## Hosting (Vercel)
 
 `vercel.json` contains the setup:

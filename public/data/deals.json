@@ -104,6 +104,42 @@
    }
   },
   {
+   "id": "2026-kistos-var-ringhorne",
+   "date": "2026-10-14",
+   "type": "asset",
+   "status": "pending",
+   "parties": [
+    "Kistos",
+    "Vår Energi"
+   ],
+   "title": {
+    "nb": "Kistos kjøper 10 % i tre lisenser i Balder/Ringhorne-området fra Vår Energi",
+    "en": "Kistos buys 10 % of three Balder/Ringhorne-area licences from Vår Energi"
+   },
+   "summary": {
+    "nb": "Kistos kjøper 10 % i lisensene PL 169E, PL 956 og PL 956B, som omfatter Balder, Ringhorne, Ringhorne Øst og en del av Ringhorne Nord. Virkningsdato 1. januar 2026; avtalen venter på godkjenning fra Energidepartementet.",
+    "en": "Kistos buys 10 % of licences PL 169E, PL 956 and PL 956B, covering Balder, Ringhorne, Ringhorne East and part of Ringhorne North. Effective date 1 January 2026; the deal awaits approval from the Ministry of Energy."
+   },
+   "fields": [
+    "Balder",
+    "Ringhorne Øst"
+   ],
+   "valueUsdM": 12.9,
+   "valueNote": {
+    "nb": "kontant ved avtaleinngåelse",
+    "en": "upfront cash"
+   },
+   "source": "https://www.worldoil.com/news/2026/10/14/kistos-acquires-10-stake-in-ringhorne-licenses-from-var-energi/",
+   "assessment": {
+    "verdict": "early",
+    "confidence": "low",
+    "text": {
+     "nb": "For tidlig å si, men prisen er lav per fat: 12,9 mill. dollar for 4,3 mill. fat o.e. netto i reserver og ressurser – om lag 3 dollar per fat. Det meste er ressurser som etter planen settes i produksjon fra 2029, så verdien avhenger av at de bygges ut. Kistos får samme andel (10 %) som selskapet allerede har i Balder-lisensen PL 027.",
+     "en": "Too early to say, but the price per barrel is low: 12.9 million dollars for 4.3 MMboe net of reserves and resources – about 3 dollars per barrel. Most of it is resources planned to come on stream from 2029, so the value depends on them being developed. Kistos gets the same share (10 %) as it already holds in the Balder licence PL 027."
+    }
+   }
+  },
+  {
    "id": "2026-var-bluenord",
    "date": "2026-07-21",
    "type": "merger",
@@ -842,45 +878,6 @@
    }
   },
   {
-   "id": "2017-point-exxonmobil",
-   "date": "2017-03-01",
-   "datePrecision": "month",
-   "type": "asset",
-   "status": "completed",
-   "completed": "2017-11-01",
-   "parties": [
-    "Point Resources",
-    "ExxonMobil"
-   ],
-   "title": {
-    "nb": "Point Resources kjøper ExxonMobils opererte felt",
-    "en": "Point Resources acquires ExxonMobil's operated fields"
-   },
-   "summary": {
-    "nb": "Operatørskap og andeler i Balder, Ringhorne, Ringhorne Øst, Jotun og Forseti. Point Resources ble senere en del av Vår Energi.",
-    "en": "Operatorship and interests in Balder, Ringhorne, Ringhorne East, Jotun and Forseti. Point Resources later became part of Vår Energi."
-   },
-   "fields": [
-    "Balder",
-    "Ringhorne Øst",
-    "Jotun"
-   ],
-   "valueUsdM": null,
-   "valueNote": {
-    "nb": "ikke oppgitt",
-    "en": "not disclosed"
-   },
-   "source": "https://www.oedigital.com/subsea/item/16511-point-completes-exxon-acquisition-plans-2-45-billion-investment-over-5-years",
-   "assessment": {
-    "verdict": "na",
-    "confidence": "low",
-    "text": {
-     "nb": "Prisen er ikke oppgitt, så kjøpet kan ikke vurderes. I ettertid har reservene i Balder, Ringhorne Øst og Jotun mer enn firedoblet seg gjennom Balder X og levetidsforlengelse – med en moderat pris var dette trolig et svært godt kjøp.",
-     "en": "The price was not disclosed, so the purchase cannot be assessed. In hindsight reserves in Balder, Ringhorne East and Jotun have more than quadrupled through Balder X and life extension – at a moderate price this was probably a very good buy."
-    }
-   }
-  },
-  {
    "id": "2017-ineos-dong",
    "date": "2017-05-24",
    "datePrecision": "month",
@@ -949,6 +946,45 @@
     "text": {
      "nb": "Global transaksjon der den norske delen ikke er priset separat; kan ikke vurderes med Feltverdis data.",
      "en": "Global transaction where the Norwegian part is not priced separately; cannot be assessed with Feltverdi's data."
+    }
+   }
+  },
+  {
+   "id": "2017-point-exxonmobil",
+   "date": "2017-03-01",
+   "datePrecision": "month",
+   "type": "asset",
+   "status": "completed",
+   "completed": "2017-11-01",
+   "parties": [
+    "Point Resources",
+    "ExxonMobil"
+   ],
+   "title": {
+    "nb": "Point Resources kjøper ExxonMobils opererte felt",
+    "en": "Point Resources acquires ExxonMobil's operated fields"
+   },
+   "summary": {
+    "nb": "Operatørskap og andeler i Balder, Ringhorne, Ringhorne Øst, Jotun og Forseti. Point Resources ble senere en del av Vår Energi.",
+    "en": "Operatorship and interests in Balder, Ringhorne, Ringhorne East, Jotun and Forseti. Point Resources later became part of Vår Energi."
+   },
+   "fields": [
+    "Balder",
+    "Ringhorne Øst",
+    "Jotun"
+   ],
+   "valueUsdM": null,
+   "valueNote": {
+    "nb": "ikke oppgitt",
+    "en": "not disclosed"
+   },
+   "source": "https://www.oedigital.com/subsea/item/16511-point-completes-exxon-acquisition-plans-2-45-billion-investment-over-5-years",
+   "assessment": {
+    "verdict": "na",
+    "confidence": "low",
+    "text": {
+     "nb": "Prisen er ikke oppgitt, så kjøpet kan ikke vurderes. I ettertid har reservene i Balder, Ringhorne Øst og Jotun mer enn firedoblet seg gjennom Balder X og levetidsforlengelse – med en moderat pris var dette trolig et svært godt kjøp.",
+     "en": "The price was not disclosed, so the purchase cannot be assessed. In hindsight reserves in Balder, Ringhorne East and Jotun have more than quadrupled through Balder X and life extension – at a moderate price this was probably a very good buy."
     }
    }
   },

@@ -55,7 +55,7 @@
   }
   const perBoe = (usdMM, boe) => (boe > 0 ? `${state.cur === 'NOK' ? 'NOK' : 'USD'} ${nf(toCur(usdMM) / boe, state.cur === 'NOK' ? 0 : 1)}` : '–');
   const kboed = (mmboe) => mmboe * 1000 / 365;
-  const pct = (v, d = 1) => `${nf(v, d)} %`;
+  const pct = (v, d = 1) => `${nf(v, d)} %`; // non-breaking space: "8 %" never splits over two lines
 
   // ---------- data ----------
   async function load() {
@@ -1241,7 +1241,7 @@
         <div class="kpi"><div class="l">${t('ddKpiModel')}</div><div class="v">${money(V0)}</div><div class="s">${t('ddKpiValueSub', year, pct(r * 100, 0))}</div></div>
         <div class="kpi"><div class="l">${t('ddKpiTypical')}</div><div class="v">${money(Vtyp)}</div><div class="s">${t('ddKpiTypicalSub', nf(baseline, 2))}</div></div>
         <div class="kpi hl"><div class="l">${t('ddKpiVsTyp')}</div><div class="v ${vsTyp == null ? '' : gainCls(-vsTyp)}">${vsTyp == null || m.partial ? '–' : `${vsTyp >= 0 ? '+' : '−'}${pct(Math.abs(vsTyp) * 100, 0)}`}</div><div class="s">${m.partial ? t('verdict_na') : ratio ? t('ddKpiVsTypSub', nf(ratio, 2), nf(baseline, 2)) : ''}</div></div>
-        <div class="kpi"><div class="l">${t('ddKpiIrr')}</div><div class="v">${irr == null ? t('ddIrrNone') : pctTxt(irr)}</div><div class="s">${t('ddKpiIrrSub')}</div></div>
+        <div class="kpi"><div class="l">${t('ddKpiIrr')}</div><div class="v">${irr == null ? t('ddIrrNone') : pctTxt(irr)}</div><div class="s">${t(irr == null ? 'ddKpiIrrSubNone' : 'ddKpiIrrSub')}</div></div>
         <div class="kpi"><div class="l">${t('ddKpiPayback')}</div><div class="v">${payback || t('ddNotWithin')}</div><div class="s">${t('ddKpiPaybackSub')}</div></div>
       </div>` : `<div class="kpis dd-kpis"><div class="kpi hl"><div class="l">${t('ddKpiValue')}</div><div class="v">${money(V0)}</div><div class="s">${t('ddKpiValueSub', year, pct(r * 100, 0))}</div></div><div class="kpi"><div class="l">${t('ddKpiPaid')}</div><div class="v">–</div><div class="s">${t('dealsNoValue')}</div></div></div>`;
 
@@ -1454,6 +1454,31 @@
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') hideTip(); });
   window.addEventListener('scroll', hideTip, { passive: true });
 
+  // ---------- large numbers that fit their tiles ----------
+  // Key figures stay on one line. Where a tile is too narrow (six tiles in a row, long values such as "NOK 261 mrd"),
+  // the numbers in that row are made smaller – all to the same size, so the row stays even.
+  const FIT_SEL = '.kpi .v, .life-grid .v';
+  const FIT_MIN = 15;
+  function fitNumbers(root = document) {
+    const groups = new Map();
+    for (const el of root.querySelectorAll(FIT_SEL)) {
+      if (!el.offsetParent) continue;
+      el.style.fontSize = '';
+      const row = el.closest('.kpis, .life-grid') || el;
+      if (!groups.has(row)) groups.set(row, []);
+      groups.get(row).push(el);
+    }
+    for (const els of groups.values()) {
+      let size = Math.min(...els.map((el) => parseFloat(getComputedStyle(el).fontSize)));
+      const fits = () => els.every((el) => el.scrollWidth <= el.clientWidth + 0.5);
+      for (const el of els) el.style.fontSize = size + 'px';
+      while (!fits() && size > FIT_MIN) { size -= 1; for (const el of els) el.style.fontSize = size + 'px'; }
+    }
+  }
+  let fitTimer;
+  window.addEventListener('resize', () => { clearTimeout(fitTimer); fitTimer = setTimeout(() => fitNumbers(), 120); });
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => fitNumbers());
+
   // ---------- router ----------
   function route(opts = {}) {
     if (!state.data) return;
@@ -1477,6 +1502,7 @@
     $$('[data-nav]').forEach((a) => a.classList.toggle('active', a.dataset.nav === nav));
     if (opts.keepScroll) window.scrollTo(0, y); else window.scrollTo(0, 0);
     if (focusSel) { const i = $(focusSel); if (i) { i.focus(); i.setSelectionRange(i.value.length, i.value.length); } }
+    fitNumbers();
   }
   window.addEventListener('hashchange', () => route());
   // Hide the deals ticker when scrolled down (with a small hysteresis so it doesn't flicker)

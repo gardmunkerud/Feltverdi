@@ -23,7 +23,6 @@ A scheduled cloud agent improves Feltverdi in small steps, one change every 3 ho
 
 ### Financial analysis
 - **Deal prices:** the deal price is the headline value at announcement. Use completion prices or price adjustments where they are public, and mark which one is used.
-- **Deals paid in shares** (Aker BP–Lundin, Det norske–BP): the value moved with the share price. Note this in the deal text or the method.
 - **Opex:** the model uses a generic $/boe by hydrocarbon type (60 % fixed). Consider field-specific levels for the largest old fields (Ekofisk, Heidrun, Statfjord, Oseberg) where public figures exist, with sources.
 - **Decommissioning:** a flat $1/boe of original volumes is too low for large old platforms. Consider a size-based floor, with the method documented.
 - **Tax:**
@@ -47,6 +46,7 @@ A scheduled cloud agent improves Feltverdi in small steps, one change every 3 ho
 
 ## Log (newest first)
 
+- 2026-11-26 – Wording/financial analysis: the deals method text (nb + en) now says the price is the value at announcement and moves with the share price for deals paid in shares.
 - 2026-11-26 – Log started. Recent changes:
   - deal analysis pages
   - plain-language Deals section

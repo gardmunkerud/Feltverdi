@@ -498,6 +498,36 @@ th .info { text-transform: none; letter-spacing: 0; }
 @media (max-width: 900px) { .kpis.k6.dd-kpis { grid-template-columns: repeat(3, 1fr); } }
 @media (max-width: 560px) { .card-head { flex-wrap: wrap; } .kpis.k6.dd-kpis { grid-template-columns: repeat(2, 1fr); } .dd-list > div { flex-direction: column; gap: 2px; } .dd-list dd { text-align: left; } }
 
+/* Plain-language deal pages */
+.dd-intro { margin: -6px 0 16px; font-size: 15px; line-height: 1.55; color: var(--text-2); max-width: 900px; }
+.dd-plain { margin: 0 0 18px; padding: 0 0 0 20px; display: grid; gap: 8px; }
+.dd-plain li { font-size: 16px; line-height: 1.55; color: var(--text); }
+.dd-plain li::marker { color: var(--muted); }
+.dd-sub { font-size: 15px; font-weight: 650; margin: 22px 0 6px; color: var(--text); }
+.gauge { margin: 6px 0 8px; max-width: 760px; }
+.gauge-title { font-size: 13px; font-weight: 600; color: var(--muted); margin-bottom: 30px; }
+.gauge-track { position: relative; }
+.gauge-bar { display: grid; grid-template-columns: repeat(4, 1fr); gap: 3px; }
+.gauge-bar span { font-size: 12px; font-weight: 600; text-align: center; padding: 7px 4px; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.gauge-bar span:first-child { border-radius: 999px 0 0 999px; }
+.gauge-bar span:last-child { border-radius: 0 999px 999px 0; }
+.gauge-bar .g-cheap { background: var(--pos); }
+.gauge-bar .g-fair { background: var(--accent); }
+.gauge-bar .g-full { background: var(--oil); }
+.gauge-bar .g-expensive { background: var(--neg); }
+.gauge-mark { position: absolute; top: -8px; bottom: -8px; width: 3px; margin-left: -1.5px; background: var(--text); border-radius: 2px; box-shadow: 0 0 0 2px var(--surface); }
+.gauge-mark b { position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); margin-bottom: 4px; font-size: 13px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.gauge p { margin: 12px 0 0; }
+.da-plain { margin: 10px 0 0 !important; font-size: 15px !important; font-weight: 600; color: var(--text) !important; }
+.gloss { margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px 28px; }
+.gloss dt { font-weight: 650; font-size: 14.5px; }
+.gloss dd { margin: 3px 0 0; font-size: 14px; line-height: 1.5; color: var(--text-2); }
+.dd-caveats { margin-top: 16px; }
+.dd-caveats summary { cursor: pointer; font-size: 14px; font-weight: 600; color: var(--link); }
+.dd-caveats[open] summary { margin-bottom: 8px; }
+.deal-method .dd-caveats p { font-size: 13.5px; }
+@media (max-width: 560px) { .gauge-bar span { font-size: 10.5px; padding: 6px 2px; } .dd-plain li { font-size: 15px; } }
+
 /* Prose (method page) */
 .prose { max-width: 700px; margin: 0 auto; }
 .prose h1 { margin-bottom: 12px; }

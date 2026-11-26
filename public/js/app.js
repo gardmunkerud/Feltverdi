@@ -924,16 +924,18 @@
     const cells = [];
     if (m) {
       cells.push([t('dmProd'), `${nf(m.prodKboed, 1)} ${t('kboed')}`]);
+      // [label, value, explanation]
       cells.push([t('dmRem'), `${nf(m.remMmboe, 0)} ${t('mmboe')}`]);
-      if (m.perFlowing) cells.push([t('dmFlowing'), `USD ${nf(m.perFlowing, 0)}`]);
-      if (m.perBoe) cells.push([t('dmPerBoe'), `USD ${nf(m.perBoe, 1)} <span class="muted">(${nf(m.perBoePctBrent, 0)} % ${t('dmOfBrent')})</span>`]);
-      cells.push([t('dmHindsight', base), `USD ${usd(m.hindsightValue)}`]);
-      if (m.ratio && !m.partial) cells.push([t('dmRatio'), `${nf(m.ratio, 2)}× <span class="muted">(${nf(m.relative, 2)}× ${t('dmMedian')})</span>`]);
-      if (m.reserveGrowth && m.year < state.data.lastFullYear) cells.push([t('dmGrowth'), `${nf(m.reserveGrowth, 2)}×`]);
+      if (m.perFlowing) cells.push([t('dmFlowing'), `USD ${nf(m.perFlowing, 0)}`, t('dmT_flowing')]);
+      if (m.perBoe) cells.push([t('dmPerBoe'), `USD ${nf(m.perBoe, 1)} <span class="muted">(${nf(m.perBoePctBrent, 0)} % ${t('dmOfBrent')})</span>`, t('dmT_perBoe')]);
+      cells.push([t('dmHindsight', base), `USD ${usd(m.hindsightValue)}`, t('dmT_hindsight')]);
+      if (m.ratio && !m.partial) cells.push([t('dmRatio'), `${nf(m.ratio, 2)}× <span class="muted">(${nf(m.relative, 2)}× ${t('dmMedian')})</span>`, t('dmT_ratio')]);
+      if (m.reserveGrowth && m.year < state.data.lastFullYear) cells.push([t('dmGrowth'), `${nf(m.reserveGrowth, 2)}×`, t('dmT_growth')]);
     }
     return `<div class="deal-assess v-${a.verdict}">
       <div class="da-head"><span class="verdict v-${a.verdict}">${esc(t('verdict_' + a.verdict))}</span><span class="muted">${t('dealsConfidence')}: ${esc(t('conf_' + a.confidence))}</span></div>
-      ${cells.length ? `<dl class="da-metrics">${cells.map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${v}</dd></div>`).join('')}</dl>` : ''}
+      ${m && m.relative && !m.partial ? `<p class="da-plain">${esc(Math.abs(m.relative - 1) < 0.05 ? t('dealsPlainNear') : t(m.relative > 1 ? 'dealsPlainAbove' : 'dealsPlainBelow', pct(Math.abs(m.relative - 1) * 100, 0)))}</p>` : ''}
+      ${cells.length ? `<dl class="da-metrics">${cells.map(([k, v, tip]) => `<div><dt>${esc(k)}${tip ? tipBtn(tip) : ''}</dt><dd>${v}</dd></div>`).join('')}</dl>` : ''}
       <p>${esc(a.text[state.lang])}</p>
       ${m && m.items && m.items.length ? `<p class="da-stakes muted">${t('dmStakes')}: ${m.items.slice(0, 8).map((i) => `<a href="#/felt/${i.slug}">${esc(i.field)}</a> ${nf(i.share, i.share % 1 ? 2 : 0)} %`).join(' · ')}${m.items.length > 8 ? ' …' : ''}</p>` : ''}
     </div>`;
@@ -961,7 +963,7 @@
         <div>
           <div class="eyebrow">${t('dealsEyebrow')}</div>
           <h1>Deals</h1>
-          <p class="hero-sub">${t('dealsIntro', all.length, years[0], years[years.length - 1])}</p>
+          <p class="hero-sub">${t('dealsIntroPlain', all.length, years[0], years[years.length - 1])}</p>
         </div>
       </section>
       <div class="kpis">
@@ -977,8 +979,9 @@
         </div>
         <div class="card deal-method">
           <div class="card-head"><h2>${t('dealsMethodTitle')}</h2></div>
-          ${t('dealsMethod', state.dealMetrics ? nf(state.dealMetrics.baseline, 2) : '–', state.dealMetrics ? state.dealMetrics.n : 0, pct((state.dealMetrics ? state.dealMetrics.discount : 0.08) * 100, 0))}
-          <div class="verdict-legend">${['cheap', 'fair', 'full', 'expensive'].map((v) => `<span class="verdict v-${v}">${t('verdict_' + v)}</span><span class="muted">${t('verdictRule_' + v)}</span>`).join('')}</div>
+          ${t('dealsMethodPlain', state.dealMetrics ? nf(state.dealMetrics.baseline, 2) : '–', state.dealMetrics ? state.dealMetrics.n : 0)}
+          <div class="verdict-legend">${['cheap', 'fair', 'full', 'expensive'].map((v) => `<span class="verdict v-${v}">${t('verdict_' + v)}</span><span class="muted">${t('verdictPlain_' + v)}</span>`).join('')}</div>
+          <details class="dd-caveats"><summary>${t('dealsMethodMore')}</summary>${t('dealsMethod', state.dealMetrics ? nf(state.dealMetrics.baseline, 2) : '–', state.dealMetrics ? state.dealMetrics.n : 0, pct((state.dealMetrics ? state.dealMetrics.discount : 0.08) * 100, 0))}</details>
         </div>
       </div>
       <div class="card section-gap">
@@ -1110,13 +1113,68 @@
         </div>
       </section>`;
   }
-  function ddConclusion(d, extra = '') {
+  // ---- plain-language helpers for the deal pages ----
+  const tipBtn = (text) => `<button type="button" class="info" data-tip="${esc(text)}" aria-label="${esc(t('infoLabel'))}">i</button>`;
+  const intro = (key, ...args) => `<p class="dd-intro">${esc(t(key, ...args))}</p>`;
+  const usdStated = (v) => `USD ${v >= 1000 ? nf(v / 1000, 2) + ' ' + t('bn') : nf(v, Number.isInteger(v) ? 0 : 1) + ' ' + t('mn')}`;
+  // Production on the whole shelf in a year (thousand boe per day), for "x % of all production"
+  function shelfKboed(year) {
+    let s = 0;
+    for (const f of state.data.fields) { const p = f.prod.find((r) => r[0] === year); if (p) s += p[5]; }
+    return s * BOE * 1000 / 365;
+  }
+  const listJoin = (arr) => (arr.length > 1 ? `${arr.slice(0, -1).join(', ')}${t('ddP_and')}${arr[arr.length - 1]}` : arr[0] || '');
+  const stakeTxt = (i) => t('ddP_what1', pct(i.share, i.share % 1 ? 1 : 0), i.field);
+  function ddWhat(items) {
+    const its = [...items].sort((a, b) => b.remMmboe - a.remMmboe);
+    if (its.length === 1) return stakeTxt(its[0]);
+    return t('ddP_whatN', its.length, listJoin(its.slice(0, 3).map((i) => i.field)));
+  }
+  // "In short": plain sentences generated from the numbers
+  function ddPlainList(d, m, c) {
+    const out = [];
+    out.push(m.priceUsdM != null ? t('ddP_bought', c.buyer, ddWhat(m.items), c.seller, usdStated(m.priceUsdM), m.year) : t('ddP_boughtNoPrice', c.buyer, ddWhat(m.items), c.seller, m.year));
+    if (m.prodKboed >= 0.1) {
+      const sh = m.prodKboed / shelfKboed(m.year - 1) * 100;
+      const yrs = m.remMmboe / (m.prodKboed * 0.365);
+      out.push(t('ddP_size', nf(m.prodKboed, m.prodKboed < 10 ? 1 : 0), pct(sh, sh < 1 ? 1 : 0), nf(m.remMmboe, 0), nf(yrs, 0)));
+    } else if (m.remMmboe > 0) out.push(t('ddP_sizeNoProd', nf(m.remMmboe, 0)));
+    if (m.perBoe && m.brent) out.push(t('ddP_perBoe', nf(m.perBoe, 1), nf(m.brent, 0)));
+    if (m.partial) out.push(t('ddP_partial'));
+    else if (c.vsTyp != null) out.push(Math.abs(c.vsTyp) < 0.05 ? t('ddP_near') : t(c.vsTyp > 0 ? 'ddP_above' : 'ddP_below', pct(Math.abs(c.vsTyp) * 100, 0)));
+    if (c.histSpan && c.price && c.realised > 0) out.push(t('ddP_realised', money(c.realised), pct(c.realised / c.price * 100, 0), c.histSpan[0], c.histSpan[1]));
+    return out;
+  }
+  // Price scale: cheap – usual – full – expensive, with a marker at price ÷ typical price
+  function ddGauge(rel) {
+    if (rel == null || !Number.isFinite(rel)) return '';
+    const stops = [[0.5, 0], [0.8, 25], [1.1, 50], [1.4, 75], [2.0, 100]];
+    let pos = rel <= 0.5 ? 0 : 100;
+    for (let i = 1; i < stops.length; i++) if (rel > stops[i - 1][0] && rel <= stops[i][0]) { pos = stops[i - 1][1] + (rel - stops[i - 1][0]) / (stops[i][0] - stops[i - 1][0]) * 25; break; }
+    return `<div class="gauge" role="img" aria-label="${esc(t('ddGaugeNote', nf(rel, 2)))}">
+      <div class="gauge-title">${t('ddGaugeTitle')}</div>
+      <div class="gauge-track">
+        <div class="gauge-bar">${['cheap', 'fair', 'full', 'expensive'].map((v) => `<span class="g-${v}">${esc(t('verdict_' + v))}</span>`).join('')}</div>
+        <div class="gauge-mark" style="left:${pos.toFixed(1)}%"><b>${nf(rel, 2)}×</b></div>
+      </div>
+      <p class="muted dd-small">${esc(t('ddGaugeNote', nf(rel, 2)))}</p>
+    </div>`;
+  }
+  function ddGlossaryCard() {
+    return `<div class="card section-gap dd-gloss">
+      <div class="card-head"><h2>${t('ddGlossary')}</h2></div>
+      <dl class="gloss">${t('ddGloss').map(([k, v, slug]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)} <a href="#/wiki/${slug}">${t('ddGlossaryMore')}</a></dd></div>`).join('')}</dl>
+      <details class="dd-caveats"><summary>${t('ddCaveatsTitle')}</summary><p class="muted dd-small">${t('ddCaveats')}</p></details>
+    </div>`;
+  }
+
+  function ddConclusion(d, plain = null) {
     const a = d.assessment;
     return `<div class="card dd-conc v-${a ? a.verdict : 'na'}">
-        <div class="card-head"><h2>${t('ddConclusion')}</h2>${a ? `<span class="verdict v-${a.verdict}">${esc(t('verdict_' + a.verdict))}</span>` : ''}</div>
-        ${a ? `<p class="dd-lead">${esc(a.text[state.lang])}</p><p class="muted">${t('dealsConfidence')}: ${esc(t('conf_' + a.confidence))}</p>` : ''}
-        ${extra}
-        <p class="muted dd-small">${t('ddCaveats')}</p>
+        <div class="card-head"><h2>${t('ddShort')}</h2>${a ? `<span class="verdict v-${a.verdict}">${esc(t('verdict_' + a.verdict))}</span>` : ''}</div>
+        ${plain && plain.list.length ? `<ul class="dd-plain">${plain.list.map((s) => `<li>${esc(s)}</li>`).join('')}</ul>` : ''}
+        ${plain && plain.gauge ? plain.gauge : ''}
+        ${a ? `<h3 class="dd-sub">${t('ddExpert')}</h3><p class="dd-lead">${esc(a.text[state.lang])}</p><p class="muted dd-small">${t('dealsConfidence')}: ${esc(t('conf_' + a.confidence))}</p>` : ''}
         <div class="deal-foot"><div><span class="deal-val">${d.valueUsdM == null ? t('dealsNoValue') : `USD ${d.valueUsdM >= 1000 ? nf(d.valueUsdM / 1000, 2) + ' ' + t('bn') : nf(d.valueUsdM, Number.isInteger(d.valueUsdM) ? 0 : 1) + ' ' + t('mn')}`}</span> <span class="muted">${esc(d.valueNote[state.lang])}</span></div>
           <a href="${esc(d.source)}" target="_blank" rel="noopener">${t('dealsSource')}</a></div>
       </div>`;
@@ -1154,7 +1212,8 @@
     const row = (k, v, cls = '') => `<div><dt>${k}</dt><dd class="${cls}">${v}</dd></div>`;
     const note = d.views && d.views.note ? `<p class="muted dd-small">${t('ddViewsDefault')} ${esc(d.views.note[state.lang])}</p>` : '';
     return `<div class="card section-gap dd-views">
-      <div class="card-head"><h2>${t('ddViews')}</h2><span class="muted">${t('ddViewsSub')}${custom ? ` · <button type="button" class="linkish" data-dv-reset>${t('ddReset')}</button>` : ''}</span></div>
+      <div class="card-head"><h2>${t('ddH_views')}</h2><span class="muted">${t('ddViewsSub')}${custom ? ` · <button type="button" class="linkish" data-dv-reset>${t('ddReset')}</button>` : ''}</span></div>
+      ${intro('ddL_views')}
       <div class="dd-inps">
         ${inp('buyerRate', t('ddInBuyerRate', buyer), cur.buyerRate, 0.5, 20)}
         ${inp('synergy', t('ddInSyn', buyer), cur.synergy, 1, 40)}
@@ -1197,7 +1256,7 @@
     if (!d) { viewNotFound(el); return; }
     const m = state.dealMetrics && state.dealMetrics.metrics[d.id];
     if (!m || !state.hist || (!m.swap && m.priceUsdM == null && m.hindsightValue == null)) {
-      el.innerHTML = ddHeader(d) + ddConclusion(d) + `<div class="card section-gap"><p>${state.hist ? t('ddNoModel') : t('ddNoHist')}</p></div>`;
+      el.innerHTML = ddHeader(d) + ddConclusion(d) + `<div class="card section-gap"><p>${state.hist ? t('ddNoModel') : t('ddNoHist')}</p></div>` + ddGlossaryCard();
       return;
     }
     if (m.swap) { viewSwapDetail(el, d, m); return; }
@@ -1237,25 +1296,26 @@
     const gainTyp = hasPrice ? Vtyp - price : null;
     const kpis = hasPrice ? `
       <div class="kpis k6 dd-kpis">
-        <div class="kpi"><div class="l">${t('ddKpiPaid')}</div><div class="v">${money(price)}</div><div class="s">${t('ddKpiPaidSub', 'USD ' + (m.priceUsdM >= 1000 ? nf(m.priceUsdM / 1000, 2) + ' ' + t('bn') : nf(m.priceUsdM, 0) + ' ' + t('mn')), year)}</div></div>
-        <div class="kpi"><div class="l">${t('ddKpiModel')}</div><div class="v">${money(V0)}</div><div class="s">${t('ddKpiValueSub', year, pct(r * 100, 0))}</div></div>
-        <div class="kpi"><div class="l">${t('ddKpiTypical')}</div><div class="v">${money(Vtyp)}</div><div class="s">${t('ddKpiTypicalSub', nf(baseline, 2))}</div></div>
-        <div class="kpi hl"><div class="l">${t('ddKpiVsTyp')}</div><div class="v ${vsTyp == null ? '' : gainCls(-vsTyp)}">${vsTyp == null || m.partial ? '–' : `${vsTyp >= 0 ? '+' : '−'}${pct(Math.abs(vsTyp) * 100, 0)}`}</div><div class="s">${m.partial ? t('verdict_na') : ratio ? t('ddKpiVsTypSub', nf(ratio, 2), nf(baseline, 2)) : ''}</div></div>
-        <div class="kpi"><div class="l">${t('ddKpiIrr')}</div><div class="v">${irr == null ? t('ddIrrNone') : pctTxt(irr)}</div><div class="s">${t(irr == null ? 'ddKpiIrrSubNone' : 'ddKpiIrrSub')}</div></div>
-        <div class="kpi"><div class="l">${t('ddKpiPayback')}</div><div class="v">${payback || t('ddNotWithin')}</div><div class="s">${t('ddKpiPaybackSub')}</div></div>
+        <div class="kpi"><div class="l">${t('ddKpiPaid')}${tipBtn(t('ddT_paid'))}</div><div class="v">${money(price)}</div><div class="s">${t('ddKpiPaidSub', 'USD ' + (m.priceUsdM >= 1000 ? nf(m.priceUsdM / 1000, 2) + ' ' + t('bn') : nf(m.priceUsdM, 0) + ' ' + t('mn')), year)}</div></div>
+        <div class="kpi"><div class="l">${t('ddKpiModel')}${tipBtn(t('ddT_model'))}</div><div class="v">${money(V0)}</div><div class="s">${t('ddKpiValueSub', year, pct(r * 100, 0))}</div></div>
+        <div class="kpi"><div class="l">${t('ddKpiTypical')}${tipBtn(t('ddT_typical', nf(baseline, 2)))}</div><div class="v">${money(Vtyp)}</div><div class="s">${t('ddKpiTypicalSub', nf(baseline, 2))}</div></div>
+        <div class="kpi hl"><div class="l">${t('ddKpiVsTyp')}${tipBtn(t('ddT_vsTyp'))}</div><div class="v ${vsTyp == null ? '' : gainCls(-vsTyp)}">${vsTyp == null || m.partial ? '–' : `${vsTyp >= 0 ? '+' : '−'}${pct(Math.abs(vsTyp) * 100, 0)}`}</div><div class="s">${m.partial ? t('verdict_na') : ratio ? t('ddKpiVsTypSub', nf(ratio, 2), nf(baseline, 2)) : ''}</div></div>
+        <div class="kpi"><div class="l">${t('ddKpiIrr')}${tipBtn(t('ddT_irr', pct(r * 100, 0)))}</div><div class="v">${irr == null ? t('ddIrrNone') : pctTxt(irr)}</div><div class="s">${t(irr == null ? 'ddKpiIrrSubNone' : 'ddKpiIrrSub')}</div></div>
+        <div class="kpi"><div class="l">${t('ddKpiPayback')}${tipBtn(t('ddT_payback'))}</div><div class="v">${payback || t('ddNotWithin')}</div><div class="s">${t('ddKpiPaybackSub')}</div></div>
       </div>` : `<div class="kpis dd-kpis"><div class="kpi hl"><div class="l">${t('ddKpiValue')}</div><div class="v">${money(V0)}</div><div class="s">${t('ddKpiValueSub', year, pct(r * 100, 0))}</div></div><div class="kpi"><div class="l">${t('ddKpiPaid')}</div><div class="v">–</div><div class="s">${t('dealsNoValue')}</div></div></div>`;
 
     const row = (k, v, cls = '') => `<div><dt>${k}</dt><dd class="${cls}">${v}</dd></div>`;
     const buyerCard = `<div class="card dd-side">
         <div class="card-head"><h2>${esc(t('ddBuyer', buyer))}</h2></div>
+        ${intro('ddL_buyer')}
         <dl class="dd-list">
           ${hasPrice ? row(t('ddPaid'), money(price)) : ''}
           ${row(t('ddGot'), money(V0))}
-          ${histSpan ? row(t('ddRealised', histSpan[0], histSpan[1]), `${money(vHist)} <span class="muted">(${V0 > 0 ? pct(vHist / V0 * 100, 0) : '–'})</span>`) : ''}
-          ${hasPrice && !m.partial ? row(t('ddVsTypRow'), signed(gainTyp), gainCls(gainTyp)) : ''}
-          ${hasPrice ? row(`${t('ddGain')} <span class="muted">(${t('ddKpiModel').toLowerCase()})</span>`, signed(gain), gainCls(gain)) : ''}
-          ${hasPrice ? row(t('ddIrr'), irr == null ? t('ddIrrNone') : pctTxt(irr)) : ''}
-          ${hasPrice ? row(t('ddPayback'), payback || t('ddNotWithin')) : ''}
+          ${histSpan ? row(t('ddRealised', histSpan[0], histSpan[1]) + tipBtn(t('ddT_realised')), `${money(vHist)} <span class="muted">(${V0 > 0 ? pct(vHist / V0 * 100, 0) : '–'})</span>`) : ''}
+          ${hasPrice && !m.partial ? row(t('ddVsTypRow') + tipBtn(t('ddT_vsTypRow')), signed(gainTyp), gainCls(gainTyp)) : ''}
+          ${hasPrice ? row(`${t('ddGain')} <span class="muted">(${t('ddKpiModel').toLowerCase()})</span>${tipBtn(t('ddT_gain'))}`, signed(gain), gainCls(gain)) : ''}
+          ${hasPrice ? row(t('ddIrr') + tipBtn(t('ddT_irr', pct(r * 100, 0))), irr == null ? t('ddIrrNone') : pctTxt(irr)) : ''}
+          ${hasPrice ? row(t('ddPayback') + tipBtn(t('ddT_payback')), payback || t('ddNotWithin')) : ''}
           ${vUp != null ? row(`${t('ddUpsideRow')}`, `${money(vUp)}${hasPrice ? ` <span class="${gainCls(vUp - price)}">(${signed(vUp - price)})</span>` : ''}`) : ''}
         </dl>
         ${hasPrice ? `<p>${t('ddBuyerText', money(price), money(V0), signed(gain), (gain >= 0 ? '+' : '−') + pct(Math.abs(gain / price * 100), 0), irr == null ? t('ddIrrNone') : pctTxt(irr), pct(r * 100, 0))}</p>` : ''}
@@ -1263,15 +1323,16 @@
       </div>`;
     const sellerCard = `<div class="card dd-side">
         <div class="card-head"><h2>${esc(t('ddSeller', seller))}</h2></div>
+        ${intro('ddL_seller')}
         <dl class="dd-list">
           ${hasPrice ? row(t('ddReceived'), money(price)) : ''}
           ${row(t('ddGaveUp'), money(V0))}
-          ${hasPrice && !m.partial ? row(t('ddVsTypRow'), signed(-gainTyp), gainCls(-gainTyp)) : ''}
+          ${hasPrice && !m.partial ? row(t('ddVsTypRow') + tipBtn(t('ddT_vsTypRow')), signed(-gainTyp), gainCls(-gainTyp)) : ''}
           ${hasPrice ? row(`${t('ddSellerGain')} <span class="muted">(${t('ddKpiModel').toLowerCase()})</span>`, signed(-gain), gainCls(-gain)) : ''}
-          ${vThen != null ? row(t('ddThenValue', nf(thenDeck.brent)), money(vThen)) : ''}
+          ${vThen != null ? row(t('ddThenValue', nf(thenDeck.brent)) + tipBtn(t('ddT_then')), money(vThen)) : ''}
           ${vThen != null && hasPrice ? row(t('ddThenGain'), signed(price - vThen), gainCls(price - vThen)) : ''}
-          ${vThen != null ? row(t('ddPriceLuck'), signed(V0 - vThen), gainCls(V0 - vThen)) : ''}
-          ${histSpan ? row(t('ddForgone', histSpan[0], histSpan[1]), money(realised)) : ''}
+          ${vThen != null ? row(t('ddPriceLuck') + tipBtn(t('ddT_luck')), signed(V0 - vThen), gainCls(V0 - vThen)) : ''}
+          ${histSpan ? row(t('ddForgone', histSpan[0], histSpan[1]) + tipBtn(t('ddT_forgone')), money(realised)) : ''}
         </dl>
         ${hasPrice && vThen != null ? `<p>${t(price >= vThen ? 'ddSellerTextUp' : 'ddSellerTextDown', money(price), money(V0), money(vThen), money(Math.abs(price - vThen)))}</p>` : ''}
         ${d.type === 'merger' ? `<p class="muted dd-small">${t('ddPaidShares')}</p>` : ''}
@@ -1288,34 +1349,41 @@
     </table></div>` : '';
     const multiples = hasPrice && (m.perFlowing || m.perBoe) ? `<p class="muted">${t('ddMultiples')}: ${m.perFlowing ? `USD ${nf(m.perFlowing, 0)} ${t('ddPerFlowing')}` : ''}${m.perFlowing && m.perBoe ? ' · ' : ''}${m.perBoe ? `USD ${nf(m.perBoe, 1)} ${t('ddPerBoe')} (${nf(m.perBoePctBrent, 0)} % ${t('dmOfBrent')})` : ''}</p>` : '';
 
-    el.innerHTML = ddHeader(d) + ddConclusion(d) + `
+    const plain = { list: ddPlainList(d, m, { buyer, seller, vsTyp, price, realised, histSpan }), gauge: hasPrice && !m.partial && ratio ? ddGauge(ratio / baseline) : '' };
+    el.innerHTML = ddHeader(d) + ddConclusion(d, plain) + `
       ${m.partial ? `<div class="card dd-warn">${t('ddPartial')}${m.note ? ` <span class="muted">(${esc(m.note)})</span>` : ''}</div>` : ''}
       ${kpis}
       <p class="muted dd-small">${t('ddLive')}</p>
       <div class="grid g-2 section-gap">${buyerCard}${sellerCard}</div>
       ${ddViewsCard(d, year, base.rows, m.partial ? null : price, baseline, buyer, seller)}
-      <div class="card section-gap"><p class="muted dd-small" style="margin:0">${t('ddTaxNote')}</p></div>
       <div class="card section-gap">
-        <div class="card-head"><h2>${t('ddDcf')}</h2><span class="muted">${t('ddDcfSub', year, pct(r * 100, 0))}</span></div>
+        <div class="card-head"><h2>${t('ddH_dcf')}</h2><span class="muted">${t('ddDcfSub', year, pct(r * 100, 0))}</span></div>
+        ${intro('ddL_dcf')}
         <div class="chart-box" style="height:340px"><canvas id="c-dd"></canvas></div>
       </div>
       <div class="grid g-2 section-gap">
         <div class="card">
-          <div class="card-head"><h2>${t('ddBrent')}</h2><span class="muted">${t('ddBrentSub')}</span></div>
+          <div class="card-head"><h2>${t('ddH_brent')}</h2></div>
+          ${intro('ddL_brent')}
+          <p class="muted dd-small">${t('ddBrentSub')}</p>
           <div class="chart-box" style="height:260px"><canvas id="c-dd-brent"></canvas></div>
           ${hasPrice ? `<p class="dd-small">${be != null ? t('ddBreakeven', nf(be, 0)) : t('ddBreakevenNone', 40, 120)}</p>` : ''}
         </div>
         <div class="card">
-          <div class="card-head"><h2>${t('ddScen')}</h2><span class="muted">${t('ddScenSub')} (${pct(r * 100, 0)})</span></div>
+          <div class="card-head"><h2>${t('ddH_scen')}</h2><span class="muted">${t('ddScenSub')} (${pct(r * 100, 0)})</span></div>
+          ${intro('ddL_scen')}
           ${scenTable}
           ${multiples}
         </div>
       </div>
-      ${hasPrice ? `<div class="card section-gap"><div class="card-head"><h2>${t('ddSensT')}</h2><span class="muted">${t('ddSensSubT', nf(baseline, 2))}</span></div>${sensTable}</div>` : ''}
+      ${hasPrice ? `<div class="card section-gap"><div class="card-head"><h2>${t('ddH_sens')}</h2><span class="muted">${t('ddSensSubT', nf(baseline, 2))}</span></div>${intro('ddL_sens')}${sensTable}</div>` : ''}
       <div class="card section-gap">
-        <div class="card-head"><h2>${t('ddStakes')}</h2><span class="muted">${t('ddStakesSub', year)}</span></div>
+        <div class="card-head"><h2>${t('ddH_stakes')}</h2><span class="muted">${t('ddStakesSub', year)}</span></div>
+        ${intro('ddL_stakes')}
         ${ddStakeTable(m.items, base.per, year, r)}
-      </div>`;
+      </div>
+      <div class="card section-gap"><div class="card-head"><h2>${t('ddH_tax')}</h2></div>${intro('ddL_tax')}</div>
+      ${ddGlossaryCard()}`;
     bindDealViews(el, d);
     if (!window.Chart) return;
     drawDealDcf($('#c-dd'), year, r, [{ label: '', rows: base.rows, color: COLORS.gas }], price, up ? up.rows : null);
@@ -1398,24 +1466,30 @@
       <tbody>${scen.map((s) => `<tr><td>${esc(s.label)}</td>${DD_RATES.map((x) => { const n = netFor(s.legs, A, x); return `<td class="r num ${gainCls(n)}">${signed(n)}</td>`; }).join('')}</tr>`).join('')}</tbody>
     </table></div>`;
     const text = winner ? t('ddSwapText', winner, money(Math.abs(netFor(base, winner))), winner) : t('ddSwapEven');
-    el.innerHTML = ddHeader(d) + ddConclusion(d) + `
+    // "In short" for a swap: who gave what, and who came out ahead
+    const gaveTxt = (p) => listJoin(base.filter((x) => x.l.from === p).flatMap((x) => [...x.l.items.map(stakeTxt), ...(x.l.cash ? [t('ddP_cash', usdStated(x.l.cash))] : [])]));
+    const plain = { list: [t('ddP_swap', A, gaveTxt(A), B, gaveTxt(B)), winner ? t('ddP_swapWin', winner, money(Math.abs(netFor(base, winner)))) : t('ddP_swapEven')], gauge: '' };
+    el.innerHTML = ddHeader(d) + ddConclusion(d, plain) + `
       ${kpis}
       <p class="muted dd-small">${t('ddLive')}</p>
-      <div class="grid g-2 section-gap">${parties.map(sideCard).join('')}</div>
+      ${intro('ddL_swapSides')}
+      <div class="grid g-2">${parties.map(sideCard).join('')}</div>
       <div class="card section-gap"><p class="dd-lead" style="margin-top:0">${esc(text)}</p><p class="muted dd-small" style="margin-bottom:0">${t('ddSwapTax')}</p>
         ${d.upside ? d.upside.map((u) => `<p class="muted dd-small">${t('ddDeckUp')}: ${esc(u.label[state.lang])}</p>`).join('') : ''}</div>
       <div class="card section-gap">
-        <div class="card-head"><h2>${t('ddSwapDcf')}</h2><span class="muted">${t('ddSwapDcfSub', year, pct(r * 100, 0))}</span></div>
+        <div class="card-head"><h2>${t('ddH_dcf')}</h2><span class="muted">${t('ddSwapDcfSub', year, pct(r * 100, 0))}</span></div>
+        ${intro('ddL_dcfSwap')}
         <div class="chart-box" style="height:340px"><canvas id="c-dd"></canvas></div>
       </div>
       <div class="grid section-gap">
-        <div class="card"><div class="card-head"><h2>${t('ddScen')}</h2><span class="muted">${t('ddScenSub')} (${pct(r * 100, 0)})</span></div>${scenTable}</div>
-        <div class="card"><div class="card-head"><h2>${t('ddSensSwap')}</h2><span class="muted">${esc(t('ddSensSubSwap', A))}</span></div>${sensTable}</div>
+        <div class="card"><div class="card-head"><h2>${t('ddH_scen')}</h2><span class="muted">${t('ddScenSub')} (${pct(r * 100, 0)})</span></div>${scenTable}</div>
+        <div class="card"><div class="card-head"><h2>${t('ddH_sens')}</h2><span class="muted">${esc(t('ddSensSubSwap', A))}</span></div>${intro('ddL_sensSwap')}${sensTable}</div>
       </div>
       <div class="card section-gap">
-        <div class="card-head"><h2>${t('ddStakes')}</h2><span class="muted">${t('ddStakesSub', year)}</span></div>
+        <div class="card-head"><h2>${t('ddH_stakes')}</h2><span class="muted">${t('ddStakesSub', year)}</span></div>
         ${base.map((x) => ddStakeTable(x.l.items, x.per, year, r, t('ddSwapGives', x.l.from))).join('')}
-      </div>`;
+      </div>
+      ${ddGlossaryCard()}`;
     if (window.Chart) drawDealDcf($('#c-dd'), year, r, base.map((x) => ({ label: t('ddSwapGives', x.l.from), rows: x.rows })), null, null);
   }
 

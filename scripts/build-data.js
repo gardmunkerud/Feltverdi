@@ -133,6 +133,9 @@ async function main() {
       outlook: outlookFrom(f.fldName, statusText.get(id)),
     });
   }
+  // Fields developed and known as one asset (e.g. Yggdrasil = Hugin + Munin + Fulla + Hugin Satellitter)
+  const mergedFields = require('./merge-fields').applyMerges(fields);
+  fields.length = 0; fields.push(...mergedFields);
   fields.sort((a, b) => a.name.localeCompare(b.name, 'nb'));
   const out = { generated: new Date().toISOString().slice(0, 10), lastFullYear, source: 'Sokkeldirektoratet (Sodir) FactPages, NLOD', fields };
   fs.mkdirSync(path.dirname(OUT), { recursive: true });

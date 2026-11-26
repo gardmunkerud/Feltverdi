@@ -184,7 +184,21 @@ function hindsightValue(f, s, year) {
   return v;
 }
 
-function evalPackage(stakes, year, later = new Set()) {
+// Sodir fields that Feltverdi shows as one asset (e.g. Hugin, Munin, Fulla → Yggdrasil): a stake in a part
+// counts as that part's weight of the merged field.
+const PARTS = require('./merge-fields').partMap(data.fields);
+function mergeParts(stakes) {
+  const out = new Map();
+  for (const [name, sh] of stakes) {
+    const p = PARTS.get(name);
+    const key = p ? p.name : name;
+    out.set(key, (out.get(key) || 0) + (p ? sh * p.weight : sh));
+  }
+  return out;
+}
+
+function evalPackage(stakesIn, year, later = new Set()) {
+  const stakes = mergeParts(stakesIn);
   let prod = 0, rem = 0, hindsight = 0, remNow = 0, prodAfter = 0;
   const items = [];
   for (const [name, sh] of stakes) {

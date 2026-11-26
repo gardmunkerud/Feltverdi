@@ -34,6 +34,12 @@ public/css/styles.css   design (dark theme, Inter font)
 tests/                  node --test
 ```
 
+**Merged assets:** fields that Sodir lists separately but that are developed and known as one asset are combined into a single field in [scripts/merge-fields.js](scripts/merge-fields.js). So far this covers **Yggdrasil**, which is Hugin, Munin, Fulla and Hugin Satellitter.
+- Production, investments and reserves are added together.
+- Owner shares are weighted by each part's recoverable volumes.
+- The field page links to each part's Sodir page.
+- The deal analysis converts stakes in a part into a stake in the merged field.
+
 ## History ("Historisk")
 
 The history page calculates each field's value over its whole life. It combines actual production and investments (Sodir) from the first year with historical prices, exchange rates and inflation, plus the model forecast for the remaining years. Every figure is in real terms at the latest CPI year. The page shows three measures:

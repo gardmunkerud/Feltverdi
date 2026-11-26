@@ -361,7 +361,8 @@
             ${v.kind === 'plateau' ? `<span class="tag plat">${t('plateauTag', v.plateauEnd)}</span>` : ''}
             <span class="tag">${t('operator')}: ${esc(f.operator)}</span>
             ${f.discovered ? `<span class="tag">${t('discovered')} ${f.discovered}</span>` : ''}
-            <a class="tag" href="${esc(f.url)}" target="_blank" rel="noopener">${t('sodirLink')}</a>
+            ${f.parts ? `<span class="tag">${t('partsOf')}: ${f.parts.map((p) => `<a href="${esc(p.url)}" target="_blank" rel="noopener">${esc(p.name)}</a>`).join(', ')}</span>`
+              : `<a class="tag" href="${esc(f.url)}" target="_blank" rel="noopener">${t('sodirLink')}</a>`}
           </div>
         </div>
         <label class="share-pick">${t('valueFor')} <select id="share">${shareOptions}</select></label>
@@ -933,7 +934,7 @@
       if (m.reserveGrowth && m.year < state.data.lastFullYear) cells.push([t('dmGrowth'), `${nf(m.reserveGrowth, 2)}×`, t('dmT_growth')]);
     }
     return `<div class="deal-assess v-${a.verdict}">
-      <div class="da-head"><span class="verdict v-${a.verdict}">${esc(t('verdict_' + a.verdict))}</span><span class="muted">${t('dealsConfidence')}: ${esc(t('conf_' + a.confidence))}</span></div>
+      <div class="da-head"><span class="verdict v-${a.verdict}">${esc(t('verdict_' + a.verdict))}</span></div>
       ${m && m.relative && !m.partial ? `<p class="da-plain">${esc(Math.abs(m.relative - 1) < 0.05 ? t('dealsPlainNear') : t(m.relative > 1 ? 'dealsPlainAbove' : 'dealsPlainBelow', pct(Math.abs(m.relative - 1) * 100, 0)))}</p>` : ''}
       ${cells.length ? `<dl class="da-metrics">${cells.map(([k, v, tip]) => `<div><dt>${esc(k)}${tip ? tipBtn(tip) : ''}</dt><dd>${v}</dd></div>`).join('')}</dl>` : ''}
       <p>${esc(a.text[state.lang])}</p>
@@ -1174,7 +1175,7 @@
         <div class="card-head"><h2>${t('ddShort')}</h2>${a ? `<span class="verdict v-${a.verdict}">${esc(t('verdict_' + a.verdict))}</span>` : ''}</div>
         ${plain && plain.list.length ? `<ul class="dd-plain">${plain.list.map((s) => `<li>${esc(s)}</li>`).join('')}</ul>` : ''}
         ${plain && plain.gauge ? plain.gauge : ''}
-        ${a ? `<h3 class="dd-sub">${t('ddExpert')}</h3><p class="dd-lead">${esc(a.text[state.lang])}</p><p class="muted dd-small">${t('dealsConfidence')}: ${esc(t('conf_' + a.confidence))}</p>` : ''}
+        ${a ? `<h3 class="dd-sub">${t('ddExpert')}</h3><p class="dd-lead">${esc(a.text[state.lang])}</p>` : ''}
         <div class="deal-foot"><div><span class="deal-val">${d.valueUsdM == null ? t('dealsNoValue') : `USD ${d.valueUsdM >= 1000 ? nf(d.valueUsdM / 1000, 2) + ' ' + t('bn') : nf(d.valueUsdM, Number.isInteger(d.valueUsdM) ? 0 : 1) + ' ' + t('mn')}`}</span> <span class="muted">${esc(d.valueNote[state.lang])}</span></div>
           <a href="${esc(d.source)}" target="_blank" rel="noopener">${t('dealsSource')}</a></div>
       </div>`;

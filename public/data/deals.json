@@ -177,7 +177,7 @@
    "date": "2026-06-18",
    "datePrecision": "month",
    "type": "corporate",
-   "status": "pending",
+   "status": "completed",
    "parties": [
     "Vår Energi",
     "Pandion Energy"
@@ -206,7 +206,8 @@
      "nb": "For tidlig å si. Bare Nova-andelen produserer i dag; mesteparten av verdien ligger i Ofelia-utbyggingen og funn som ikke er med i Sodirs reserver ennå. Pris per produserende fat er derfor ikke meningsfull.",
      "en": "Too early to say. Only the Nova stake produces today; most of the value lies in the Ofelia development and discoveries not yet in Sodir's reserves. The price per producing barrel is therefore not meaningful."
     }
-   }
+   },
+   "completed": "2026-09-30"
   },
   {
    "id": "2026-var-dno-swap",
@@ -324,6 +325,80 @@
     "text": {
      "nb": "Kan ikke vurderes kvantitativt: byttet gjelder hovedsakelig funn og lisenser som ikke produserer (Ringvei Vest, Wisting).",
      "en": "Cannot be assessed quantitatively: the swap mainly involves discoveries and licences that are not producing (Ringvei Vest, Wisting)."
+    }
+   }
+  },
+  {
+   "id": "2025-dno-akerbp-swap",
+   "date": "2025-11-05",
+   "type": "swap",
+   "status": "completed",
+   "completed": "2025-12-29",
+   "parties": [
+    "DNO",
+    "Aker BP"
+   ],
+   "title": {
+    "nb": "DNO og Aker BP bytter andeler (Verdande, Vilje, Kveikje)",
+    "en": "DNO and Aker BP swap interests (Verdande, Vilje, Kveikje)"
+   },
+   "summary": {
+    "nb": "DNO øker i Verdande fra om lag 10,5 % til 14 % ved å overta Aker BPs andel. Aker BP får DNOs andeler i Vilje, Kveikje-funnet og tre letelisenser. Ingen kontanter; Sodirs lisenshistorikk viser overføringen i Verdande 29. desember 2025.",
+    "en": "DNO increases its Verdande stake from about 10.5 % to 14 % by taking over Aker BP's share. Aker BP receives DNO's interests in Vilje, the Kveikje discovery and three exploration licences. No cash; Sodir's licence history shows the Verdande transfer on 29 December 2025."
+   },
+   "fields": [
+    "Verdande",
+    "Vilje"
+   ],
+   "valueUsdM": null,
+   "valueNote": {
+    "nb": "bytte uten kontanter",
+    "en": "swap with no cash"
+   },
+   "source": "https://ogj.com/general-interest/companies/news/55328129/dno-aker-bp-swap-certain-norwegian-continental-shelf-asset-interest",
+   "assessment": {
+    "verdict": "na",
+    "confidence": "low",
+    "text": {
+     "nb": "Kan ikke vurderes med Feltverdis tall. Byttet samler eierskap: DNO får mer av det nye Verdande-feltet, Aker BP får mer i området rundt egne felt (Vilje og Kveikje). Prosentandelen i Vilje og verdien av funnene er ikke oppgitt.",
+     "en": "Cannot be assessed with Feltverdi's numbers. The swap consolidates ownership: DNO gets more of the new Verdande field, Aker BP gets more around its own fields (Vilje and Kveikje). The Vilje percentage and the value of the discoveries were not disclosed."
+    }
+   }
+  },
+  {
+   "id": "2025-akerbp-japex-swap",
+   "date": "2025-07-29",
+   "type": "swap",
+   "status": "completed",
+   "completed": "2025-10-09",
+   "parties": [
+    "Aker BP",
+    "JAPEX"
+   ],
+   "title": {
+    "nb": "Aker BP og JAPEX bytter andeler (Alve Nord, Verdande, Kveikje)",
+    "en": "Aker BP and JAPEX swap interests (Alve Nord, Verdande, Kveikje)"
+   },
+   "summary": {
+    "nb": "JAPEX får 10 % i Alve Nord og 3,5 % i Verdande fra Aker BP. Aker BP får hele JAPEX' portefølje i nordlige Nordsjøen (15 % i Kjøttkake, 10 % i Kveikje og 20 % i PL1212S) og 14 mill. dollar.",
+    "en": "JAPEX receives 10 % of Alve Nord and 3.5 % of Verdande from Aker BP. Aker BP receives JAPEX's entire northern North Sea portfolio (15 % of Kjøttkake, 10 % of Kveikje and 20 % of PL1212S) and 14 million dollars."
+   },
+   "fields": [
+    "Alve Nord",
+    "Verdande"
+   ],
+   "valueUsdM": 14,
+   "valueNote": {
+    "nb": "kontant mellomlegg til Aker BP",
+    "en": "cash balancing payment to Aker BP"
+   },
+   "source": "https://www.offshore-mag.com/regional-reports/north-sea-europe/news/55306212/aker-bp-japex-trade-package-of-offshore-norway-ep-interests",
+   "assessment": {
+    "verdict": "na",
+    "confidence": "low",
+    "text": {
+     "nb": "Kan ikke vurderes med Feltverdis tall. JAPEX bytter funn i Nordsjøen mot andeler i to felt som var under utbygging i Norskehavet, og betaler 14 mill. dollar i tillegg. Aker BP samler funn rundt egne felt. Funnene er ikke med i Sodirs reserver, så byttet kan ikke verdsettes.",
+     "en": "Cannot be assessed with Feltverdi's numbers. JAPEX swaps North Sea discoveries for stakes in two fields under development in the Norwegian Sea, and pays 14 million dollars on top. Aker BP gathers discoveries around its own fields. The discoveries are not in Sodir's reserves, so the swap cannot be valued."
     }
    }
   },

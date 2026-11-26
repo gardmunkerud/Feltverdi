@@ -1,34 +1,74 @@
 {
- "generated": "2026-11-25",
+ "generated": "2026-11-26",
  "baseYear": 2026,
  "discount": 0.08,
- "baseline": 1.44,
+ "baseline": 1.39,
  "n": 12,
  "metrics": {
   "2026-equinor-japex-swap": {
    "year": 2026,
-   "partial": true,
-   "note": null,
+   "swap": true,
+   "legs": [
+    {
+     "from": "Equinor",
+     "to": "JAPEX",
+     "cash": 0,
+     "note": {
+      "nb": "I tillegg 20 % i Arkenstone og 10 % i Rhadamanthys (funn/prospekter, ikke verdsatt)",
+      "en": "Plus 20 % of Arkenstone and 10 % of Rhadamanthys (discoveries/prospects, not valued)"
+     },
+     "items": [
+      {
+       "field": "Goliat",
+       "slug": "goliat",
+       "share": 8,
+       "prodKboed": 1.8,
+       "remMmboe": 5.2
+      }
+     ],
+     "prodKboed": 1.8,
+     "remMmboe": 5.2,
+     "hindsightValue": 30
+    },
+    {
+     "from": "JAPEX",
+     "to": "Equinor",
+     "cash": 65,
+     "note": {
+      "nb": "I tillegg en lete-carry (ikke verdsatt)",
+      "en": "Plus an exploration carry (not valued)"
+     },
+     "items": [
+      {
+       "field": "Verdande",
+       "slug": "verdande",
+       "share": 3.5,
+       "prodKboed": 0.1,
+       "remMmboe": 1.5
+      }
+     ],
+     "prodKboed": 0.1,
+     "remMmboe": 1.5,
+     "hindsightValue": 15
+    }
+   ],
+   "brent": 69.04,
    "items": [
     {
      "field": "Goliat",
      "slug": "goliat",
      "share": 8,
-     "prodKboed": 1764.6,
+     "prodKboed": 1.8,
      "remMmboe": 5.2
+    },
+    {
+     "field": "Verdande",
+     "slug": "verdande",
+     "share": 3.5,
+     "prodKboed": 0.1,
+     "remMmboe": 1.5
     }
    ],
-   "prodKboed": 1.8,
-   "remMmboe": 5,
-   "brent": 69.04,
-   "priceUsdM": 65,
-   "priceReal": 65,
-   "perFlowing": 36835,
-   "perBoe": 12.57,
-   "perBoePctBrent": 18.2,
-   "hindsightValue": 30,
-   "ratio": 2.2,
-   "reserveGrowth": 1,
    "relative": null
   },
   "2026-var-conocophillips": {
@@ -40,98 +80,98 @@
      "field": "Heidrun",
      "slug": "heidrun",
      "share": 23.988,
-     "prodKboed": 15402.8,
+     "prodKboed": 15.4,
      "remMmboe": 80.6
     },
     {
      "field": "Eldfisk",
      "slug": "eldfisk",
      "share": 35.112,
-     "prodKboed": 16573.2,
+     "prodKboed": 16.6,
      "remMmboe": 62.6
     },
     {
      "field": "Troll",
      "slug": "troll",
      "share": 1.641,
-     "prodKboed": 12312.5,
+     "prodKboed": 12.3,
      "remMmboe": 59.5
     },
     {
      "field": "Ekofisk",
      "slug": "ekofisk",
      "share": 35.112,
-     "prodKboed": 20342.8,
+     "prodKboed": 20.3,
      "remMmboe": 45.8
     },
     {
      "field": "Tommeliten A",
      "slug": "tommeliten-a",
      "share": 28.139,
-     "prodKboed": 14130.2,
+     "prodKboed": 14.1,
      "remMmboe": 34.3
     },
     {
      "field": "Alvheim",
      "slug": "alvheim",
      "share": 20,
-     "prodKboed": 9350.6,
+     "prodKboed": 9.4,
      "remMmboe": 22.4
     },
     {
      "field": "Visund",
      "slug": "visund",
      "share": 9.1,
-     "prodKboed": 9152,
+     "prodKboed": 9.2,
      "remMmboe": 14.5
     },
     {
      "field": "Aasta Hansteen",
      "slug": "aasta-hansteen",
      "share": 10,
-     "prodKboed": 12388.7,
+     "prodKboed": 12.4,
      "remMmboe": 11.3
     },
     {
      "field": "Oseberg",
      "slug": "oseberg",
      "share": 2.4,
-     "prodKboed": 4082.1,
+     "prodKboed": 4.1,
      "remMmboe": 8.4
     },
     {
      "field": "Breidablikk",
      "slug": "breidablikk",
      "share": 4.4,
-     "prodKboed": 3372.7,
+     "prodKboed": 3.4,
      "remMmboe": 7
     },
     {
      "field": "Tor",
      "slug": "tor",
      "share": 30.658,
-     "prodKboed": 2113.3,
+     "prodKboed": 2.1,
      "remMmboe": 4.6
     },
     {
      "field": "Grane",
      "slug": "grane",
      "share": 6.166,
-     "prodKboed": 1838.4,
+     "prodKboed": 1.8,
      "remMmboe": 4.5
     },
     {
      "field": "Oseberg Sør",
      "slug": "oseberg-sor",
      "share": 2.4,
-     "prodKboed": 749.4,
+     "prodKboed": 0.7,
      "remMmboe": 3.5
     },
     {
      "field": "Embla",
      "slug": "embla",
      "share": 35.112,
-     "prodKboed": 1155.7,
+     "prodKboed": 1.2,
      "remMmboe": 1.1
     },
     {
@@ -159,7 +199,7 @@
      "field": "Oseberg Øst",
      "slug": "oseberg-ost",
      "share": 2.4,
-     "prodKboed": 105.9,
+     "prodKboed": 0.1,
      "remMmboe": 0
     },
     {
@@ -195,7 +235,7 @@
    "hindsightValue": 2514,
    "ratio": 1.76,
    "reserveGrowth": 1,
-   "relative": 1.22
+   "relative": 1.27
   },
   "2026-var-pandion": {
    "year": 2026,
@@ -206,7 +246,7 @@
      "field": "Nova",
      "slug": "nova",
      "share": 10,
-     "prodKboed": 2965.8,
+     "prodKboed": 3,
      "remMmboe": 3.2
     }
    ],
@@ -223,8 +263,72 @@
    "reserveGrowth": 1,
    "relative": null
   },
+  "2026-var-dno-swap": {
+   "year": 2026,
+   "swap": true,
+   "legs": [
+    {
+     "from": "Vår Energi",
+     "to": "DNO",
+     "cash": 17.5,
+     "note": null,
+     "items": [
+      {
+       "field": "Gjøa",
+       "slug": "gjoa",
+       "share": 5,
+       "prodKboed": 1.5,
+       "remMmboe": 1.2
+      }
+     ],
+     "prodKboed": 1.5,
+     "remMmboe": 1.2,
+     "hindsightValue": 9
+    },
+    {
+     "from": "DNO",
+     "to": "Vår Energi",
+     "cash": 0,
+     "note": {
+      "nb": "I tillegg 15 % i Ringhorne Nord (ikke et eget felt i Sodirs data, ikke verdsatt)",
+      "en": "Plus 15 % of Ringhorne North (not a separate field in Sodir data, not valued)"
+     },
+     "items": [
+      {
+       "field": "Nova",
+       "slug": "nova",
+       "share": 5,
+       "prodKboed": 1.5,
+       "remMmboe": 1.6
+      }
+     ],
+     "prodKboed": 1.5,
+     "remMmboe": 1.6,
+     "hindsightValue": 13
+    }
+   ],
+   "brent": 69.04,
+   "items": [
+    {
+     "field": "Gjøa",
+     "slug": "gjoa",
+     "share": 5,
+     "prodKboed": 1.5,
+     "remMmboe": 1.2
+    },
+    {
+     "field": "Nova",
+     "slug": "nova",
+     "share": 5,
+     "prodKboed": 1.5,
+     "remMmboe": 1.6
+    }
+   ],
+   "relative": null
+  },
   "2026-var-goliat-fenja": {
    "year": 2026,
+   "buyer": "Orlen Upstream Norway / Concedo",
    "seller": "Vår Energi",
    "partial": false,
    "note": null,
@@ -233,14 +337,14 @@
      "field": "Goliat",
      "slug": "goliat",
      "share": 20,
-     "prodKboed": 4411.6,
+     "prodKboed": 4.4,
      "remMmboe": 12.9
     },
     {
      "field": "Fenja",
      "slug": "fenja",
      "share": 25,
-     "prodKboed": 2985.6,
+     "prodKboed": 3,
      "remMmboe": 9.2
     }
    ],
@@ -255,7 +359,7 @@
    "hindsightValue": 141,
    "ratio": 2.49,
    "reserveGrowth": 1,
-   "relative": 1.72
+   "relative": 1.79
   },
   "2025-dno-sval": {
    "year": 2025,
@@ -266,42 +370,42 @@
      "field": "Martin Linge",
      "slug": "martin-linge",
      "share": 19,
-     "prodKboed": 9023.8,
+     "prodKboed": 9,
      "remMmboe": 21
     },
     {
      "field": "Dvalin",
      "slug": "dvalin",
      "share": 10,
-     "prodKboed": 4732.1,
+     "prodKboed": 4.7,
      "remMmboe": 18.2
     },
     {
      "field": "Eldfisk",
      "slug": "eldfisk",
      "share": 7.604,
-     "prodKboed": 3615.4,
+     "prodKboed": 3.6,
      "remMmboe": 15
     },
     {
      "field": "Nova",
      "slug": "nova",
      "share": 45,
-     "prodKboed": 11453.8,
+     "prodKboed": 11.5,
      "remMmboe": 14.2
     },
     {
      "field": "Maria",
      "slug": "maria",
      "share": 20,
-     "prodKboed": 2571.1,
+     "prodKboed": 2.6,
      "remMmboe": 13.5
     },
     {
      "field": "Kvitebjørn",
      "slug": "kvitebjorn",
      "share": 19,
-     "prodKboed": 10926.2,
+     "prodKboed": 10.9,
      "remMmboe": 13.4
     },
     {
@@ -315,70 +419,70 @@
      "field": "Ekofisk",
      "slug": "ekofisk",
      "share": 7.604,
-     "prodKboed": 5249.4,
+     "prodKboed": 5.2,
      "remMmboe": 12
     },
     {
      "field": "Fenja",
      "slug": "fenja",
      "share": 17.5,
-     "prodKboed": 3498.3,
+     "prodKboed": 3.5,
      "remMmboe": 8.5
     },
     {
      "field": "Ivar Aasen",
      "slug": "ivar-aasen",
      "share": 12.317,
-     "prodKboed": 3173.3,
+     "prodKboed": 3.2,
      "remMmboe": 4.9
     },
     {
      "field": "Vega",
      "slug": "vega",
      "share": 5.5,
-     "prodKboed": 2361.9,
+     "prodKboed": 2.4,
      "remMmboe": 3.1
     },
     {
      "field": "Duva",
      "slug": "duva",
      "share": 10,
-     "prodKboed": 2514.3,
+     "prodKboed": 2.5,
      "remMmboe": 2.5
     },
     {
      "field": "Trym",
      "slug": "trym",
      "share": 50,
-     "prodKboed": 215.4,
+     "prodKboed": 0.2,
      "remMmboe": 1.7
     },
     {
      "field": "Oda",
      "slug": "oda",
      "share": 70,
-     "prodKboed": 4656.3,
+     "prodKboed": 4.7,
      "remMmboe": 1.2
     },
     {
      "field": "Tor",
      "slug": "tor",
      "share": 6.639,
-     "prodKboed": 565.2,
+     "prodKboed": 0.6,
      "remMmboe": 1.2
     },
     {
      "field": "Hanz",
      "slug": "hanz",
      "share": 15,
-     "prodKboed": 995.2,
+     "prodKboed": 1,
      "remMmboe": 0.9
     },
     {
      "field": "Embla",
      "slug": "embla",
      "share": 7.604,
-     "prodKboed": 325,
+     "prodKboed": 0.3,
      "remMmboe": 0.3
     },
     {
@@ -414,7 +518,87 @@
    "hindsightValue": 1258,
    "ratio": 1.43,
    "reserveGrowth": 1.05,
-   "relative": 0.99
+   "relative": 1.03
+  },
+  "2024-equinor-petoro-swap": {
+   "year": 2024,
+   "swap": true,
+   "legs": [
+    {
+     "from": "Petoro",
+     "to": "Equinor",
+     "cash": 0,
+     "note": {
+      "nb": "I tillegg økt andel i Noatun-funnet (ikke verdsatt)",
+      "en": "Plus a higher share of the Noatun discovery (not valued)"
+     },
+     "items": [
+      {
+       "field": "Heidrun",
+       "slug": "heidrun",
+       "share": 21.396,
+       "prodKboed": 16.1,
+       "remMmboe": 77.3
+      }
+     ],
+     "prodKboed": 16.1,
+     "remMmboe": 77.3,
+     "hindsightValue": 407
+    },
+    {
+     "from": "Equinor",
+     "to": "Petoro",
+     "cash": 0,
+     "note": {
+      "nb": "I tillegg andeler i funnene Carmen og Beta (ikke verdsatt)",
+      "en": "Plus shares of the Carmen and Beta discoveries (not valued)"
+     },
+     "items": [
+      {
+       "field": "Tyrihans",
+       "slug": "tyrihans",
+       "share": 22.52,
+       "prodKboed": 16.5,
+       "remMmboe": 39.9
+      },
+      {
+       "field": "Johan Castberg",
+       "slug": "johan-castberg",
+       "share": 3.7,
+       "prodKboed": 0,
+       "remMmboe": 20.7
+      }
+     ],
+     "prodKboed": 16.5,
+     "remMmboe": 60.6,
+     "hindsightValue": 579
+    }
+   ],
+   "brent": 80.7,
+   "items": [
+    {
+     "field": "Heidrun",
+     "slug": "heidrun",
+     "share": 21.396,
+     "prodKboed": 16.1,
+     "remMmboe": 77.3
+    },
+    {
+     "field": "Tyrihans",
+     "slug": "tyrihans",
+     "share": 22.52,
+     "prodKboed": 16.5,
+     "remMmboe": 39.9
+    },
+    {
+     "field": "Johan Castberg",
+     "slug": "johan-castberg",
+     "share": 3.7,
+     "prodKboed": 0,
+     "remMmboe": 20.7
+    }
+   ],
+   "relative": null
   },
   "2023-var-neptune": {
    "year": 2023,
@@ -425,21 +609,21 @@
      "field": "Snøhvit",
      "slug": "snohvit",
      "share": 12,
-     "prodKboed": 9115.5,
+     "prodKboed": 9.1,
      "remMmboe": 124.8
     },
     {
      "field": "Njord",
      "slug": "njord",
      "share": 22.5,
-     "prodKboed": 3.9,
+     "prodKboed": 0,
      "remMmboe": 36.6
     },
     {
      "field": "Gudrun",
      "slug": "gudrun",
      "share": 25,
-     "prodKboed": 12011.3,
+     "prodKboed": 12,
      "remMmboe": 20.4
     },
     {
@@ -453,21 +637,21 @@
      "field": "Duva",
      "slug": "duva",
      "share": 30,
-     "prodKboed": 7454.9,
+     "prodKboed": 7.5,
      "remMmboe": 14.7
     },
     {
      "field": "Gjøa",
      "slug": "gjoa",
      "share": 30,
-     "prodKboed": 19935,
+     "prodKboed": 19.9,
      "remMmboe": 12.5
     },
     {
      "field": "Fram",
      "slug": "fram",
      "share": 15,
-     "prodKboed": 6643.3,
+     "prodKboed": 6.6,
      "remMmboe": 12.4
     },
     {
@@ -481,7 +665,7 @@
      "field": "Vega",
      "slug": "vega",
      "share": 3.3,
-     "prodKboed": 1386.5,
+     "prodKboed": 1.4,
      "remMmboe": 3.4
     },
     {
@@ -495,14 +679,14 @@
      "field": "Byrding",
      "slug": "byrding",
      "share": 15,
-     "prodKboed": 137,
+     "prodKboed": 0.1,
      "remMmboe": 0.5
     },
     {
      "field": "Fram H-Nord",
      "slug": "fram-h-nord",
      "share": 10.8,
-     "prodKboed": 52.1,
+     "prodKboed": 0.1,
      "remMmboe": 0
     }
    ],
@@ -517,7 +701,7 @@
    "hindsightValue": 1834,
    "ratio": 1.35,
    "reserveGrowth": 1.11,
-   "relative": 0.93
+   "relative": 0.97
   },
   "2022-okea-wintershalldea": {
    "year": 2022,
@@ -528,7 +712,7 @@
      "field": "Brage",
      "slug": "brage",
      "share": 35.2,
-     "prodKboed": 3033,
+     "prodKboed": 3,
      "remMmboe": 6.1
     },
     {
@@ -542,7 +726,7 @@
      "field": "Ivar Aasen",
      "slug": "ivar-aasen",
      "share": 6.462,
-     "prodKboed": 3082.2,
+     "prodKboed": 3.1,
      "remMmboe": 4.8
     }
    ],
@@ -557,7 +741,7 @@
    "hindsightValue": 191,
    "ratio": 0.7,
    "reserveGrowth": 1.41,
-   "relative": 0.48
+   "relative": 0.5
   },
   "2021-akerbp-lundin": {
    "year": 2021,
@@ -568,14 +752,14 @@
      "field": "Johan Sverdrup",
      "slug": "johan-sverdrup",
      "share": 20,
-     "prodKboed": 89979.7,
+     "prodKboed": 90,
      "remMmboe": 501.4
     },
     {
      "field": "Edvard Grieg",
      "slug": "edvard-grieg",
      "share": 65,
-     "prodKboed": 64497.5,
+     "prodKboed": 64.5,
      "remMmboe": 115.7
     },
     {
@@ -589,28 +773,28 @@
      "field": "Alvheim",
      "slug": "alvheim",
      "share": 15,
-     "prodKboed": 7723.8,
+     "prodKboed": 7.7,
      "remMmboe": 12
     },
     {
      "field": "Volund",
      "slug": "volund",
      "share": 35,
-     "prodKboed": 3468.1,
+     "prodKboed": 3.5,
      "remMmboe": 3
     },
     {
      "field": "Ivar Aasen",
      "slug": "ivar-aasen",
      "share": 1.385,
-     "prodKboed": 808.2,
+     "prodKboed": 0.8,
      "remMmboe": 1.4
     },
     {
      "field": "Bøyla",
      "slug": "boyla",
      "share": 15,
-     "prodKboed": 1318.3,
+     "prodKboed": 1.3,
      "remMmboe": 0.5
     },
     {
@@ -639,7 +823,7 @@
    "hindsightValue": 7272,
    "ratio": 2.34,
    "reserveGrowth": 1.11,
-   "relative": 1.62
+   "relative": 1.68
   },
   "2021-sval-spirit": {
    "year": 2021,
@@ -650,14 +834,14 @@
      "field": "Kvitebjørn",
      "slug": "kvitebjorn",
      "share": 19,
-     "prodKboed": 17340.4,
+     "prodKboed": 17.3,
      "remMmboe": 32.6
     },
     {
      "field": "Statfjord",
      "slug": "statfjord",
      "share": 19.765,
-     "prodKboed": 8467.4,
+     "prodKboed": 8.5,
      "remMmboe": 21.6
     },
     {
@@ -671,42 +855,42 @@
      "field": "Ivar Aasen",
      "slug": "ivar-aasen",
      "share": 12.317,
-     "prodKboed": 7187.2,
+     "prodKboed": 7.2,
      "remMmboe": 12.6
     },
     {
      "field": "Maria",
      "slug": "maria",
      "share": 20,
-     "prodKboed": 2881.3,
+     "prodKboed": 2.9,
      "remMmboe": 11
     },
     {
      "field": "Oda",
      "slug": "oda",
      "share": 40,
-     "prodKboed": 9078.3,
+     "prodKboed": 9.1,
      "remMmboe": 9.5
     },
     {
      "field": "Statfjord Nord",
      "slug": "statfjord-nord",
      "share": 23.125,
-     "prodKboed": 2191.8,
+     "prodKboed": 2.2,
      "remMmboe": 7.1
     },
     {
      "field": "Vega",
      "slug": "vega",
      "share": 5.5,
-     "prodKboed": 2777.1,
+     "prodKboed": 2.8,
      "remMmboe": 6.6
     },
     {
      "field": "Statfjord Øst",
      "slug": "statfjord-ost",
      "share": 11.563,
-     "prodKboed": 551.9,
+     "prodKboed": 0.6,
      "remMmboe": 3.3
     },
     {
@@ -727,21 +911,37 @@
      "field": "Vale",
      "slug": "vale",
      "share": 50,
-     "prodKboed": 1999,
+     "prodKboed": 2,
      "remMmboe": 1.8
     },
     {
      "field": "Sygna",
      "slug": "sygna",
      "share": 12.719,
-     "prodKboed": 348.5,
+     "prodKboed": 0.3,
      "remMmboe": 0.6
     },
     {
      "field": "Heimdal",
      "slug": "heimdal",
      "share": 28.798,
-     "prodKboed": 148.9,
+     "prodKboed": 0.1,
+     "remMmboe": 0
+    },
+    {
+     "field": "Halten Øst",
+     "slug": "halten-ost",
+     "later": true,
+     "share": 11.8,
+     "prodKboed": 0,
+     "remMmboe": 0
+    },
+    {
+     "field": "Symra",
+     "slug": "symra",
+     "later": true,
+     "share": 20,
+     "prodKboed": 0,
      "remMmboe": 0
     }
    ],
@@ -753,10 +953,10 @@
    "perFlowing": 20766,
    "perBoe": 8.6,
    "perBoePctBrent": 12.2,
-   "hindsightValue": 1329,
-   "ratio": 1.02,
-   "reserveGrowth": 1.06,
-   "relative": 0.71
+   "hindsightValue": 1441,
+   "ratio": 0.94,
+   "reserveGrowth": 1.25,
+   "relative": 0.68
   },
   "2020-sval-edison": {
    "year": 2020,
@@ -789,7 +989,7 @@
    "hindsightValue": 117,
    "ratio": 3.28,
    "reserveGrowth": 1.04,
-   "relative": 2.27
+   "relative": 2.36
   },
   "2019-var-exxonmobil": {
    "year": 2019,
@@ -800,49 +1000,49 @@
      "field": "Snorre",
      "slug": "snorre",
      "share": 17.446,
-     "prodKboed": 16033.3,
+     "prodKboed": 16,
      "remMmboe": 100.7
     },
     {
      "field": "Grane",
      "slug": "grane",
      "share": 28.316,
-     "prodKboed": 27447.7,
+     "prodKboed": 27.4,
      "remMmboe": 53.4
     },
     {
      "field": "Ormen Lange",
      "slug": "ormen-lange",
      "share": 6.336,
-     "prodKboed": 18021.4,
+     "prodKboed": 18,
      "remMmboe": 41.4
     },
     {
      "field": "Tyrihans",
      "slug": "tyrihans",
      "share": 11.787,
-     "prodKboed": 10105.3,
+     "prodKboed": 10.1,
      "remMmboe": 36.3
     },
     {
      "field": "Mikkel",
      "slug": "mikkel",
      "share": 33.48,
-     "prodKboed": 13939.3,
+     "prodKboed": 13.9,
      "remMmboe": 35
     },
     {
      "field": "Fram",
      "slug": "fram",
      "share": 25,
-     "prodKboed": 10115.7,
+     "prodKboed": 10.1,
      "remMmboe": 32.8
     },
     {
      "field": "Åsgard",
      "slug": "asgard",
      "share": 7.24,
-     "prodKboed": 18797.2,
+     "prodKboed": 18.8,
      "remMmboe": 28.4
     },
     {
@@ -856,85 +1056,101 @@
      "field": "Statfjord",
      "slug": "statfjord",
      "share": 21.367,
-     "prodKboed": 12059.1,
+     "prodKboed": 12.1,
      "remMmboe": 18
     },
     {
      "field": "Sleipner Vest",
      "slug": "sleipner-vest",
      "share": 17.239,
-     "prodKboed": 12721.1,
+     "prodKboed": 12.7,
      "remMmboe": 15.3
     },
     {
      "field": "Vigdis",
      "slug": "vigdis",
      "share": 16.1,
-     "prodKboed": 4369.8,
+     "prodKboed": 4.4,
      "remMmboe": 10.4
     },
     {
      "field": "Tordis",
      "slug": "tordis",
      "share": 16.1,
-     "prodKboed": 2641.3,
+     "prodKboed": 2.6,
      "remMmboe": 5.3
     },
     {
      "field": "Kristin",
      "slug": "kristin",
      "share": 10.876,
-     "prodKboed": 3473,
+     "prodKboed": 3.5,
      "remMmboe": 4.5
     },
     {
      "field": "Statfjord Nord",
      "slug": "statfjord-nord",
      "share": 25,
-     "prodKboed": 2007.6,
+     "prodKboed": 2,
      "remMmboe": 4.2
     },
     {
      "field": "Svalin",
      "slug": "svalin",
      "share": 13,
-     "prodKboed": 1637.6,
+     "prodKboed": 1.6,
      "remMmboe": 3.2
     },
     {
      "field": "Sigyn",
      "slug": "sigyn",
      "share": 40,
-     "prodKboed": 1420,
+     "prodKboed": 1.4,
      "remMmboe": 1.5
     },
     {
      "field": "Sygna",
      "slug": "sygna",
      "share": 20.995,
-     "prodKboed": 564.4,
+     "prodKboed": 0.6,
      "remMmboe": 0.9
     },
     {
      "field": "Gungne",
      "slug": "gungne",
      "share": 13,
-     "prodKboed": 450.3,
+     "prodKboed": 0.5,
      "remMmboe": 0.7
     },
     {
      "field": "Sleipner Øst",
      "slug": "sleipner-ost",
      "share": 15.4,
-     "prodKboed": 761.7,
+     "prodKboed": 0.8,
      "remMmboe": 0.4
     },
     {
      "field": "Statfjord Øst",
      "slug": "statfjord-ost",
      "share": 20.55,
-     "prodKboed": 665.8,
+     "prodKboed": 0.7,
      "remMmboe": 0.3
+    },
+    {
+     "field": "Breidablikk",
+     "slug": "breidablikk",
+     "later": true,
+     "share": 34.4,
+     "prodKboed": 0,
+     "remMmboe": 0
+    },
+    {
+     "field": "Halten Øst",
+     "slug": "halten-ost",
+     "later": true,
+     "share": 14.4,
+     "prodKboed": 0,
+     "remMmboe": 0
     }
    ],
    "prodKboed": 157.2,
@@ -945,10 +1161,10 @@
    "perFlowing": 28620,
    "perBoe": 10.75,
    "perBoePctBrent": 16.8,
-   "hindsightValue": 4000,
-   "ratio": 1.46,
-   "reserveGrowth": 1.32,
-   "relative": 1.01
+   "hindsightValue": 4383,
+   "ratio": 1.34,
+   "reserveGrowth": 1.52,
+   "relative": 0.96
   },
   "2019-dno-faroe": {
    "year": 2019,
@@ -966,7 +1182,7 @@
      "field": "Ula",
      "slug": "ula",
      "share": 20,
-     "prodKboed": 1502.7,
+     "prodKboed": 1.5,
      "remMmboe": 9.7
     },
     {
@@ -980,7 +1196,7 @@
      "field": "Tambar",
      "slug": "tambar",
      "share": 45,
-     "prodKboed": 2698.7,
+     "prodKboed": 2.7,
      "remMmboe": 6.1
     },
     {
@@ -1001,21 +1217,21 @@
      "field": "Brage",
      "slug": "brage",
      "share": 14.257,
-     "prodKboed": 1346.3,
+     "prodKboed": 1.3,
      "remMmboe": 4.3
     },
     {
      "field": "Trym",
      "slug": "trym",
      "share": 50,
-     "prodKboed": 2860.7,
+     "prodKboed": 2.9,
      "remMmboe": 3.5
     },
     {
      "field": "Ringhorne Øst",
      "slug": "ringhorne-ost",
      "share": 7.8,
-     "prodKboed": 372.3,
+     "prodKboed": 0.4,
      "remMmboe": 2
     },
     {
@@ -1036,14 +1252,30 @@
      "field": "Enoch",
      "slug": "enoch",
      "share": 1.86,
-     "prodKboed": 5.8,
+     "prodKboed": 0,
      "remMmboe": 0
     },
     {
      "field": "Oselvar",
      "slug": "oselvar",
      "share": 55,
-     "prodKboed": 161.1,
+     "prodKboed": 0.2,
+     "remMmboe": 0
+    },
+    {
+     "field": "Berling",
+     "slug": "berling",
+     "later": true,
+     "share": 20,
+     "prodKboed": 0,
+     "remMmboe": 0
+    },
+    {
+     "field": "Bestla",
+     "slug": "bestla",
+     "later": true,
+     "share": 39.279,
+     "prodKboed": 0,
      "remMmboe": 0
     }
    ],
@@ -1055,9 +1287,9 @@
    "perFlowing": 91198,
    "perBoe": 14.4,
    "perBoePctBrent": 22.5,
-   "hindsightValue": 173,
-   "ratio": 6.12,
-   "reserveGrowth": 0.77,
+   "hindsightValue": 236,
+   "ratio": 4.49,
+   "reserveGrowth": 1.1,
    "relative": null
   },
   "2018-okea-shell": {
@@ -1069,14 +1301,14 @@
      "field": "Gjøa",
      "slug": "gjoa",
      "share": 12,
-     "prodKboed": 13332,
+     "prodKboed": 13.3,
      "remMmboe": 15.1
     },
     {
      "field": "Draugen",
      "slug": "draugen",
      "share": 44.56,
-     "prodKboed": 10881.1,
+     "prodKboed": 10.9,
      "remMmboe": 11.1
     }
    ],
@@ -1091,7 +1323,7 @@
    "hindsightValue": 554,
    "ratio": 1.33,
    "reserveGrowth": 2.84,
-   "relative": 0.92
+   "relative": 0.96
   },
   "2017-akerbp-hess": {
    "year": 2017,
@@ -1102,14 +1334,14 @@
      "field": "Valhall",
      "slug": "valhall",
      "share": 64.047,
-     "prodKboed": 27228.6,
+     "prodKboed": 27.2,
      "remMmboe": 152.7
     },
     {
      "field": "Hod",
      "slug": "hod",
      "share": 62.5,
-     "prodKboed": 937,
+     "prodKboed": 0.9,
      "remMmboe": 3.4
     }
    ],
@@ -1124,7 +1356,7 @@
    "hindsightValue": 834,
    "ratio": 3.25,
    "reserveGrowth": 1.61,
-   "relative": 2.25
+   "relative": 2.34
   },
   "2017-point-exxonmobil": {
    "year": 2017,
@@ -1135,21 +1367,21 @@
      "field": "Balder",
      "slug": "balder",
      "share": 100,
-     "prodKboed": 47631.7,
+     "prodKboed": 47.6,
      "remMmboe": 62
     },
     {
      "field": "Ringhorne Øst",
      "slug": "ringhorne-ost",
      "share": 77.38,
-     "prodKboed": 7067.4,
+     "prodKboed": 7.1,
      "remMmboe": 14.1
     },
     {
      "field": "Jotun",
      "slug": "jotun",
      "share": 90,
-     "prodKboed": 961.6,
+     "prodKboed": 1,
      "remMmboe": 0.1
     }
    ],
@@ -1175,28 +1407,28 @@
      "field": "Ormen Lange",
      "slug": "ormen-lange",
      "share": 14.021,
-     "prodKboed": 44238,
+     "prodKboed": 44.2,
      "remMmboe": 115.3
     },
     {
      "field": "Marulk",
      "slug": "marulk",
      "share": 30,
-     "prodKboed": 7025.8,
+     "prodKboed": 7,
      "remMmboe": 5.8
     },
     {
      "field": "Alve",
      "slug": "alve",
      "share": 15,
-     "prodKboed": 1930.9,
+     "prodKboed": 1.9,
      "remMmboe": 2.7
     },
     {
      "field": "Gyda",
      "slug": "gyda",
      "share": 34,
-     "prodKboed": 509.7,
+     "prodKboed": 0.5,
      "remMmboe": 0.4
     },
     {
@@ -1229,35 +1461,35 @@
      "field": "Valhall",
      "slug": "valhall",
      "share": 35.953,
-     "prodKboed": 18351.8,
+     "prodKboed": 18.4,
      "remMmboe": 91.9
     },
     {
      "field": "Skarv",
      "slug": "skarv",
      "share": 23.835,
-     "prodKboed": 32592.7,
+     "prodKboed": 32.6,
      "remMmboe": 74.5
     },
     {
      "field": "Ula",
      "slug": "ula",
      "share": 80,
-     "prodKboed": 7072.4,
+     "prodKboed": 7.1,
      "remMmboe": 51.6
     },
     {
      "field": "Tambar",
      "slug": "tambar",
      "share": 55,
-     "prodKboed": 2502.2,
+     "prodKboed": 2.5,
      "remMmboe": 3.7
     },
     {
      "field": "Hod",
      "slug": "hod",
      "share": 37.5,
-     "prodKboed": 491.1,
+     "prodKboed": 0.5,
      "remMmboe": 2.8
     },
     {
@@ -1279,7 +1511,7 @@
    "hindsightValue": 1748,
    "ratio": 1.14,
    "reserveGrowth": 1.41,
-   "relative": 0.79
+   "relative": 0.82
   }
  }
 }

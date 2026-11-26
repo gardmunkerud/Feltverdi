@@ -1,928 +1,1001 @@
 {
-  "updated": "2026-11-26",
-  "note": "Curated list of announced M&A, mergers and asset swaps involving the Norwegian Continental Shelf. Values in USD million as reported at announcement (enterprise value or consideration, see valueNote). Each deal links to its source.",
-  "deals": [
-    {
-      "id": "2026-equinor-japex-swap",
-      "date": "2026-11-25",
-      "type": "swap",
-      "status": "pending",
-      "parties": [
-        "Equinor",
-        "JAPEX"
-      ],
-      "title": {
-        "nb": "Equinor og JAPEX bytter andeler (Goliat/Verdande)",
-        "en": "Equinor and JAPEX swap interests (Goliat/Verdande)"
-      },
-      "summary": {
-        "nb": "Equinor overdrar 8 % i Goliat, 20 % i Arkenstone og 10 % i Rhadamanthys til JAPEX, og får 3,5 % i Verdande, 65 mill. dollar og en lete-carry.",
-        "en": "Equinor transfers 8 % of Goliat, 20 % of Arkenstone and 10 % of Rhadamanthys to JAPEX, and receives 3.5 % of Verdande, 65 million dollars and an exploration carry."
-      },
-      "fields": [
-        "Goliat",
-        "Verdande"
-      ],
-      "valueUsdM": 65,
-      "valueNote": {
-        "nb": "kontantvederlag",
-        "en": "cash consideration"
-      },
-      "source": "https://www.equinor.com/news/20261125-asset-swap-ncs",
-      "assessment": {
-        "verdict": "early",
-        "confidence": "low",
-        "text": {
-          "nb": "For tidlig å si. Goliat-andelen på 8 % produserte om lag 1,8 tusen fat o.e./d med 5 mill. fat o.e. i Sodirs reserver. Målt mot det alene betalte JAPEX mye. Men Sodirs reserver omfatter ennå ikke det godkjente gasseksportprosjektet på Goliat (112 mill. fat o.e. brutto). Tas det med, er 8 % verdt om lag 80 mill. dollar – mer enn de 65 mill. dollar og Verdande-andelen Equinor fikk. Med gasseksporten ser JAPEX ut til å ha gjort den beste avtalen.",
-          "en": "Too early to say. The 8 % Goliat stake produced about 1.8 kboe/d with 5 MMboe of Sodir reserves. Measured against that alone, JAPEX paid a lot. But Sodir's reserves do not yet include the sanctioned Goliat gas export project (112 MMboe gross). Including it, 8 % is worth about 80 million dollars – more than the 65 million dollars and the Verdande stake Equinor received. With gas export, JAPEX appears to have made the better deal."
-        }
-      }
-    },
-    {
-      "id": "2026-var-conocophillips",
-      "date": "2026-11-23",
-      "type": "corporate",
-      "status": "pending",
-      "parties": [
-        "Vår Energi",
-        "ConocoPhillips"
-      ],
-      "title": {
-        "nb": "Vår Energi kjøper ConocoPhillips' norske virksomhet",
-        "en": "Vår Energi acquires ConocoPhillips' Norwegian business"
-      },
-      "summary": {
-        "nb": "13 produserende felt med operatørskap for Ekofisk-området, Norpipe og 40,25 % av Teesside-terminalen. Om lag 120 000 fat o.e./d og 414 mill. fat o.e. 2P. Delfinansiert med en emisjon på 10,5 mrd. kroner.",
-        "en": "13 producing fields including operatorship of the Greater Ekofisk Area, Norpipe and 40.25 % of the Teesside terminal. About 120,000 boe/d and 414 MMboe of 2P. Partly financed by a NOK 10.5 bn share issue."
-      },
-      "fields": [
-        "Ekofisk",
-        "Eldfisk",
-        "Embla",
-        "Tor",
-        "Tommeliten A",
-        "Heidrun",
-        "Troll",
-        "Alvheim",
-        "Oseberg",
-        "Visund",
-        "Aasta Hansteen",
-        "Grane",
-        "Breidablikk"
-      ],
-      "valueUsdM": 4425,
-      "valueNote": {
-        "nb": "virksomhetsverdi",
-        "en": "enterprise value"
-      },
-      "source": "https://www.worldoil.com/news/2026/11/23/conocophillips-to-sell-norway-business-teesside-stake-to-var-energi-for-4-4-billion/",
-      "assessment": {
-        "verdict": "full",
-        "confidence": "medium",
-        "text": {
-          "nb": "Fullt priset. Vår Energi betaler om lag 36 000 dollar per flytende fat og 12,3 dollar per fat av Sodirs gjenværende reserver – 1,22 ganger det en typisk avtale på sokkelen har kostet målt mot Feltverdis verdi. Prisen forutsetter reservevekst i Ekofisk-området, langsiktige priser rundt 75 dollar og at synergiene på 0,7–1 mrd. dollar realiseres. Strategisk sterk (operatørskap, Teesside, Norpipe), men med lite rom for feil.",
-          "en": "Fully priced. Vår Energi pays about 36,000 dollars per flowing barrel and 12.3 dollars per barrel of Sodir's remaining reserves – 1.22 times what a typical deal on the shelf has cost relative to Feltverdi's value. The price assumes reserve growth in the Ekofisk area, long-term prices around 75 dollars and delivery of 0.7–1 billion dollars of synergies. Strategically strong (operatorship, Teesside, Norpipe), but with little room for error."
-        }
-      }
-    },
-    {
-      "id": "2026-var-bluenord",
-      "date": "2026-07-21",
-      "type": "merger",
-      "status": "pending",
-      "parties": [
-        "Vår Energi",
-        "BlueNord"
-      ],
-      "title": {
-        "nb": "Vår Energi slår seg sammen med BlueNord",
-        "en": "Vår Energi combines with BlueNord"
-      },
-      "summary": {
-        "nb": "Fusjon der BlueNord-aksjonærene får aksjer og kontanter i Vår Energi. BlueNord eier 36,8 % av Dansk Undergrunds Consortium (Tyra, Dan, Gorm, Halfdan) – Vår Energis første store utvidelse utenfor Norge.",
-        "en": "Merger in which BlueNord shareholders receive Vår Energi shares and cash. BlueNord owns 36.8 % of the Danish Underground Consortium (Tyra, Dan, Gorm, Halfdan) – Vår Energi's first major expansion outside Norway."
-      },
-      "fields": [],
-      "valueUsdM": 1330,
-      "valueNote": {
-        "nb": "egenkapitalverdi (NOK 12,84 mrd.); dansk sokkel",
-        "en": "equity value (NOK 12.84 bn); Danish shelf"
-      },
-      "source": "https://worldoil.com/news/2026/7/21/var-energi-to-acquire-bluenord-creating-europe-s-largest-independent-oil-and-gas-producer/",
-      "assessment": {
-        "verdict": "early",
-        "confidence": "low",
-        "text": {
-          "nb": "For tidlig å si. Feltverdis egen analyse anslo en premie på 10–25 % mot terminkurven (og 30–50 % ved 65 dollar flatt). Betalt hovedsakelig i Vår Energi-aksjer, som demper risikoen for å ha kjøpt på toppen av prissyklusen. Dansk sokkel er ikke med i Feltverdis feltdata.",
-          "en": "Too early to say. Feltverdi's own analysis estimated a premium of 10–25 % against the forward curve (and 30–50 % at a flat 65 dollars). Paid mainly in Vår Energi shares, which reduces the risk of having bought at the top of the price cycle. The Danish shelf is not in Feltverdi's field data."
-        }
-      }
-    },
-    {
-      "id": "2026-var-pandion",
-      "date": "2026-06-18",
-      "datePrecision": "month",
-      "type": "corporate",
-      "status": "pending",
-      "parties": [
-        "Vår Energi",
-        "Pandion Energy"
-      ],
-      "title": {
-        "nb": "Vår Energi kjøper Pandion Energys norske portefølje",
-        "en": "Vår Energi acquires Pandion Energy's Norwegian portfolio"
-      },
-      "summary": {
-        "nb": "10 % i Nova, 20 % i Ofelia-utbyggingen, 49 % i funnet Sierra Solberg Rodrigues (PL263) og fire letelisenser i Gjøa-området.",
-        "en": "10 % of Nova, 20 % of the Ofelia development, 49 % of the Sierra Solberg Rodrigues discovery (PL263) and four exploration licences in the Gjøa area."
-      },
-      "fields": [
-        "Nova"
-      ],
-      "valueUsdM": 110,
-      "valueNote": {
-        "nb": "vederlag",
-        "en": "consideration"
-      },
-      "source": "https://www.ogj.com/general-interest/news/55385249/var-energi-signs-deals-to-high-grade-ncs-portfolio",
-      "assessment": {
-        "verdict": "early",
-        "confidence": "low",
-        "text": {
-          "nb": "For tidlig å si. Bare Nova-andelen produserer i dag; mesteparten av verdien ligger i Ofelia-utbyggingen og funn som ikke er med i Sodirs reserver ennå. Pris per produserende fat er derfor ikke meningsfull.",
-          "en": "Too early to say. Only the Nova stake produces today; most of the value lies in the Ofelia development and discoveries not yet in Sodir's reserves. The price per producing barrel is therefore not meaningful."
-        }
-      }
-    },
-    {
-      "id": "2026-var-dno-swap",
-      "date": "2026-06-18",
-      "datePrecision": "month",
-      "type": "swap",
-      "status": "pending",
-      "parties": [
-        "Vår Energi",
-        "DNO"
-      ],
-      "title": {
-        "nb": "Vår Energi og DNO bytter andeler (Ringhorne Nord, Nova, Gjøa)",
-        "en": "Vår Energi and DNO swap interests (Ringhorne North, Nova, Gjøa)"
-      },
-      "summary": {
-        "nb": "Vår Energi får 15 % i Ringhorne Nord og 5 % i Nova; DNO får 5 % i Gjøa og 17,5 mill. dollar i mellomlegg.",
-        "en": "Vår Energi receives 15 % of Ringhorne North and 5 % of Nova; DNO receives 5 % of Gjøa and a 17.5 million dollar balancing payment."
-      },
-      "fields": [
-        "Nova",
-        "Gjøa"
-      ],
-      "valueUsdM": 17.5,
-      "valueNote": {
-        "nb": "kontant mellomlegg",
-        "en": "cash balancing payment"
-      },
-      "source": "https://www.ogj.com/general-interest/news/55385249/var-energi-signs-deals-to-high-grade-ncs-portfolio",
-      "assessment": {
-        "verdict": "na",
-        "confidence": "low",
-        "text": {
-          "nb": "Lite bytte med begrenset verdi; kan ikke vurderes meningsfullt med Feltverdis data.",
-          "en": "Small swap of limited value; cannot be assessed meaningfully with Feltverdi's data."
-        }
-      }
-    },
-    {
-      "id": "2026-var-goliat-fenja",
-      "date": "2026-06-18",
-      "datePrecision": "month",
-      "type": "asset",
-      "status": "pending",
-      "parties": [
-        "Orlen Upstream Norway",
-        "Concedo",
-        "Vår Energi"
-      ],
-      "title": {
-        "nb": "Vår Energi selger 20 % i Goliat og 25 % i Fenja",
-        "en": "Vår Energi sells 20 % of Goliat and 25 % of Fenja"
-      },
-      "summary": {
-        "nb": "20 % i Goliat til Orlen Upstream Norway og 25 % i Fenja og Vidsyn til Concedo.",
-        "en": "20 % of Goliat to Orlen Upstream Norway and 25 % of Fenja and Vidsyn to Concedo."
-      },
-      "fields": [
-        "Goliat",
-        "Fenja"
-      ],
-      "valueUsdM": 350,
-      "valueNote": {
-        "nb": "samlet vederlag, inntil",
-        "en": "total consideration, up to"
-      },
-      "source": "https://www.ogj.com/general-interest/news/55385249/var-energi-signs-deals-to-high-grade-ncs-portfolio",
-      "assessment": {
-        "verdict": "early",
-        "confidence": "low",
-        "text": {
-          "nb": "For tidlig å si. Kjøperne betaler 15,9 dollar per fat av Sodirs reserver – høyt sammenlignet med andre avtaler, og en god pris for Vår Energi som selger. Men Goliats gasseksportprosjekt er ikke med i Sodirs reserver ennå; tas det med, ser prisen mer markedsmessig ut.",
-          "en": "Too early to say. The buyers pay 15.9 dollars per barrel of Sodir reserves – high compared with other deals, and a good price for Vår Energi as seller. But Goliat's gas export project is not yet in Sodir's reserves; including it, the price looks more market-level."
-        }
-      }
-    },
-    {
-      "id": "2026-akerbp-equinor-swap",
-      "date": "2026-05-21",
-      "datePrecision": "month",
-      "type": "swap",
-      "status": "pending",
-      "parties": [
-        "Aker BP",
-        "Equinor"
-      ],
-      "title": {
-        "nb": "Aker BP og Equinor bytter andeler (Ringvei Vest, Wisting)",
-        "en": "Aker BP and Equinor swap interests (Ringvei Vest, Wisting)"
-      },
-      "summary": {
-        "nb": "Aker BP får 19 % i flere Ringvei Vest-lisenser og 38,16 % i britisk lisens P2343; Equinor får 7,5 % i Wisting-funnet og 23 mill. dollar.",
-        "en": "Aker BP receives 19 % of several Ringvei Vest licences and 38.16 % of UK licence P2343; Equinor receives 7.5 % of the Wisting discovery and 23 million dollars."
-      },
-      "fields": [],
-      "valueUsdM": 23,
-      "valueNote": {
-        "nb": "kontant mellomlegg",
-        "en": "cash balancing payment"
-      },
-      "source": "https://akerbp.com/en/borsmelding/aker-bp-and-equinor-to-unlock-additional-value-on-the-norwegian-continental-shelf-2/",
-      "assessment": {
-        "verdict": "na",
-        "confidence": "low",
-        "text": {
-          "nb": "Kan ikke vurderes kvantitativt: byttet gjelder hovedsakelig funn og lisenser som ikke produserer (Ringvei Vest, Wisting).",
-          "en": "Cannot be assessed quantitatively: the swap mainly involves discoveries and licences that are not producing (Ringvei Vest, Wisting)."
-        }
-      }
-    },
-    {
-      "id": "2025-dno-sval",
-      "date": "2025-03-07",
-      "type": "corporate",
-      "status": "completed",
-      "parties": [
-        "DNO",
-        "Sval Energi"
-      ],
-      "title": {
-        "nb": "DNO kjøper Sval Energi",
-        "en": "DNO acquires Sval Energi"
-      },
-      "summary": {
-        "nb": "DNO kjøper Sval Energi fra HitecVision. Sval har ikke-opererte andeler i 16 produserende felt med 64 100 fat o.e./d (2024), og firedobler DNOs produksjon i Nordsjøen.",
-        "en": "DNO buys Sval Energi from HitecVision. Sval holds non-operated interests in 16 producing fields with 64,100 boe/d (2024), quadrupling DNO's North Sea output."
-      },
-      "fields": [],
-      "valueUsdM": 1600,
-      "valueNote": {
-        "nb": "virksomhetsverdi (450 mill. kontant)",
-        "en": "enterprise value (450 million cash)"
-      },
-      "source": "https://www.dno.no/en/investors/announcements/dno-to-acquire-sval-energi-in-transformative-transaction-quadruples-north-sea-output-2025-03-07/",
-      "assessment": {
-        "verdict": "fair",
-        "confidence": "medium",
-        "text": {
-          "nb": "Markedsmessig. 24 000 dollar per flytende fat og 11,1 dollar per fat reserver – helt på linje med en typisk avtale (0,99 ganger medianen). DNO fikk ikke-opererte andeler i 16 felt med 66 000 fat o.e./d og firedoblet produksjonen i Nordsjøen. Kort historikk etter avtalen gjør vurderingen foreløpig.",
-          "en": "Market-level. 24,000 dollars per flowing barrel and 11.1 dollars per barrel of reserves – fully in line with a typical deal (0.99 times the median). DNO got non-operated interests in 16 fields with 66,000 boe/d and quadrupled its North Sea output. The short history since the deal makes the assessment preliminary."
-        }
-      }
-    },
-    {
-      "id": "2024-equinor-petoro-swap",
-      "date": "2024-05-16",
-      "type": "swap",
-      "status": "completed",
-      "parties": [
-        "Equinor",
-        "Petoro"
-      ],
-      "title": {
-        "nb": "Equinor og Petoro bytter andeler på Haltenbanken",
-        "en": "Equinor and Petoro swap Haltenbanken interests"
-      },
-      "summary": {
-        "nb": "Equinor øker i Heidrun og Noatun-funnet og reduserer i Tyrihans, Johan Castberg og funnene Carmen og Beta. Virkningsdato 1. januar 2025.",
-        "en": "Equinor increases its interest in Heidrun and the Noatun discovery, and reduces in Tyrihans, Johan Castberg and the Carmen and Beta discoveries. Effective 1 January 2025."
-      },
-      "fields": [
-        "Heidrun",
-        "Tyrihans",
-        "Johan Castberg"
-      ],
-      "valueUsdM": null,
-      "valueNote": {
-        "nb": "ikke oppgitt",
-        "en": "not disclosed"
-      },
-      "source": "https://worldoil.com/news/2024/5/16/equinor-and-petoro-agree-to-swap-assets-in-norwegian-continental-shelf/",
-      "assessment": {
-        "verdict": "na",
-        "confidence": "low",
-        "text": {
-          "nb": "Verdiene er ikke oppgitt. Byttet konsoliderer eierskap på Haltenbanken mellom to statlige aktører.",
-          "en": "Values were not disclosed. The swap consolidates ownership on Haltenbanken between two state players."
-        }
-      }
-    },
-    {
-      "id": "2023-harbour-wintershalldea",
-      "date": "2023-12-21",
-      "type": "corporate",
-      "status": "completed",
-      "completed": "2024-09-03",
-      "parties": [
-        "Harbour Energy",
-        "Wintershall Dea"
-      ],
-      "title": {
-        "nb": "Harbour Energy kjøper Wintershall Deas lete- og produksjonsvirksomhet",
-        "en": "Harbour Energy acquires Wintershall Dea's E&P business"
-      },
-      "summary": {
-        "nb": "Global transaksjon med eiendeler i Norge, Tyskland, Danmark, Argentina, Mexico, Egypt, Libya og Algerie. Norge ble Harbours største produksjonsland, og selskapet ble sjette største produsent på sokkelen.",
-        "en": "Global transaction with assets in Norway, Germany, Denmark, Argentina, Mexico, Egypt, Libya and Algeria. Norway became Harbour's largest producing country, and the company became the sixth largest producer on the shelf."
-      },
-      "fields": [],
-      "valueUsdM": 11200,
-      "valueNote": {
-        "nb": "samlet vederlag, global",
-        "en": "total consideration, global"
-      },
-      "source": "https://www.offshore-energy.biz/big-step-forward-for-harbour-energy-as-it-takes-hold-of-wintershall-deas-oil-gas-assets/",
-      "assessment": {
-        "verdict": "na",
-        "confidence": "low",
-        "text": {
-          "nb": "Global transaksjon der den norske delen ikke er priset separat; kan ikke vurderes med Feltverdis data.",
-          "en": "Global transaction where the Norwegian part is not priced separately; cannot be assessed with Feltverdi's data."
-        }
-      }
-    },
-    {
-      "id": "2023-var-neptune",
-      "date": "2023-06-23",
-      "type": "corporate",
-      "status": "completed",
-      "completed": "2024-01-31",
-      "parties": [
-        "Vår Energi",
-        "Neptune Energy"
-      ],
-      "title": {
-        "nb": "Vår Energi kjøper Neptune Energy Norge",
-        "en": "Vår Energi acquires Neptune Energy Norge"
-      },
-      "summary": {
-        "nb": "12 produserende felt (bl.a. Snøhvit, Gjøa, Njord, Fenja, Duva) med 67 000 fat o.e./d og om lag 265 mill. fat o.e. 2P. Del av Enis kjøp av Neptune-konsernet.",
-        "en": "12 producing fields (incl. Snøhvit, Gjøa, Njord, Fenja, Duva) with 67,000 boe/d and about 265 MMboe of 2P. Part of Eni's acquisition of the Neptune group."
-      },
-      "fields": [
-        "Snøhvit",
-        "Gjøa",
-        "Njord",
-        "Fenja",
-        "Duva",
-        "Gudrun",
-        "Fram"
-      ],
-      "valueUsdM": 2275,
-      "valueNote": {
-        "nb": "virksomhetsverdi",
-        "en": "enterprise value"
-      },
-      "source": "https://news.cision.com/var-energi-asa/r/var-energi-to-acquire-neptune-energy-s-norwegian-oil-and-gas-assets-to-accelerate-growth-and-value-c,c3793189",
-      "assessment": {
-        "verdict": "fair",
-        "confidence": "medium",
-        "text": {
-          "nb": "Markedsmessig sammenlignet med andre avtaler (0,93 ganger medianen), med 9,0 dollar per fat – billig per fat, men porteføljen er gassrik og har lang levetid (Snøhvit). Avtalen ble inngått mens gassprisene fortsatt var høye etter 2022; i ettertid har produksjonen falt raskere enn ventet, og verdien ligger under kjøpesummen i faste priser.",
-          "en": "Market-level compared with other deals (0.93 times the median), at 9.0 dollars per barrel – cheap per barrel, but the portfolio is gas-rich and long-lived (Snøhvit). The deal was struck while gas prices were still high after 2022; in hindsight production has fallen faster than expected, and the value is below the purchase price in real terms."
-        }
-      }
-    },
-    {
-      "id": "2022-okea-wintershalldea",
-      "date": "2022-05-23",
-      "type": "asset",
-      "status": "completed",
-      "completed": "2022-11-01",
-      "parties": [
-        "OKEA",
-        "Wintershall Dea"
-      ],
-      "title": {
-        "nb": "OKEA kjøper Brage, Ivar Aasen og Nova-andeler fra Wintershall Dea",
-        "en": "OKEA acquires Brage, Ivar Aasen and Nova interests from Wintershall Dea"
-      },
-      "summary": {
-        "nb": "35,2 % og operatørskap i Brage, 6,4615 % i Ivar Aasen og 6 % i Nova. Wintershall Dea beholder 80 % av OKEAs andel av fjerningskostnadene på Brage.",
-        "en": "35.2 % and operatorship of Brage, 6.4615 % of Ivar Aasen and 6 % of Nova. Wintershall Dea retains 80 % of OKEA's share of Brage decommissioning costs."
-      },
-      "fields": [
-        "Brage",
-        "Ivar Aasen",
-        "Nova"
-      ],
-      "valueUsdM": 117.5,
-      "valueNote": {
-        "nb": "vederlag etter skatt + betinget tillegg",
-        "en": "post-tax consideration + contingent payment"
-      },
-      "source": "https://news.cision.com/okea/r/okea-acquires-a-material-portfolio-of-assets-from-wintershall-dea,c3572028",
-      "assessment": {
-        "verdict": "cheap",
-        "confidence": "medium",
-        "text": {
-          "nb": "Lav pris – et av de beste kjøpene i oversikten (0,48 ganger medianen). OKEA betalte 7 dollar per fat (7 % av Brent), fikk med seg de høye prisene i 2022–2023, og selgeren beholdt 80 % av fjerningskostnadene på Brage. Reservene har i tillegg vokst 41 % siden avtalen.",
-          "en": "Low price – one of the best buys in the overview (0.48 times the median). OKEA paid 7 dollars per barrel (7 % of Brent), captured the high prices of 2022–2023, and the seller kept 80 % of Brage decommissioning costs. Reserves have also grown 41 % since the deal."
-        }
-      }
-    },
-    {
-      "id": "2021-akerbp-lundin",
-      "date": "2021-12-21",
-      "type": "corporate",
-      "status": "completed",
-      "completed": "2022-06-30",
-      "parties": [
-        "Aker BP",
-        "Lundin Energy"
-      ],
-      "title": {
-        "nb": "Aker BP kjøper Lundin Energys olje- og gassvirksomhet",
-        "en": "Aker BP acquires Lundin Energy's oil and gas business"
-      },
-      "summary": {
-        "nb": "Betalt med 2,22 mrd. dollar i kontanter og nye Aker BP-aksjer. Ga Aker BP andeler i blant annet Johan Sverdrup, Edvard Grieg og Alvheim, og gjorde selskapet til nest største produsent på sokkelen.",
-        "en": "Paid with 2.22 billion dollars in cash plus new Aker BP shares. Gave Aker BP interests in Johan Sverdrup, Edvard Grieg and Alvheim among others, making it the second largest producer on the shelf."
-      },
-      "fields": [
-        "Johan Sverdrup",
-        "Edvard Grieg",
-        "Alvheim",
-        "Ivar Aasen"
-      ],
-      "valueUsdM": 13900,
-      "valueNote": {
-        "nb": "transaksjonsverdi (NOK 125 mrd.)",
-        "en": "transaction value (NOK 125 bn)"
-      },
-      "source": "https://akerbp.com/en/borsmelding/aker-bp-acquires-lundin-energys-oil-and-gas-business-2/",
-      "assessment": {
-        "verdict": "expensive",
-        "confidence": "medium",
-        "text": {
-          "nb": "Høy pris. 20,7 dollar per fat reserver (29 % av Brent) og over 80 000 dollar per flytende fat – 1,62 ganger en typisk avtale. Lundin var et høykvalitetsselskap med lave kostnader og lave utslipp (Johan Sverdrup, Edvard Grieg), og avtalen ble i stor grad betalt med Aker BP-aksjer, men prisen forutsatte mer enn Feltverdi finner igjen i ettertid.",
-          "en": "High price. 20.7 dollars per barrel of reserves (29 % of Brent) and over 80,000 dollars per flowing barrel – 1.62 times a typical deal. Lundin was a high-quality company with low costs and low emissions (Johan Sverdrup, Edvard Grieg), and the deal was largely paid in Aker BP shares, but the price assumed more than Feltverdi finds in hindsight."
-        }
-      }
-    },
-    {
-      "id": "2021-sval-spirit",
-      "date": "2021-12-01",
-      "datePrecision": "month",
-      "type": "corporate",
-      "status": "completed",
-      "parties": [
-        "Sval Energi",
-        "Spirit Energy"
-      ],
-      "title": {
-        "nb": "Sval Energi kjøper Spirit Energy Norge",
-        "en": "Sval Energi acquires Spirit Energy Norway"
-      },
-      "summary": {
-        "nb": "Sval Energi (HitecVision) kjøper den norske virksomheten til Spirit Energy.",
-        "en": "Sval Energi (HitecVision) acquires the Norwegian business of Spirit Energy."
-      },
-      "fields": [],
-      "valueUsdM": null,
-      "valueNote": {
-        "nb": "rapportert om lag 1,1 mrd. USD (én kilde)",
-        "en": "reported about USD 1.1 bn (single source)"
-      },
-      "source": "https://mergr.com/transaction/sval-energi-acquires-spirit-energy-norway-as",
-      "assessment": {
-        "verdict": "cheap",
-        "confidence": "low",
-        "text": {
-          "nb": "Lav pris, men usikker: kjøpesummen er bare rapportert av én kilde (om lag 1,1 mrd. dollar). Med den prisen betalte Sval 8,6 dollar per fat og 21 000 dollar per flytende fat – 0,71 ganger medianen – og fikk med seg prisoppgangen i 2022.",
-          "en": "Low price, but uncertain: the purchase price is reported by only one source (about 1.1 billion dollars). At that price Sval paid 8.6 dollars per barrel and 21,000 dollars per flowing barrel – 0.71 times the median – and captured the price rise of 2022."
-        }
-      }
-    },
-    {
-      "id": "2020-sval-edison",
-      "date": "2020-12-01",
-      "datePrecision": "month",
-      "type": "corporate",
-      "status": "completed",
-      "parties": [
-        "Sval Energi",
-        "Edison Norge"
-      ],
-      "title": {
-        "nb": "Sval Energi kjøper Edison Norge",
-        "en": "Sval Energi acquires Edison Norge"
-      },
-      "summary": {
-        "nb": "Ti utvinningstillatelser på norsk sokkel. Edison Norge var opprinnelig del av et salg til Energean.",
-        "en": "Ten production licences on the Norwegian shelf. Edison Norge was originally part of a sale to Energean."
-      },
-      "fields": [],
-      "valueUsdM": 300,
-      "valueNote": {
-        "nb": "vederlag",
-        "en": "consideration"
-      },
-      "source": "https://www.oedigital.com/news/486345-sval-energi-wraps-300m-edison-norge-buy",
-      "assessment": {
-        "verdict": "expensive",
-        "confidence": "low",
-        "text": {
-          "nb": "Høy pris, med lav sikkerhet. 12,7 dollar per fat (30 % av Brent) i et år med svært lave priser. Porteføljen var dominert av nye felt (Dvalin) som Feltverdi verdsetter forsiktig, så forholdstallet (2,27 ganger medianen) overdriver trolig.",
-          "en": "High price, with low confidence. 12.7 dollars per barrel (30 % of Brent) in a year of very low prices. The portfolio was dominated by new fields (Dvalin) that Feltverdi values cautiously, so the ratio (2.27 times the median) probably overstates."
-        }
-      }
-    },
-    {
-      "id": "2019-var-exxonmobil",
-      "date": "2019-09-26",
-      "type": "asset",
-      "status": "completed",
-      "completed": "2019-12-10",
-      "parties": [
-        "Vår Energi",
-        "ExxonMobil"
-      ],
-      "title": {
-        "nb": "Vår Energi kjøper ExxonMobils ikke-opererte eiendeler",
-        "en": "Vår Energi acquires ExxonMobil's non-operated assets"
-      },
-      "summary": {
-        "nb": "Andeler i mer enn 20 produserende felt, blant annet Grane, Snorre, Ormen Lange, Statfjord, Åsgard og Fram, med om lag 150 000 fat o.e./d. Inkluderte også det senere Breidablikk-feltet.",
-        "en": "Interests in more than 20 producing fields, including Grane, Snorre, Ormen Lange, Statfjord, Åsgard and Fram, with about 150,000 boe/d. Also included the later Breidablikk field."
-      },
-      "fields": [
-        "Grane",
-        "Snorre",
-        "Ormen Lange",
-        "Statfjord",
-        "Åsgard",
-        "Fram",
-        "Breidablikk",
-        "Mikkel",
-        "Tyrihans",
-        "Kristin"
-      ],
-      "valueUsdM": 4500,
-      "valueNote": {
-        "nb": "kontantvederlag",
-        "en": "cash consideration"
-      },
-      "source": "https://varenergi.no/news/2859/",
-      "assessment": {
-        "verdict": "fair",
-        "confidence": "medium",
-        "text": {
-          "nb": "Markedsmessig sammenlignet med andre avtaler (1,01 ganger medianen): 10,8 dollar per fat og 29 000 dollar per flytende fat. I absolutt forstand har eiendelene i ettertid vært verdt mindre enn de 4,5 mrd. dollarene (om lag 3–4 mrd. i faste priser), selv med prisoppgangen i 2022. Reservene har vokst 32 %, særlig gjennom Breidablikk og Snorre.",
-          "en": "Market-level compared with other deals (1.01 times the median): 10.8 dollars per barrel and 29,000 dollars per flowing barrel. In absolute terms the assets have proved worth less than the 4.5 billion dollars (about 3–4 billion in real terms), even with the 2022 price rise. Reserves have grown 32 %, especially through Breidablikk and Snorre."
-        }
-      }
-    },
-    {
-      "id": "2019-dno-faroe",
-      "date": "2019-01-08",
-      "type": "corporate",
-      "status": "completed",
-      "parties": [
-        "DNO",
-        "Faroe Petroleum"
-      ],
-      "title": {
-        "nb": "DNO kjøper Faroe Petroleum (fiendtlig bud)",
-        "en": "DNO acquires Faroe Petroleum (hostile bid)"
-      },
-      "summary": {
-        "nb": "Endelig kontantbud på 160 pence per aksje etter at styret i Faroe hadde avvist tidligere bud. Ga DNO en betydelig portefølje på norsk sokkel.",
-        "en": "Final cash offer of 160 pence per share after Faroe's board had rejected earlier bids. Gave DNO a significant portfolio on the Norwegian shelf."
-      },
-      "fields": [],
-      "valueUsdM": 816,
-      "valueNote": {
-        "nb": "budverdi (GBP 641,7 mill.)",
-        "en": "offer value (GBP 641.7 m)"
-      },
-      "source": "https://www.globenewswire.com/news-release/2019/01/08/1682275/0/en/increased-and-final-cash-offer-for-faroe-petroleum-plc-by-dno-asa.html",
-      "assessment": {
-        "verdict": "na",
-        "confidence": "low",
-        "text": {
-          "nb": "Kan ikke vurderes kvantitativt: Faroe hadde også britiske eiendeler, funn og kontanter. Signalene for den norske delen er svake – produksjonen var liten (9 000 fat o.e./d) og reservene har krympet med 23 % siden. Det tyder på at DNO betalte en høy pris i det fiendtlige oppkjøpet.",
-          "en": "Cannot be assessed quantitatively: Faroe also had UK assets, discoveries and cash. The signals for the Norwegian part are weak – production was small (9,000 boe/d) and reserves have shrunk 23 % since. This suggests DNO paid a high price in the hostile takeover."
-        }
-      }
-    },
-    {
-      "id": "2018-var-energi-formed",
-      "date": "2018-07-01",
-      "datePrecision": "month",
-      "type": "merger",
-      "status": "completed",
-      "completed": "2018-12-11",
-      "parties": [
-        "Eni Norge",
-        "Point Resources"
-      ],
-      "title": {
-        "nb": "Eni Norge og Point Resources slås sammen til Vår Energi",
-        "en": "Eni Norge and Point Resources merge to form Vår Energi"
-      },
-      "summary": {
-        "nb": "Det nye selskapet eies av Eni (69,6 %) og HitecVision (30,4 %).",
-        "en": "The new company is owned by Eni (69.6 %) and HitecVision (30.4 %)."
-      },
-      "fields": [],
-      "valueUsdM": null,
-      "valueNote": {
-        "nb": "fusjon, ingen kjøpesum",
-        "en": "merger, no purchase price"
-      },
-      "source": "https://varenergi.no/2018/07/01/eni-norge-and-point-resources-merge-into-var-energi-as/",
-      "assessment": {
-        "verdict": "na",
-        "confidence": "low",
-        "text": {
-          "nb": "Fusjon uten kjøpesum.",
-          "en": "Merger without a purchase price."
-        }
-      }
-    },
-    {
-      "id": "2018-akerbp-total",
-      "date": "2018-07-01",
-      "datePrecision": "month",
-      "type": "asset",
-      "status": "completed",
-      "parties": [
-        "Aker BP",
-        "Total"
-      ],
-      "title": {
-        "nb": "Aker BP kjøper Totals andeler i 11 lisenser",
-        "en": "Aker BP acquires Total's interests in 11 licences"
-      },
-      "summary": {
-        "nb": "Fire funn med netto utvinnbare ressurser på 83 mill. fat o.e.",
-        "en": "Four discoveries with net recoverable resources of 83 MMboe."
-      },
-      "fields": [],
-      "valueUsdM": 205,
-      "valueNote": {
-        "nb": "vederlag",
-        "en": "consideration"
-      },
-      "source": "https://www.nsenergybusiness.com/news/aker-bp-to-acquire-totals-norway-offshore-acreage-for-205m/",
-      "assessment": {
-        "verdict": "na",
-        "confidence": "low",
-        "text": {
-          "nb": "Funn, ikke produksjon: 205 mill. dollar for 83 mill. fat o.e. ressurser er 2,5 dollar per fat – lavt, men ressursene var ennå ikke besluttet utbygd.",
-          "en": "Discoveries, not production: 205 million dollars for 83 MMboe of resources is 2.5 dollars per barrel – low, but the resources had not yet been sanctioned for development."
-        }
-      }
-    },
-    {
-      "id": "2018-okea-shell",
-      "date": "2018-06-20",
-      "type": "asset",
-      "status": "completed",
-      "completed": "2018-11-30",
-      "parties": [
-        "OKEA",
-        "Shell"
-      ],
-      "title": {
-        "nb": "OKEA kjøper Shells andeler i Draugen og Gjøa",
-        "en": "OKEA acquires Shell's interests in Draugen and Gjøa"
-      },
-      "summary": {
-        "nb": "44,56 % og operatørskap i Draugen og 12 % i Gjøa. Shell beholder 80 % av forventede fjerningskostnader etter skatt, opp til et tak.",
-        "en": "44.56 % and operatorship of Draugen and 12 % of Gjøa. Shell retains 80 % of expected after-tax decommissioning costs, up to a cap."
-      },
-      "fields": [
-        "Draugen",
-        "Gjøa"
-      ],
-      "valueUsdM": 556,
-      "valueNote": {
-        "nb": "vederlag (NOK 4,52 mrd.)",
-        "en": "consideration (NOK 4.52 bn)"
-      },
-      "source": "https://worldoil.com/news/2018/6/20/shell-sells-draugen-gjoa-interest-in-norway/",
-      "assessment": {
-        "verdict": "fair",
-        "confidence": "medium",
-        "text": {
-          "nb": "Markedsmessig (0,92 ganger medianen), men i praksis et godt kjøp. Prisen på 21 dollar per fat av daværende reserver så høy ut, men Draugen-reservene har nesten tredoblet seg (2,8 ganger) gjennom levetidsforlengelse, og Shell beholdt 80 % av fjerningskostnadene etter skatt.",
-          "en": "Market-level (0.92 times the median), but in practice a good buy. The price of 21 dollars per barrel of reserves at the time looked high, but Draugen reserves have almost tripled (2.8 times) through life extension, and Shell kept 80 % of after-tax decommissioning costs."
-        }
-      }
-    },
-    {
-      "id": "2017-akerbp-hess",
-      "date": "2017-10-24",
-      "type": "corporate",
-      "status": "completed",
-      "completed": "2017-12-22",
-      "parties": [
-        "Aker BP",
-        "Hess"
-      ],
-      "title": {
-        "nb": "Aker BP kjøper Hess Norge",
-        "en": "Aker BP acquires Hess Norge"
-      },
-      "summary": {
-        "nb": "64,05 % i Valhall og 62,5 % i Hod. Virkningsdato 1. januar 2017.",
-        "en": "64.05 % of Valhall and 62.5 % of Hod. Effective date 1 January 2017."
-      },
-      "fields": [
-        "Valhall",
-        "Hod"
-      ],
-      "valueUsdM": 2000,
-      "valueNote": {
-        "nb": "kontantvederlag",
-        "en": "cash consideration"
-      },
-      "source": "https://news.cision.com/aker-bp-asa/r/acquisition-of-hess-norge-completed,c2421290",
-      "assessment": {
-        "verdict": "expensive",
-        "confidence": "low",
-        "text": {
-          "nb": "Høy pris ifølge modellen (2,25 ganger medianen): 71 000 dollar per flytende fat og 12,8 dollar per fat (24 % av Brent) i en lavprisperiode. Sikkerheten er lav: Hess Norge hadde store skattemessige avskrivninger fra Valhall-utbyggingen, og Valhall-investeringene i senere år inkluderer områdeutbygginger (Fenris) som Feltverdi ikke kobler til Valhall-produksjonen.",
-          "en": "High price according to the model (2.25 times the median): 71,000 dollars per flowing barrel and 12.8 dollars per barrel (24 % of Brent) in a low-price period. Confidence is low: Hess Norge had large tax depreciation balances from the Valhall redevelopment, and later Valhall investments include area developments (Fenris) that Feltverdi does not link to Valhall production."
-        }
-      }
-    },
-    {
-      "id": "2017-point-exxonmobil",
-      "date": "2017-03-01",
-      "datePrecision": "month",
-      "type": "asset",
-      "status": "completed",
-      "completed": "2017-11-01",
-      "parties": [
-        "Point Resources",
-        "ExxonMobil"
-      ],
-      "title": {
-        "nb": "Point Resources kjøper ExxonMobils opererte felt",
-        "en": "Point Resources acquires ExxonMobil's operated fields"
-      },
-      "summary": {
-        "nb": "Operatørskap og andeler i Balder, Ringhorne, Ringhorne Øst, Jotun og Forseti. Point Resources ble senere en del av Vår Energi.",
-        "en": "Operatorship and interests in Balder, Ringhorne, Ringhorne East, Jotun and Forseti. Point Resources later became part of Vår Energi."
-      },
-      "fields": [
-        "Balder",
-        "Ringhorne Øst",
-        "Jotun"
-      ],
-      "valueUsdM": null,
-      "valueNote": {
-        "nb": "ikke oppgitt",
-        "en": "not disclosed"
-      },
-      "source": "https://www.oedigital.com/subsea/item/16511-point-completes-exxon-acquisition-plans-2-45-billion-investment-over-5-years",
-      "assessment": {
-        "verdict": "na",
-        "confidence": "low",
-        "text": {
-          "nb": "Prisen er ikke oppgitt, så kjøpet kan ikke vurderes. I ettertid har reservene i Balder, Ringhorne Øst og Jotun mer enn firedoblet seg gjennom Balder X og levetidsforlengelse – med en moderat pris var dette trolig et svært godt kjøp.",
-          "en": "The price was not disclosed, so the purchase cannot be assessed. In hindsight reserves in Balder, Ringhorne East and Jotun have more than quadrupled through Balder X and life extension – at a moderate price this was probably a very good buy."
-        }
-      }
-    },
-    {
-      "id": "2017-ineos-dong",
-      "date": "2017-05-24",
-      "datePrecision": "month",
-      "type": "corporate",
-      "status": "completed",
-      "parties": [
-        "INEOS",
-        "DONG Energy"
-      ],
-      "title": {
-        "nb": "INEOS kjøper DONG Energys olje- og gassvirksomhet",
-        "en": "INEOS acquires DONG Energy's oil and gas business"
-      },
-      "summary": {
-        "nb": "Andeler i 10 produserende felt i Danmark, Norge og Storbritannia med om lag 100 000 fat o.e./d. Største eiendel var 14 % i Ormen Lange.",
-        "en": "Interests in 10 producing fields in Denmark, Norway and the UK with about 100,000 boe/d. The largest asset was 14 % of Ormen Lange."
-      },
-      "fields": [
-        "Ormen Lange"
-      ],
-      "valueUsdM": null,
-      "valueNote": {
-        "nb": "ikke oppgitt i kilden",
-        "en": "not stated in source"
-      },
-      "source": "https://www.ineos.com/businesses/ineos-energy/news/ineos-completes-the-acquisition-of--the-entire-oil--gas-business-from-dong-energy-as",
-      "assessment": {
-        "verdict": "na",
-        "confidence": "low",
-        "text": {
-          "nb": "Prisen er ikke bekreftet i kilden, så kjøpet kan ikke vurderes. Den norske delen (blant annet 14 % i Ormen Lange) er i ettertid verdt om lag 1,4 mrd. dollar i faste priser, og reservene har vokst 37 %.",
-          "en": "The price is not confirmed in the source, so the purchase cannot be assessed. The Norwegian part (including 14 % of Ormen Lange) is in hindsight worth about 1.4 billion dollars in real terms, and reserves have grown 37 %."
-        }
-      }
-    },
-    {
-      "id": "2017-neptune-engie",
-      "date": "2017-05-11",
-      "type": "corporate",
-      "status": "completed",
-      "completed": "2018-02-15",
-      "parties": [
-        "Neptune Energy",
-        "Engie E&P"
-      ],
-      "title": {
-        "nb": "Neptune Energy kjøper Engie E&P International",
-        "en": "Neptune Energy acquires Engie E&P International"
-      },
-      "summary": {
-        "nb": "Global transaksjon med 148 000 fat o.e./d, inkludert operatørskapet for Gjøa i Norge.",
-        "en": "Global transaction with 148,000 boe/d, including operatorship of Gjøa in Norway."
-      },
-      "fields": [
-        "Gjøa"
-      ],
-      "valueUsdM": 3900,
-      "valueNote": {
-        "nb": "ved eksklusivitetsavtalen, global",
-        "en": "at exclusivity agreement, global"
-      },
-      "source": "https://www.cvc.com/media/news/2017/2017-05-11-neptune-energy-group-to-acquire-engie-ep-international/",
-      "assessment": {
-        "verdict": "na",
-        "confidence": "low",
-        "text": {
-          "nb": "Global transaksjon der den norske delen ikke er priset separat; kan ikke vurderes med Feltverdis data.",
-          "en": "Global transaction where the Norwegian part is not priced separately; cannot be assessed with Feltverdi's data."
-        }
-      }
-    },
-    {
-      "id": "2016-aker-bp-merger",
-      "date": "2016-06-10",
-      "type": "merger",
-      "status": "completed",
-      "completed": "2016-09-30",
-      "parties": [
-        "Det norske",
-        "BP Norge"
-      ],
-      "title": {
-        "nb": "Det norske og BP Norge slås sammen til Aker BP",
-        "en": "Det norske and BP Norge merge to form Aker BP"
-      },
-      "summary": {
-        "nb": "Det norske kjøpte BP Norge mot kontanter og aksjer. Aker ASA eide 40 % og BP 30 % av det nye selskapet.",
-        "en": "Det norske acquired BP Norge for cash and shares. Aker ASA owned 40 % and BP 30 % of the new company."
-      },
-      "fields": [
-        "Valhall",
-        "Skarv",
-        "Ula"
-      ],
-      "valueUsdM": 1440,
-      "valueNote": {
-        "nb": "140 mill. kontant + 1,3 mrd. i aksjer",
-        "en": "140 million cash + 1.3 bn in shares"
-      },
-      "source": "https://www.offshore-energy.biz/det-norske-bp-norge-set-to-finalize-merger/",
-      "assessment": {
-        "verdict": "cheap",
-        "confidence": "medium",
-        "text": {
-          "nb": "Lav pris. Kjøpet av BP Norge skjedde på bunnen av oljeprisfallet (Brent 44 dollar) til 6,4 dollar per fat – 0,79 ganger medianen. Reservene i Valhall, Skarv og Ula har siden vokst 41 %. Godt tidsvalg, og grunnlaget for dagens Aker BP.",
-          "en": "Low price. The purchase of BP Norge happened at the bottom of the oil price fall (Brent 44 dollars) at 6.4 dollars per barrel – 0.79 times the median. Reserves in Valhall, Skarv and Ula have since grown 41 %. Good timing, and the foundation of today's Aker BP."
-        }
-      }
+ "updated": "2026-11-26",
+ "note": "Curated list of announced M&A, mergers and asset swaps involving the Norwegian Continental Shelf. Values in USD million as reported at announcement (enterprise value or consideration, see valueNote). Each deal links to its source.",
+ "deals": [
+  {
+   "id": "2026-equinor-japex-swap",
+   "date": "2026-11-25",
+   "type": "swap",
+   "status": "pending",
+   "parties": [
+    "Equinor",
+    "JAPEX"
+   ],
+   "title": {
+    "nb": "Equinor og JAPEX bytter andeler (Goliat/Verdande)",
+    "en": "Equinor and JAPEX swap interests (Goliat/Verdande)"
+   },
+   "summary": {
+    "nb": "Equinor overdrar 8 % i Goliat, 20 % i Arkenstone og 10 % i Rhadamanthys til JAPEX, og får 3,5 % i Verdande, 65 mill. dollar og en lete-carry.",
+    "en": "Equinor transfers 8 % of Goliat, 20 % of Arkenstone and 10 % of Rhadamanthys to JAPEX, and receives 3.5 % of Verdande, 65 million dollars and an exploration carry."
+   },
+   "fields": [
+    "Goliat",
+    "Verdande"
+   ],
+   "valueUsdM": 65,
+   "valueNote": {
+    "nb": "kontantvederlag",
+    "en": "cash consideration"
+   },
+   "source": "https://www.equinor.com/news/20261125-asset-swap-ncs",
+   "assessment": {
+    "verdict": "early",
+    "confidence": "low",
+    "text": {
+     "nb": "For tidlig å si. På produserende andeler alene får Equinor mest: Verdande 3,5 % (om lag 15 mill. dollar i Feltverdis modell) pluss 65 mill. dollar kontant, mot Goliat 8 % (om lag 30 mill. dollar med Sodirs reserver). Det godkjente gasseksportprosjektet på Goliat (112 mill. fat o.e. brutto, ennå ikke i Sodirs reserver) løfter Goliat-andelen til om lag 55 mill. dollar – fortsatt under det Equinor får. JAPEX betaler altså også for leteoppsiden i Arkenstone og Rhadamanthys og for en mer langsiktig gassprofil på Goliat. Hvem som gjør best avtale avhenger av funnene og gassprisen etter 2030.",
+     "en": "Too early to say. On producing stakes alone, Equinor gets the most: Verdande 3.5 % (about 15 million dollars in Feltverdi's model) plus 65 million dollars in cash, against Goliat 8 % (about 30 million dollars on Sodir reserves). The sanctioned Goliat gas export project (112 MMboe gross, not yet in Sodir reserves) lifts the Goliat stake to about 55 million dollars – still below what Equinor receives. JAPEX is therefore also paying for exploration upside in Arkenstone and Rhadamanthys and for a longer gas profile at Goliat. Who makes the better deal depends on those discoveries and on gas prices after 2030."
     }
-  ]
+   },
+   "upside": [
+    {
+     "slug": "goliat",
+     "remAdd": 112,
+     "label": {
+      "nb": "Med Goliat gasseksport (+112 mill. fat o.e. brutto, godkjent, ikke i Sodirs reserver ennå)",
+      "en": "With Goliat gas export (+112 MMboe gross, sanctioned, not yet in Sodir reserves)"
+     }
+    }
+   ]
+  },
+  {
+   "id": "2026-var-conocophillips",
+   "date": "2026-11-23",
+   "type": "corporate",
+   "status": "pending",
+   "parties": [
+    "Vår Energi",
+    "ConocoPhillips"
+   ],
+   "title": {
+    "nb": "Vår Energi kjøper ConocoPhillips' norske virksomhet",
+    "en": "Vår Energi acquires ConocoPhillips' Norwegian business"
+   },
+   "summary": {
+    "nb": "13 produserende felt med operatørskap for Ekofisk-området, Norpipe og 40,25 % av Teesside-terminalen. Om lag 120 000 fat o.e./d og 414 mill. fat o.e. 2P. Delfinansiert med en emisjon på 10,5 mrd. kroner.",
+    "en": "13 producing fields including operatorship of the Greater Ekofisk Area, Norpipe and 40.25 % of the Teesside terminal. About 120,000 boe/d and 414 MMboe of 2P. Partly financed by a NOK 10.5 bn share issue."
+   },
+   "fields": [
+    "Ekofisk",
+    "Eldfisk",
+    "Embla",
+    "Tor",
+    "Tommeliten A",
+    "Heidrun",
+    "Troll",
+    "Alvheim",
+    "Oseberg",
+    "Visund",
+    "Aasta Hansteen",
+    "Grane",
+    "Breidablikk"
+   ],
+   "valueUsdM": 4425,
+   "valueNote": {
+    "nb": "virksomhetsverdi",
+    "en": "enterprise value"
+   },
+   "source": "https://www.worldoil.com/news/2026/11/23/conocophillips-to-sell-norway-business-teesside-stake-to-var-energi-for-4-4-billion/",
+   "assessment": {
+    "verdict": "full",
+    "confidence": "medium",
+    "text": {
+     "nb": "Fullt priset. Vår Energi betaler om lag 36 000 dollar per flytende fat og 12,3 dollar per fat av Sodirs gjenværende reserver – 1,27 ganger det en typisk avtale på sokkelen har kostet målt mot Feltverdis verdi. Prisen forutsetter reservevekst i Ekofisk-området, langsiktige priser rundt 75 dollar og at synergiene på 0,7–1 mrd. dollar realiseres. Strategisk sterk (operatørskap, Teesside, Norpipe), men med lite rom for feil.",
+     "en": "Fully priced. Vår Energi pays about 36,000 dollars per flowing barrel and 12.3 dollars per barrel of Sodir's remaining reserves – 1.27 times what a typical deal on the shelf has cost relative to Feltverdi's value. The price assumes reserve growth in the Ekofisk area, long-term prices around 75 dollars and delivery of 0.7–1 billion dollars of synergies. Strategically strong (operatorship, Teesside, Norpipe), but with little room for error."
+    }
+   },
+   "views": {
+    "sellerRateDelta": 0.02,
+    "synergy": 0.05,
+    "note": {
+     "nb": "ConocoPhillips spisser porteføljen og har trolig høyere avkastningskrav (+2 prosentpoeng). Vår Energi får 5 % lavere driftskostnader gjennom overlapp på Heidrun, Alvheim og Grane og en større norsk organisasjon.",
+     "en": "ConocoPhillips is high-grading its portfolio and probably has a higher required return (+2 percentage points). Vår Energi gets 5 % lower operating costs through overlap on Heidrun, Alvheim and Grane and a larger Norwegian organisation."
+    }
+   }
+  },
+  {
+   "id": "2026-var-bluenord",
+   "date": "2026-07-21",
+   "type": "merger",
+   "status": "pending",
+   "parties": [
+    "Vår Energi",
+    "BlueNord"
+   ],
+   "title": {
+    "nb": "Vår Energi slår seg sammen med BlueNord",
+    "en": "Vår Energi combines with BlueNord"
+   },
+   "summary": {
+    "nb": "Fusjon der BlueNord-aksjonærene får aksjer og kontanter i Vår Energi. BlueNord eier 36,8 % av Dansk Undergrunds Consortium (Tyra, Dan, Gorm, Halfdan) – Vår Energis første store utvidelse utenfor Norge.",
+    "en": "Merger in which BlueNord shareholders receive Vår Energi shares and cash. BlueNord owns 36.8 % of the Danish Underground Consortium (Tyra, Dan, Gorm, Halfdan) – Vår Energi's first major expansion outside Norway."
+   },
+   "fields": [],
+   "valueUsdM": 1330,
+   "valueNote": {
+    "nb": "egenkapitalverdi (NOK 12,84 mrd.); dansk sokkel",
+    "en": "equity value (NOK 12.84 bn); Danish shelf"
+   },
+   "source": "https://worldoil.com/news/2026/7/21/var-energi-to-acquire-bluenord-creating-europe-s-largest-independent-oil-and-gas-producer/",
+   "assessment": {
+    "verdict": "early",
+    "confidence": "low",
+    "text": {
+     "nb": "For tidlig å si. Feltverdis egen analyse anslo en premie på 10–25 % mot terminkurven (og 30–50 % ved 65 dollar flatt). Betalt hovedsakelig i Vår Energi-aksjer, som demper risikoen for å ha kjøpt på toppen av prissyklusen. Dansk sokkel er ikke med i Feltverdis feltdata.",
+     "en": "Too early to say. Feltverdi's own analysis estimated a premium of 10–25 % against the forward curve (and 30–50 % at a flat 65 dollars). Paid mainly in Vår Energi shares, which reduces the risk of having bought at the top of the price cycle. The Danish shelf is not in Feltverdi's field data."
+    }
+   }
+  },
+  {
+   "id": "2026-var-pandion",
+   "date": "2026-06-18",
+   "datePrecision": "month",
+   "type": "corporate",
+   "status": "pending",
+   "parties": [
+    "Vår Energi",
+    "Pandion Energy"
+   ],
+   "title": {
+    "nb": "Vår Energi kjøper Pandion Energys norske portefølje",
+    "en": "Vår Energi acquires Pandion Energy's Norwegian portfolio"
+   },
+   "summary": {
+    "nb": "10 % i Nova, 20 % i Ofelia-utbyggingen, 49 % i funnet Sierra Solberg Rodrigues (PL263) og fire letelisenser i Gjøa-området.",
+    "en": "10 % of Nova, 20 % of the Ofelia development, 49 % of the Sierra Solberg Rodrigues discovery (PL263) and four exploration licences in the Gjøa area."
+   },
+   "fields": [
+    "Nova"
+   ],
+   "valueUsdM": 110,
+   "valueNote": {
+    "nb": "vederlag",
+    "en": "consideration"
+   },
+   "source": "https://www.ogj.com/general-interest/news/55385249/var-energi-signs-deals-to-high-grade-ncs-portfolio",
+   "assessment": {
+    "verdict": "early",
+    "confidence": "low",
+    "text": {
+     "nb": "For tidlig å si. Bare Nova-andelen produserer i dag; mesteparten av verdien ligger i Ofelia-utbyggingen og funn som ikke er med i Sodirs reserver ennå. Pris per produserende fat er derfor ikke meningsfull.",
+     "en": "Too early to say. Only the Nova stake produces today; most of the value lies in the Ofelia development and discoveries not yet in Sodir's reserves. The price per producing barrel is therefore not meaningful."
+    }
+   }
+  },
+  {
+   "id": "2026-var-dno-swap",
+   "date": "2026-06-18",
+   "datePrecision": "month",
+   "type": "swap",
+   "status": "pending",
+   "parties": [
+    "Vår Energi",
+    "DNO"
+   ],
+   "title": {
+    "nb": "Vår Energi og DNO bytter andeler (Ringhorne Nord, Nova, Gjøa)",
+    "en": "Vår Energi and DNO swap interests (Ringhorne North, Nova, Gjøa)"
+   },
+   "summary": {
+    "nb": "Vår Energi får 15 % i Ringhorne Nord og 5 % i Nova; DNO får 5 % i Gjøa og 17,5 mill. dollar i mellomlegg.",
+    "en": "Vår Energi receives 15 % of Ringhorne North and 5 % of Nova; DNO receives 5 % of Gjøa and a 17.5 million dollar balancing payment."
+   },
+   "fields": [
+    "Nova",
+    "Gjøa"
+   ],
+   "valueUsdM": 17.5,
+   "valueNote": {
+    "nb": "kontant mellomlegg",
+    "en": "cash balancing payment"
+   },
+   "source": "https://www.ogj.com/general-interest/news/55385249/var-energi-signs-deals-to-high-grade-ncs-portfolio",
+   "assessment": {
+    "verdict": "na",
+    "confidence": "low",
+    "text": {
+     "nb": "Lite bytte. I modellen gir Vår Energi om lag 26 mill. dollar (Gjøa 5 % for om lag 9 mill. pluss 17,5 mill. kontant) og får Nova 5 % til om lag 13 mill. dollar. Vår Energi betaler altså i praksis om lag 13 mill. dollar for 15 % i Ringhorne Nord, som ikke kan verdsettes med Sodirs feltdata. Det er en liten pris dersom funnet kan knyttes til den Vår-opererte Balder/Ringhorne-infrastrukturen.",
+     "en": "Small swap. In the model Vår Energi gives about 26 million dollars (Gjøa 5 % at about 9 million plus 17.5 million in cash) and receives Nova 5 % at about 13 million dollars. In effect, Vår Energi pays about 13 million dollars for 15 % of Ringhorne North, which cannot be valued with Sodir field data. That is a small price if the discovery can be tied back to the Vår-operated Balder/Ringhorne infrastructure."
+    }
+   }
+  },
+  {
+   "id": "2026-var-goliat-fenja",
+   "date": "2026-06-18",
+   "datePrecision": "month",
+   "type": "asset",
+   "status": "pending",
+   "parties": [
+    "Orlen Upstream Norway",
+    "Concedo",
+    "Vår Energi"
+   ],
+   "title": {
+    "nb": "Vår Energi selger 20 % i Goliat og 25 % i Fenja",
+    "en": "Vår Energi sells 20 % of Goliat and 25 % of Fenja"
+   },
+   "summary": {
+    "nb": "20 % i Goliat til Orlen Upstream Norway og 25 % i Fenja og Vidsyn til Concedo.",
+    "en": "20 % of Goliat to Orlen Upstream Norway and 25 % of Fenja and Vidsyn to Concedo."
+   },
+   "fields": [
+    "Goliat",
+    "Fenja"
+   ],
+   "valueUsdM": 350,
+   "valueNote": {
+    "nb": "samlet vederlag, inntil",
+    "en": "total consideration, up to"
+   },
+   "source": "https://www.ogj.com/general-interest/news/55385249/var-energi-signs-deals-to-high-grade-ncs-portfolio",
+   "assessment": {
+    "verdict": "early",
+    "confidence": "low",
+    "text": {
+     "nb": "For tidlig å si. Kjøperne betaler 15,9 dollar per fat av Sodirs reserver – høyt sammenlignet med andre avtaler, og en god pris for Vår Energi som selger. Men Goliats gasseksportprosjekt er ikke med i Sodirs reserver ennå; tas det med, ser prisen mer markedsmessig ut.",
+     "en": "Too early to say. The buyers pay 15.9 dollars per barrel of Sodir reserves – high compared with other deals, and a good price for Vår Energi as seller. But Goliat's gas export project is not yet in Sodir's reserves; including it, the price looks more market-level."
+    }
+   },
+   "upside": [
+    {
+     "slug": "goliat",
+     "remAdd": 112,
+     "label": {
+      "nb": "Med Goliat gasseksport (+112 mill. fat o.e. brutto, godkjent, ikke i Sodirs reserver ennå)",
+      "en": "With Goliat gas export (+112 MMboe gross, sanctioned, not yet in Sodir reserves)"
+     }
+    }
+   ]
+  },
+  {
+   "id": "2026-akerbp-equinor-swap",
+   "date": "2026-05-21",
+   "datePrecision": "month",
+   "type": "swap",
+   "status": "pending",
+   "parties": [
+    "Aker BP",
+    "Equinor"
+   ],
+   "title": {
+    "nb": "Aker BP og Equinor bytter andeler (Ringvei Vest, Wisting)",
+    "en": "Aker BP and Equinor swap interests (Ringvei Vest, Wisting)"
+   },
+   "summary": {
+    "nb": "Aker BP får 19 % i flere Ringvei Vest-lisenser og 38,16 % i britisk lisens P2343; Equinor får 7,5 % i Wisting-funnet og 23 mill. dollar.",
+    "en": "Aker BP receives 19 % of several Ringvei Vest licences and 38.16 % of UK licence P2343; Equinor receives 7.5 % of the Wisting discovery and 23 million dollars."
+   },
+   "fields": [],
+   "valueUsdM": 23,
+   "valueNote": {
+    "nb": "kontant mellomlegg",
+    "en": "cash balancing payment"
+   },
+   "source": "https://akerbp.com/en/borsmelding/aker-bp-and-equinor-to-unlock-additional-value-on-the-norwegian-continental-shelf-2/",
+   "assessment": {
+    "verdict": "na",
+    "confidence": "low",
+    "text": {
+     "nb": "Kan ikke vurderes kvantitativt: byttet gjelder hovedsakelig funn og lisenser som ikke produserer (Ringvei Vest, Wisting).",
+     "en": "Cannot be assessed quantitatively: the swap mainly involves discoveries and licences that are not producing (Ringvei Vest, Wisting)."
+    }
+   }
+  },
+  {
+   "id": "2025-dno-sval",
+   "date": "2025-03-07",
+   "type": "corporate",
+   "status": "completed",
+   "parties": [
+    "DNO",
+    "Sval Energi"
+   ],
+   "title": {
+    "nb": "DNO kjøper Sval Energi",
+    "en": "DNO acquires Sval Energi"
+   },
+   "summary": {
+    "nb": "DNO kjøper Sval Energi fra HitecVision. Sval har ikke-opererte andeler i 16 produserende felt med 64 100 fat o.e./d (2024), og firedobler DNOs produksjon i Nordsjøen.",
+    "en": "DNO buys Sval Energi from HitecVision. Sval holds non-operated interests in 16 producing fields with 64,100 boe/d (2024), quadrupling DNO's North Sea output."
+   },
+   "fields": [],
+   "valueUsdM": 1600,
+   "valueNote": {
+    "nb": "virksomhetsverdi (450 mill. kontant)",
+    "en": "enterprise value (450 million cash)"
+   },
+   "source": "https://www.dno.no/en/investors/announcements/dno-to-acquire-sval-energi-in-transformative-transaction-quadruples-north-sea-output-2025-03-07/",
+   "assessment": {
+    "verdict": "fair",
+    "confidence": "medium",
+    "text": {
+     "nb": "Markedsmessig. 24 000 dollar per flytende fat og 11,1 dollar per fat reserver – helt på linje med en typisk avtale (1,03 ganger medianen). DNO fikk ikke-opererte andeler i 16 felt med 66 000 fat o.e./d og firedoblet produksjonen i Nordsjøen. Kort historikk etter avtalen gjør vurderingen foreløpig.",
+     "en": "Market-level. 24,000 dollars per flowing barrel and 11.1 dollars per barrel of reserves – fully in line with a typical deal (1.03 times the median). DNO got non-operated interests in 16 fields with 66,000 boe/d and quadrupled its North Sea output. The short history since the deal makes the assessment preliminary."
+    }
+   }
+  },
+  {
+   "id": "2024-equinor-petoro-swap",
+   "date": "2024-05-16",
+   "type": "swap",
+   "status": "completed",
+   "parties": [
+    "Equinor",
+    "Petoro"
+   ],
+   "title": {
+    "nb": "Equinor og Petoro bytter andeler på Haltenbanken",
+    "en": "Equinor and Petoro swap Haltenbanken interests"
+   },
+   "summary": {
+    "nb": "Equinor øker i Heidrun og Noatun-funnet og reduserer i Tyrihans, Johan Castberg og funnene Carmen og Beta. Virkningsdato 1. januar 2025.",
+    "en": "Equinor increases its interest in Heidrun and the Noatun discovery, and reduces in Tyrihans, Johan Castberg and the Carmen and Beta discoveries. Effective 1 January 2025."
+   },
+   "fields": [
+    "Heidrun",
+    "Tyrihans",
+    "Johan Castberg"
+   ],
+   "valueUsdM": null,
+   "valueNote": {
+    "nb": "ikke oppgitt",
+    "en": "not disclosed"
+   },
+   "source": "https://worldoil.com/news/2024/5/16/equinor-and-petoro-agree-to-swap-assets-in-norwegian-continental-shelf/",
+   "assessment": {
+    "verdict": "na",
+    "confidence": "low",
+    "text": {
+     "nb": "Vilkårene er ikke oppgitt, men andelsendringene står i Sodirs lisenshistorikk: Equinor fikk 21,4 % i Heidrun (om lag 410 mill. dollar i Feltverdis modell) og ga fra seg 22,5 % i Tyrihans og 3,7 % i Johan Castberg (om lag 580 mill. dollar). På produserende felt kom Petoro best ut, men byttet omfatter også funnene Noatun (til Equinor) og Carmen og Beta (til Petoro), som ikke er verdsatt. Byttet handler om å samle eierskap på Haltenbanken mellom to statlige aktører, ikke om pris.",
+     "en": "The terms were not disclosed, but the share changes are in Sodir's licence history: Equinor received 21.4 % of Heidrun (about 410 million dollars in Feltverdi's model) and gave up 22.5 % of Tyrihans and 3.7 % of Johan Castberg (about 580 million dollars). On producing fields Petoro came out ahead, but the swap also covers the Noatun discovery (to Equinor) and the Carmen and Beta discoveries (to Petoro), which are not valued. The swap is about consolidating ownership on Haltenbanken between two state players, not about price."
+    }
+   }
+  },
+  {
+   "id": "2023-harbour-wintershalldea",
+   "date": "2023-12-21",
+   "type": "corporate",
+   "status": "completed",
+   "completed": "2024-09-03",
+   "parties": [
+    "Harbour Energy",
+    "Wintershall Dea"
+   ],
+   "title": {
+    "nb": "Harbour Energy kjøper Wintershall Deas lete- og produksjonsvirksomhet",
+    "en": "Harbour Energy acquires Wintershall Dea's E&P business"
+   },
+   "summary": {
+    "nb": "Global transaksjon med eiendeler i Norge, Tyskland, Danmark, Argentina, Mexico, Egypt, Libya og Algerie. Norge ble Harbours største produksjonsland, og selskapet ble sjette største produsent på sokkelen.",
+    "en": "Global transaction with assets in Norway, Germany, Denmark, Argentina, Mexico, Egypt, Libya and Algeria. Norway became Harbour's largest producing country, and the company became the sixth largest producer on the shelf."
+   },
+   "fields": [],
+   "valueUsdM": 11200,
+   "valueNote": {
+    "nb": "samlet vederlag, global",
+    "en": "total consideration, global"
+   },
+   "source": "https://www.offshore-energy.biz/big-step-forward-for-harbour-energy-as-it-takes-hold-of-wintershall-deas-oil-gas-assets/",
+   "assessment": {
+    "verdict": "na",
+    "confidence": "low",
+    "text": {
+     "nb": "Global transaksjon der den norske delen ikke er priset separat; kan ikke vurderes med Feltverdis data.",
+     "en": "Global transaction where the Norwegian part is not priced separately; cannot be assessed with Feltverdi's data."
+    }
+   }
+  },
+  {
+   "id": "2023-var-neptune",
+   "date": "2023-06-23",
+   "type": "corporate",
+   "status": "completed",
+   "completed": "2024-01-31",
+   "parties": [
+    "Vår Energi",
+    "Neptune Energy"
+   ],
+   "title": {
+    "nb": "Vår Energi kjøper Neptune Energy Norge",
+    "en": "Vår Energi acquires Neptune Energy Norge"
+   },
+   "summary": {
+    "nb": "12 produserende felt (bl.a. Snøhvit, Gjøa, Njord, Fenja, Duva) med 67 000 fat o.e./d og om lag 265 mill. fat o.e. 2P. Del av Enis kjøp av Neptune-konsernet.",
+    "en": "12 producing fields (incl. Snøhvit, Gjøa, Njord, Fenja, Duva) with 67,000 boe/d and about 265 MMboe of 2P. Part of Eni's acquisition of the Neptune group."
+   },
+   "fields": [
+    "Snøhvit",
+    "Gjøa",
+    "Njord",
+    "Fenja",
+    "Duva",
+    "Gudrun",
+    "Fram"
+   ],
+   "valueUsdM": 2275,
+   "valueNote": {
+    "nb": "virksomhetsverdi",
+    "en": "enterprise value"
+   },
+   "source": "https://news.cision.com/var-energi-asa/r/var-energi-to-acquire-neptune-energy-s-norwegian-oil-and-gas-assets-to-accelerate-growth-and-value-c,c3793189",
+   "assessment": {
+    "verdict": "fair",
+    "confidence": "medium",
+    "text": {
+     "nb": "Markedsmessig sammenlignet med andre avtaler (0,97 ganger medianen), med 9,0 dollar per fat – billig per fat, men porteføljen er gassrik og har lang levetid (Snøhvit). Avtalen ble inngått mens gassprisene fortsatt var høye etter 2022; i ettertid har produksjonen falt raskere enn ventet, og verdien ligger under kjøpesummen i faste priser.",
+     "en": "Market-level compared with other deals (0.97 times the median), at 9.0 dollars per barrel – cheap per barrel, but the portfolio is gas-rich and long-lived (Snøhvit). The deal was struck while gas prices were still high after 2022; in hindsight production has fallen faster than expected, and the value is below the purchase price in real terms."
+    }
+   },
+   "views": {
+    "synergy": 0.05,
+    "note": {
+     "nb": "Overlapp på Gjøa, Fenja og Njord-området og én organisasjon: 5 % lavere driftskostnader for Vår Energi.",
+     "en": "Overlap at Gjøa, Fenja and the Njord area and one organisation: 5 % lower operating costs for Vår Energi."
+    }
+   }
+  },
+  {
+   "id": "2022-okea-wintershalldea",
+   "date": "2022-05-23",
+   "type": "asset",
+   "status": "completed",
+   "completed": "2022-11-01",
+   "parties": [
+    "OKEA",
+    "Wintershall Dea"
+   ],
+   "title": {
+    "nb": "OKEA kjøper Brage, Ivar Aasen og Nova-andeler fra Wintershall Dea",
+    "en": "OKEA acquires Brage, Ivar Aasen and Nova interests from Wintershall Dea"
+   },
+   "summary": {
+    "nb": "35,2 % og operatørskap i Brage, 6,4615 % i Ivar Aasen og 6 % i Nova. Wintershall Dea beholder 80 % av OKEAs andel av fjerningskostnadene på Brage.",
+    "en": "35.2 % and operatorship of Brage, 6.4615 % of Ivar Aasen and 6 % of Nova. Wintershall Dea retains 80 % of OKEA's share of Brage decommissioning costs."
+   },
+   "fields": [
+    "Brage",
+    "Ivar Aasen",
+    "Nova"
+   ],
+   "valueUsdM": 117.5,
+   "valueNote": {
+    "nb": "vederlag etter skatt + betinget tillegg",
+    "en": "post-tax consideration + contingent payment"
+   },
+   "source": "https://news.cision.com/okea/r/okea-acquires-a-material-portfolio-of-assets-from-wintershall-dea,c3572028",
+   "assessment": {
+    "verdict": "cheap",
+    "confidence": "medium",
+    "text": {
+     "nb": "Lav pris – et av de beste kjøpene i oversikten (0,50 ganger medianen). OKEA betalte 7 dollar per fat (7 % av Brent), fikk med seg de høye prisene i 2022–2023, og selgeren beholdt 80 % av fjerningskostnadene på Brage. Reservene har i tillegg vokst 41 % siden avtalen.",
+     "en": "Low price – one of the best buys in the overview (0.50 times the median). OKEA paid 7 dollars per barrel (7 % of Brent), captured the high prices of 2022–2023, and the seller kept 80 % of Brage decommissioning costs. Reserves have also grown 41 % since the deal."
+    }
+   }
+  },
+  {
+   "id": "2021-akerbp-lundin",
+   "date": "2021-12-21",
+   "type": "corporate",
+   "status": "completed",
+   "completed": "2022-06-30",
+   "parties": [
+    "Aker BP",
+    "Lundin Energy"
+   ],
+   "title": {
+    "nb": "Aker BP kjøper Lundin Energys olje- og gassvirksomhet",
+    "en": "Aker BP acquires Lundin Energy's oil and gas business"
+   },
+   "summary": {
+    "nb": "Betalt med 2,22 mrd. dollar i kontanter og nye Aker BP-aksjer. Ga Aker BP andeler i blant annet Johan Sverdrup, Edvard Grieg og Alvheim, og gjorde selskapet til nest største produsent på sokkelen.",
+    "en": "Paid with 2.22 billion dollars in cash plus new Aker BP shares. Gave Aker BP interests in Johan Sverdrup, Edvard Grieg and Alvheim among others, making it the second largest producer on the shelf."
+   },
+   "fields": [
+    "Johan Sverdrup",
+    "Edvard Grieg",
+    "Alvheim",
+    "Ivar Aasen"
+   ],
+   "valueUsdM": 13900,
+   "valueNote": {
+    "nb": "transaksjonsverdi (NOK 125 mrd.)",
+    "en": "transaction value (NOK 125 bn)"
+   },
+   "source": "https://akerbp.com/en/borsmelding/aker-bp-acquires-lundin-energys-oil-and-gas-business-2/",
+   "assessment": {
+    "verdict": "expensive",
+    "confidence": "medium",
+    "text": {
+     "nb": "Høy pris. 20,7 dollar per fat reserver (29 % av Brent) og over 80 000 dollar per flytende fat – 1,62 ganger en typisk avtale. Lundin var et høykvalitetsselskap med lave kostnader og lave utslipp (Johan Sverdrup, Edvard Grieg), og avtalen ble i stor grad betalt med Aker BP-aksjer, men prisen forutsatte mer enn Feltverdi finner igjen i ettertid.",
+     "en": "High price. 20.7 dollars per barrel of reserves (29 % of Brent) and over 80,000 dollars per flowing barrel – 1.62 times a typical deal. Lundin was a high-quality company with low costs and low emissions (Johan Sverdrup, Edvard Grieg), and the deal was largely paid in Aker BP shares, but the price assumed more than Feltverdi finds in hindsight."
+    }
+   },
+   "views": {
+    "synergy": 0.08,
+    "note": {
+     "nb": "Aker BP og Lundin hadde overlapp på Johan Sverdrup, Edvard Grieg og Alvheim-området og en felles organisasjon etter fusjonen: 8 % lavere driftskostnader.",
+     "en": "Aker BP and Lundin overlapped at Johan Sverdrup, Edvard Grieg and the Alvheim area, with one organisation after the merger: 8 % lower operating costs."
+    }
+   }
+  },
+  {
+   "id": "2021-sval-spirit",
+   "date": "2021-12-01",
+   "datePrecision": "month",
+   "type": "corporate",
+   "status": "completed",
+   "parties": [
+    "Sval Energi",
+    "Spirit Energy"
+   ],
+   "title": {
+    "nb": "Sval Energi kjøper Spirit Energy Norge",
+    "en": "Sval Energi acquires Spirit Energy Norway"
+   },
+   "summary": {
+    "nb": "Sval Energi (HitecVision) kjøper den norske virksomheten til Spirit Energy.",
+    "en": "Sval Energi (HitecVision) acquires the Norwegian business of Spirit Energy."
+   },
+   "fields": [],
+   "valueUsdM": null,
+   "valueNote": {
+    "nb": "rapportert om lag 1,1 mrd. USD (én kilde)",
+    "en": "reported about USD 1.1 bn (single source)"
+   },
+   "source": "https://mergr.com/transaction/sval-energi-acquires-spirit-energy-norway-as",
+   "assessment": {
+    "verdict": "cheap",
+    "confidence": "low",
+    "text": {
+     "nb": "Lav pris, men usikker: kjøpesummen er bare rapportert av én kilde (om lag 1,1 mrd. dollar). Med den prisen betalte Sval 8,6 dollar per fat og 21 000 dollar per flytende fat – 0,68 ganger medianen – og fikk med seg prisoppgangen i 2022 og andeler i de senere feltene Symra og Halten Øst.",
+     "en": "Low price, but uncertain: the purchase price is reported by only one source (about 1.1 billion dollars). At that price Sval paid 8.6 dollars per barrel and 21,000 dollars per flowing barrel – 0.68 times the median – and captured the 2022 price rise and stakes in the later Symra and Halten Øst fields."
+    }
+   }
+  },
+  {
+   "id": "2020-sval-edison",
+   "date": "2020-12-01",
+   "datePrecision": "month",
+   "type": "corporate",
+   "status": "completed",
+   "parties": [
+    "Sval Energi",
+    "Edison Norge"
+   ],
+   "title": {
+    "nb": "Sval Energi kjøper Edison Norge",
+    "en": "Sval Energi acquires Edison Norge"
+   },
+   "summary": {
+    "nb": "Ti utvinningstillatelser på norsk sokkel. Edison Norge var opprinnelig del av et salg til Energean.",
+    "en": "Ten production licences on the Norwegian shelf. Edison Norge was originally part of a sale to Energean."
+   },
+   "fields": [],
+   "valueUsdM": 300,
+   "valueNote": {
+    "nb": "vederlag",
+    "en": "consideration"
+   },
+   "source": "https://www.oedigital.com/news/486345-sval-energi-wraps-300m-edison-norge-buy",
+   "assessment": {
+    "verdict": "expensive",
+    "confidence": "low",
+    "text": {
+     "nb": "Høy pris, med lav sikkerhet. 12,7 dollar per fat (30 % av Brent) i et år med svært lave priser. Porteføljen var dominert av nye felt (Dvalin) som Feltverdi verdsetter forsiktig, så forholdstallet (2,36 ganger medianen) overdriver trolig.",
+     "en": "High price, with low confidence. 12.7 dollars per barrel (30 % of Brent) in a year of very low prices. The portfolio was dominated by new fields (Dvalin) that Feltverdi values cautiously, so the ratio (2.36 times the median) probably overstates."
+    }
+   }
+  },
+  {
+   "id": "2019-var-exxonmobil",
+   "date": "2019-09-26",
+   "type": "asset",
+   "status": "completed",
+   "completed": "2019-12-10",
+   "parties": [
+    "Vår Energi",
+    "ExxonMobil"
+   ],
+   "title": {
+    "nb": "Vår Energi kjøper ExxonMobils ikke-opererte eiendeler",
+    "en": "Vår Energi acquires ExxonMobil's non-operated assets"
+   },
+   "summary": {
+    "nb": "Andeler i mer enn 20 produserende felt, blant annet Grane, Snorre, Ormen Lange, Statfjord, Åsgard og Fram, med om lag 150 000 fat o.e./d. Inkluderte også det senere Breidablikk-feltet.",
+    "en": "Interests in more than 20 producing fields, including Grane, Snorre, Ormen Lange, Statfjord, Åsgard and Fram, with about 150,000 boe/d. Also included the later Breidablikk field."
+   },
+   "fields": [
+    "Grane",
+    "Snorre",
+    "Ormen Lange",
+    "Statfjord",
+    "Åsgard",
+    "Fram",
+    "Breidablikk",
+    "Mikkel",
+    "Tyrihans",
+    "Kristin"
+   ],
+   "valueUsdM": 4500,
+   "valueNote": {
+    "nb": "kontantvederlag",
+    "en": "cash consideration"
+   },
+   "source": "https://varenergi.no/news/2859/",
+   "assessment": {
+    "verdict": "fair",
+    "confidence": "medium",
+    "text": {
+     "nb": "Markedsmessig sammenlignet med andre avtaler (0,96 ganger medianen): 10,8 dollar per fat og 29 000 dollar per flytende fat. Breidablikk (34,4 %, et funn i 2019 som ble felt i 2021) og Vår-andelen i Halten Øst er nå med i verdien. I absolutt forstand har eiendelene likevel vært verdt mindre enn kjøpesummen: om lag 4,4 mrd. dollar mot 5,9 mrd. dollar i faste priser, selv med prisoppgangen i 2022. Medregnet de nye feltene har reservene vokst 52 % siden avtalen.",
+     "en": "Market-level compared with other deals (0.96 times the median): 10.8 dollars per barrel and 29,000 dollars per flowing barrel. Breidablikk (34.4 %, a 2019 discovery that became a field in 2021) and the Vår share of Halten Øst are now included in the value. In absolute terms the assets have still been worth less than the price: about 4.4 billion dollars against 5.9 billion in real terms, even with the 2022 price rise. Including the new fields, reserves have grown 52 % since the deal."
+    }
+   },
+   "views": {
+    "sellerRateDelta": 0.02,
+    "synergy": 0,
+    "note": {
+     "nb": "ExxonMobil gikk ut av en ikke-kjerneregion og hadde trolig høyere avkastningskrav (+2 prosentpoeng). Ingen driftssynergier, fordi andelene var partneropererte.",
+     "en": "ExxonMobil was exiting a non-core region and probably had a higher required return (+2 percentage points). No opex synergies, because the stakes were partner-operated."
+    }
+   }
+  },
+  {
+   "id": "2019-dno-faroe",
+   "date": "2019-01-08",
+   "type": "corporate",
+   "status": "completed",
+   "parties": [
+    "DNO",
+    "Faroe Petroleum"
+   ],
+   "title": {
+    "nb": "DNO kjøper Faroe Petroleum (fiendtlig bud)",
+    "en": "DNO acquires Faroe Petroleum (hostile bid)"
+   },
+   "summary": {
+    "nb": "Endelig kontantbud på 160 pence per aksje etter at styret i Faroe hadde avvist tidligere bud. Ga DNO en betydelig portefølje på norsk sokkel.",
+    "en": "Final cash offer of 160 pence per share after Faroe's board had rejected earlier bids. Gave DNO a significant portfolio on the Norwegian shelf."
+   },
+   "fields": [],
+   "valueUsdM": 816,
+   "valueNote": {
+    "nb": "budverdi (GBP 641,7 mill.)",
+    "en": "offer value (GBP 641.7 m)"
+   },
+   "source": "https://www.globenewswire.com/news-release/2019/01/08/1682275/0/en/increased-and-final-cash-offer-for-faroe-petroleum-plc-by-dno-asa.html",
+   "assessment": {
+    "verdict": "na",
+    "confidence": "low",
+    "text": {
+     "nb": "Kan ikke vurderes kvantitativt: Faroe hadde også britiske eiendeler, funn og kontanter. Signalene for den norske delen er svake – produksjonen var liten (9 000 fat o.e./d) og reservene har krympet med 23 % siden. Det tyder på at DNO betalte en høy pris i det fiendtlige oppkjøpet.",
+     "en": "Cannot be assessed quantitatively: Faroe also had UK assets, discoveries and cash. The signals for the Norwegian part are weak – production was small (9,000 boe/d) and reserves have shrunk 23 % since. This suggests DNO paid a high price in the hostile takeover."
+    }
+   }
+  },
+  {
+   "id": "2018-var-energi-formed",
+   "date": "2018-07-01",
+   "datePrecision": "month",
+   "type": "merger",
+   "status": "completed",
+   "completed": "2018-12-11",
+   "parties": [
+    "Eni Norge",
+    "Point Resources"
+   ],
+   "title": {
+    "nb": "Eni Norge og Point Resources slås sammen til Vår Energi",
+    "en": "Eni Norge and Point Resources merge to form Vår Energi"
+   },
+   "summary": {
+    "nb": "Det nye selskapet eies av Eni (69,6 %) og HitecVision (30,4 %).",
+    "en": "The new company is owned by Eni (69.6 %) and HitecVision (30.4 %)."
+   },
+   "fields": [],
+   "valueUsdM": null,
+   "valueNote": {
+    "nb": "fusjon, ingen kjøpesum",
+    "en": "merger, no purchase price"
+   },
+   "source": "https://varenergi.no/2018/07/01/eni-norge-and-point-resources-merge-into-var-energi-as/",
+   "assessment": {
+    "verdict": "na",
+    "confidence": "low",
+    "text": {
+     "nb": "Fusjon uten kjøpesum.",
+     "en": "Merger without a purchase price."
+    }
+   }
+  },
+  {
+   "id": "2018-akerbp-total",
+   "date": "2018-07-01",
+   "datePrecision": "month",
+   "type": "asset",
+   "status": "completed",
+   "parties": [
+    "Aker BP",
+    "Total"
+   ],
+   "title": {
+    "nb": "Aker BP kjøper Totals andeler i 11 lisenser",
+    "en": "Aker BP acquires Total's interests in 11 licences"
+   },
+   "summary": {
+    "nb": "Fire funn med netto utvinnbare ressurser på 83 mill. fat o.e.",
+    "en": "Four discoveries with net recoverable resources of 83 MMboe."
+   },
+   "fields": [],
+   "valueUsdM": 205,
+   "valueNote": {
+    "nb": "vederlag",
+    "en": "consideration"
+   },
+   "source": "https://www.nsenergybusiness.com/news/aker-bp-to-acquire-totals-norway-offshore-acreage-for-205m/",
+   "assessment": {
+    "verdict": "na",
+    "confidence": "low",
+    "text": {
+     "nb": "Funn, ikke produksjon: 205 mill. dollar for 83 mill. fat o.e. ressurser er 2,5 dollar per fat – lavt, men ressursene var ennå ikke besluttet utbygd.",
+     "en": "Discoveries, not production: 205 million dollars for 83 MMboe of resources is 2.5 dollars per barrel – low, but the resources had not yet been sanctioned for development."
+    }
+   }
+  },
+  {
+   "id": "2018-okea-shell",
+   "date": "2018-06-20",
+   "type": "asset",
+   "status": "completed",
+   "completed": "2018-11-30",
+   "parties": [
+    "OKEA",
+    "Shell"
+   ],
+   "title": {
+    "nb": "OKEA kjøper Shells andeler i Draugen og Gjøa",
+    "en": "OKEA acquires Shell's interests in Draugen and Gjøa"
+   },
+   "summary": {
+    "nb": "44,56 % og operatørskap i Draugen og 12 % i Gjøa. Shell beholder 80 % av forventede fjerningskostnader etter skatt, opp til et tak.",
+    "en": "44.56 % and operatorship of Draugen and 12 % of Gjøa. Shell retains 80 % of expected after-tax decommissioning costs, up to a cap."
+   },
+   "fields": [
+    "Draugen",
+    "Gjøa"
+   ],
+   "valueUsdM": 556,
+   "valueNote": {
+    "nb": "vederlag (NOK 4,52 mrd.)",
+    "en": "consideration (NOK 4.52 bn)"
+   },
+   "source": "https://worldoil.com/news/2018/6/20/shell-sells-draugen-gjoa-interest-in-norway/",
+   "assessment": {
+    "verdict": "fair",
+    "confidence": "medium",
+    "text": {
+     "nb": "Markedsmessig (0,96 ganger medianen), men i praksis et godt kjøp. Prisen på 21 dollar per fat av daværende reserver så høy ut, men Draugen-reservene har nesten tredoblet seg (2,8 ganger) gjennom levetidsforlengelse, og Shell beholdt 80 % av fjerningskostnadene etter skatt.",
+     "en": "Market-level (0.96 times the median), but in practice a good buy. The price of 21 dollars per barrel of reserves at the time looked high, but Draugen reserves have almost tripled (2.8 times) through life extension, and Shell kept 80 % of after-tax decommissioning costs."
+    }
+   },
+   "views": {
+    "sellerRateDelta": 0.02,
+    "synergy": 0,
+    "note": {
+     "nb": "Shell solgte et modent felt utenfor kjernen (+2 prosentpoeng). OKEA tok over driften av Draugen – mulige kostnadskutt er ikke lagt inn.",
+     "en": "Shell sold a mature, non-core field (+2 percentage points). OKEA took over operation of Draugen – possible cost cuts are not included."
+    }
+   }
+  },
+  {
+   "id": "2017-akerbp-hess",
+   "date": "2017-10-24",
+   "type": "corporate",
+   "status": "completed",
+   "completed": "2017-12-22",
+   "parties": [
+    "Aker BP",
+    "Hess"
+   ],
+   "title": {
+    "nb": "Aker BP kjøper Hess Norge",
+    "en": "Aker BP acquires Hess Norge"
+   },
+   "summary": {
+    "nb": "64,05 % i Valhall og 62,5 % i Hod. Virkningsdato 1. januar 2017.",
+    "en": "64.05 % of Valhall and 62.5 % of Hod. Effective date 1 January 2017."
+   },
+   "fields": [
+    "Valhall",
+    "Hod"
+   ],
+   "valueUsdM": 2000,
+   "valueNote": {
+    "nb": "kontantvederlag",
+    "en": "cash consideration"
+   },
+   "source": "https://news.cision.com/aker-bp-asa/r/acquisition-of-hess-norge-completed,c2421290",
+   "assessment": {
+    "verdict": "expensive",
+    "confidence": "low",
+    "text": {
+     "nb": "Høy pris ifølge modellen (2,34 ganger medianen): 71 000 dollar per flytende fat og 12,8 dollar per fat (24 % av Brent) i en lavprisperiode. Sikkerheten er lav: Hess Norge hadde store skattemessige avskrivninger fra Valhall-utbyggingen, og Valhall-investeringene i senere år inkluderer områdeutbygginger (Fenris) som Feltverdi ikke kobler til Valhall-produksjonen.",
+     "en": "High price according to the model (2.34 times the median): 71,000 dollars per flowing barrel and 12.8 dollars per barrel (24 % of Brent) in a low-price period. Confidence is low: Hess Norge had large tax depreciation balances from the Valhall redevelopment, and later Valhall investments include area developments (Fenris) that Feltverdi does not link to Valhall production."
+    }
+   },
+   "views": {
+    "sellerRateDelta": 0.02,
+    "synergy": 0.05,
+    "note": {
+     "nb": "Hess gikk ut av Norge (+2 prosentpoeng på avkastningskravet). Aker BP opererte allerede Valhall og fikk 5 % lavere driftskostnader ved å eie mer av feltet.",
+     "en": "Hess was exiting Norway (+2 percentage points on the required return). Aker BP already operated Valhall and gets 5 % lower operating costs from owning more of the field."
+    }
+   }
+  },
+  {
+   "id": "2017-point-exxonmobil",
+   "date": "2017-03-01",
+   "datePrecision": "month",
+   "type": "asset",
+   "status": "completed",
+   "completed": "2017-11-01",
+   "parties": [
+    "Point Resources",
+    "ExxonMobil"
+   ],
+   "title": {
+    "nb": "Point Resources kjøper ExxonMobils opererte felt",
+    "en": "Point Resources acquires ExxonMobil's operated fields"
+   },
+   "summary": {
+    "nb": "Operatørskap og andeler i Balder, Ringhorne, Ringhorne Øst, Jotun og Forseti. Point Resources ble senere en del av Vår Energi.",
+    "en": "Operatorship and interests in Balder, Ringhorne, Ringhorne East, Jotun and Forseti. Point Resources later became part of Vår Energi."
+   },
+   "fields": [
+    "Balder",
+    "Ringhorne Øst",
+    "Jotun"
+   ],
+   "valueUsdM": null,
+   "valueNote": {
+    "nb": "ikke oppgitt",
+    "en": "not disclosed"
+   },
+   "source": "https://www.oedigital.com/subsea/item/16511-point-completes-exxon-acquisition-plans-2-45-billion-investment-over-5-years",
+   "assessment": {
+    "verdict": "na",
+    "confidence": "low",
+    "text": {
+     "nb": "Prisen er ikke oppgitt, så kjøpet kan ikke vurderes. I ettertid har reservene i Balder, Ringhorne Øst og Jotun mer enn firedoblet seg gjennom Balder X og levetidsforlengelse – med en moderat pris var dette trolig et svært godt kjøp.",
+     "en": "The price was not disclosed, so the purchase cannot be assessed. In hindsight reserves in Balder, Ringhorne East and Jotun have more than quadrupled through Balder X and life extension – at a moderate price this was probably a very good buy."
+    }
+   }
+  },
+  {
+   "id": "2017-ineos-dong",
+   "date": "2017-05-24",
+   "datePrecision": "month",
+   "type": "corporate",
+   "status": "completed",
+   "parties": [
+    "INEOS",
+    "DONG Energy"
+   ],
+   "title": {
+    "nb": "INEOS kjøper DONG Energys olje- og gassvirksomhet",
+    "en": "INEOS acquires DONG Energy's oil and gas business"
+   },
+   "summary": {
+    "nb": "Andeler i 10 produserende felt i Danmark, Norge og Storbritannia med om lag 100 000 fat o.e./d. Største eiendel var 14 % i Ormen Lange.",
+    "en": "Interests in 10 producing fields in Denmark, Norway and the UK with about 100,000 boe/d. The largest asset was 14 % of Ormen Lange."
+   },
+   "fields": [
+    "Ormen Lange"
+   ],
+   "valueUsdM": null,
+   "valueNote": {
+    "nb": "ikke oppgitt i kilden",
+    "en": "not stated in source"
+   },
+   "source": "https://www.ineos.com/businesses/ineos-energy/news/ineos-completes-the-acquisition-of--the-entire-oil--gas-business-from-dong-energy-as",
+   "assessment": {
+    "verdict": "na",
+    "confidence": "low",
+    "text": {
+     "nb": "Prisen er ikke bekreftet i kilden, så kjøpet kan ikke vurderes. Den norske delen (blant annet 14 % i Ormen Lange) er i ettertid verdt om lag 1,4 mrd. dollar i faste priser, og reservene har vokst 37 %.",
+     "en": "The price is not confirmed in the source, so the purchase cannot be assessed. The Norwegian part (including 14 % of Ormen Lange) is in hindsight worth about 1.4 billion dollars in real terms, and reserves have grown 37 %."
+    }
+   }
+  },
+  {
+   "id": "2017-neptune-engie",
+   "date": "2017-05-11",
+   "type": "corporate",
+   "status": "completed",
+   "completed": "2018-02-15",
+   "parties": [
+    "Neptune Energy",
+    "Engie E&P"
+   ],
+   "title": {
+    "nb": "Neptune Energy kjøper Engie E&P International",
+    "en": "Neptune Energy acquires Engie E&P International"
+   },
+   "summary": {
+    "nb": "Global transaksjon med 148 000 fat o.e./d, inkludert operatørskapet for Gjøa i Norge.",
+    "en": "Global transaction with 148,000 boe/d, including operatorship of Gjøa in Norway."
+   },
+   "fields": [
+    "Gjøa"
+   ],
+   "valueUsdM": 3900,
+   "valueNote": {
+    "nb": "ved eksklusivitetsavtalen, global",
+    "en": "at exclusivity agreement, global"
+   },
+   "source": "https://www.cvc.com/media/news/2017/2017-05-11-neptune-energy-group-to-acquire-engie-ep-international/",
+   "assessment": {
+    "verdict": "na",
+    "confidence": "low",
+    "text": {
+     "nb": "Global transaksjon der den norske delen ikke er priset separat; kan ikke vurderes med Feltverdis data.",
+     "en": "Global transaction where the Norwegian part is not priced separately; cannot be assessed with Feltverdi's data."
+    }
+   }
+  },
+  {
+   "id": "2016-aker-bp-merger",
+   "date": "2016-06-10",
+   "type": "merger",
+   "status": "completed",
+   "completed": "2016-09-30",
+   "parties": [
+    "Det norske",
+    "BP Norge"
+   ],
+   "title": {
+    "nb": "Det norske og BP Norge slås sammen til Aker BP",
+    "en": "Det norske and BP Norge merge to form Aker BP"
+   },
+   "summary": {
+    "nb": "Det norske kjøpte BP Norge mot kontanter og aksjer. Aker ASA eide 40 % og BP 30 % av det nye selskapet.",
+    "en": "Det norske acquired BP Norge for cash and shares. Aker ASA owned 40 % and BP 30 % of the new company."
+   },
+   "fields": [
+    "Valhall",
+    "Skarv",
+    "Ula"
+   ],
+   "valueUsdM": 1440,
+   "valueNote": {
+    "nb": "140 mill. kontant + 1,3 mrd. i aksjer",
+    "en": "140 million cash + 1.3 bn in shares"
+   },
+   "source": "https://www.offshore-energy.biz/det-norske-bp-norge-set-to-finalize-merger/",
+   "assessment": {
+    "verdict": "fair",
+    "confidence": "medium",
+    "text": {
+     "nb": "Markedsmessig, i den gunstige enden (0,82 ganger medianen). Kjøpet av BP Norge skjedde på bunnen av oljeprisfallet (Brent 44 dollar) til 6,4 dollar per fat. Reservene i Valhall, Skarv og Ula har siden vokst 41 %, og BP fikk betalt i aksjer og deltok dermed i oppsiden. Godt tidsvalg, og grunnlaget for dagens Aker BP.",
+     "en": "Market-level, at the favourable end (0.82 times the median). The purchase of BP Norge happened at the bottom of the oil price fall (Brent 44 dollars) at 6.4 dollars per barrel. Reserves in Valhall, Skarv and Ula have since grown 41 %, and BP was paid in shares and so shared in the upside. Good timing, and the foundation of today's Aker BP."
+    }
+   },
+   "views": {
+    "synergy": 0.05,
+    "note": {
+     "nb": "Det norske og BP Norge slo sammen organisasjonene: 5 % lavere driftskostnader. BP fikk betalt i aksjer og deler synergiene.",
+     "en": "Det norske and BP Norge combined their organisations: 5 % lower operating costs. BP was paid in shares and shares the synergies."
+    }
+   }
+  }
+ ]
 }

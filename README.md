@@ -75,6 +75,30 @@ Price divided by value is compared with the median for all complete deals, and t
 | Fully priced | 1.1–1.4× |
 | High price | above 1.4× |
 
+Each deal with metrics also has an analysis page (`#/deal/<id>`, linked from the deal cards and the ticker). It is calculated live in the browser from the assumptions bar (`stakeCashflow()` in valuation.js):
+- the buyer's side: price in real terms, value received, net present value, real after-tax return on the price, and present-value payback
+- the seller's side: value given up, value at the prices that applied in the deal year (flat deck), the price effect since, and the cash flow given up
+- a chart of after-tax cash flow per year (actual and forecast) with cumulative present value against the price
+- value against Brent with the break-even price, scenarios (low, base, high and deal-year prices, plus upside where `upside` is set in deals.json), and a sensitivity table of price deck × discount rate
+- the stakes, with each one's share of the value
+
+Fields that grew out of the seller's discoveries after the deal (for example Breidablikk, a 2019 discovery that became a field in 2021) are included using a successor method:
+- find the discovery-well licences in which the seller held a share on the deal date
+- find the company that took over that share at completion
+- attribute the buyer's field share when the field was formed, scaled by how much of the buyer's licence share came from the seller
+
+The calculation uses Sodir's `licence_licensee_hst` and `discovery` tables, downloaded to data/raw.
+
+The headline compares the price with the **typical market value**: model value × the median price/value. The model undervalues every deal in the same way, so the raw net present value is shown as a secondary figure.
+
+**Each side's own valuation** shows the buyer's highest justifiable price against the seller's lowest acceptable price, and whether the price falls inside the bargaining range. It uses:
+- the buyer's required return and opex synergies
+- the seller's required return
+
+Defaults are set per deal in deals.json under `views`, with a written rationale, and users can adjust them on the page.
+
+Swaps are defined as `legs` in SPEC (what each party gives, plus cash), and each party's net is calculated. The legs come either from fixed shares or from the change in Sodir licence shares between two dates.
+
 To add a new deal: add it to `deals.json` and add its seller in `SPEC` in the script, then run `node scripts/evaluate-deals.js` and write the assessment.
 
 ## Hosting (Vercel)

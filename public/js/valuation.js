@@ -84,7 +84,7 @@
   // Classifies how the forecast should start
   // growth: reserve-growth multiplier applied to Sodir's remaining reserves for fields without a usable decline history
   function setup(field, a, lastFullYear, ov = {}, growth = 1) {
-    const remSodir = field.rem ? field.rem.oe * BOE_PER_SM3 : 0;
+    const remSodir = (field.rem ? field.rem.oe * BOE_PER_SM3 : 0) + (ov.remAdd || 0);
     let remBoe = remSodir;
     const recBoe = field.rec ? field.rec.oe * BOE_PER_SM3 : 0;
     const q0 = lastProduction(field, lastFullYear);
@@ -305,11 +305,43 @@
     };
   }
 
+  /**
+   * Cash flow of a field (100 % gross) from the year a stake changed hands: actual years (Sodir production and investments,
+   * historical prices, fixed opex anchored to the production rate the year before the deal) + the model forecast.
+   * Real USD of H.cpiBaseYear. opts.flat = { b, g } (real Brent $/bbl, real gas $/MMBtu) prices the actual years at a
+   * flat deck instead of the prices that actually occurred (used for "value with the price outlook at the time").
+   */
+  function stakeCashflow(field, H, assumptions = {}, lastFullYear, ov = {}, fromYear, opts = {}) {
+    const a = { ...DEFAULTS, ...assumptions };
+    const price = new Map(H.prices.map(([y, b, g]) => [y, { b, g }]));
+    const fx = new Map(H.usdnok), cpi = new Map(H.cpi);
+    const cpiNow = cpi.get(H.cpiBaseYear);
+    const opexBoe = ov.opexBoe ?? OPEX_BY_TYPE[field.hc] ?? 10;
+    const prodY = new Map(field.prod.map((r) => [r[0], r])), invY = new Map(field.inv);
+    const pRef = prodY.get(fromYear - 1) || prodY.get(fromYear);
+    const qRef = pRef ? pRef[5] * BOE_PER_SM3 : 0;
+    const rows = [];
+    for (let y = fromYear; y <= lastFullYear; y++) {
+      const p = prodY.get(y), rf = cpiNow / (cpi.get(y) || cpiNow);
+      const pr = opts.flat ? { b: opts.flat.b, g: opts.flat.g, real: true } : price.get(y);
+      const q = p ? p[5] * BOE_PER_SM3 : 0;
+      const revNom = p && pr ? (p[1] + p[4]) * BOE_PER_SM3 * (pr.b - 1) + p[3] * BOE_PER_SM3 * 0.6 * pr.b + p[2] * BOE_PER_SM3 * pr.g * MMBTU_PER_BOE_GAS : 0;
+      const rev = pr && pr.real ? revNom : revNom * rf;
+      const capex = (invY.get(y) || 0) / (fx.get(y) || a.usdnok) * rf;
+      const opex = q > 0 ? opexBoe * (0.6 * Math.max(qRef, q) + 0.4 * q) : 0;
+      const pre = rev - opex - capex, tax = MARGINAL * pre;
+      rows.push({ year: y, hist: true, q, rev, opex, capex, tax, fcf: pre - tax });
+    }
+    const fut = valueField(field, a, lastFullYear, ov);
+    for (const r of fut.years) if (r.year >= fromYear) rows.push({ year: r.year, hist: false, q: r.q, rev: r.rev, opex: r.opex, capex: r.capex + (r.decom || 0), tax: r.tax, fcf: r.fcf });
+    return rows;
+  }
+
   function companies(fields) {
     const m = new Map();
     for (const f of fields) for (const [c] of f.owners) m.set(c, (m.get(c) || 0) + 1);
     return [...m.entries()].map(([name, n]) => ({ name, fields: n })).sort((a, b) => a.name.localeCompare(b.name, 'nb'));
   }
 
-  return { DEFAULTS, OPEX_BY_TYPE, BOE_PER_SM3, valueField, valueAll, valueCompany, valueHistory, companies, realisedPrice, prices, mix };
+  return { DEFAULTS, OPEX_BY_TYPE, BOE_PER_SM3, valueField, valueAll, valueCompany, valueHistory, stakeCashflow, MMBTU_PER_BOE_GAS, companies, realisedPrice, prices, mix };
 });

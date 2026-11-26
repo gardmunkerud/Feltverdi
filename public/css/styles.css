@@ -131,6 +131,7 @@ main { padding: 40px 22px 90px; outline: none; }
 .card-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 18px; }
 .card-head .muted { font-size: 14px; }
 .grid { display: grid; gap: 20px; }
+.grid > * { min-width: 0; }
 .g-2 { grid-template-columns: 1fr 1fr; }
 .g-3 { grid-template-columns: repeat(3, 1fr); }
 .g-map { grid-template-columns: 1.65fr 1fr; }
@@ -432,6 +433,61 @@ th .info { text-transform: none; letter-spacing: 0; }
 .deal-foot { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; padding-top: 10px; border-top: 1px solid var(--hairline); font-size: 14px; }
 .deal-val { font-weight: 650; font-size: 16px; font-variant-numeric: tabular-nums; }
 @media (max-width: 560px) { .deal-year { grid-template-columns: 1fr; gap: 8px; } }
+
+/* Deal analysis page */
+.deal-links { display: inline-flex; gap: 16px; align-items: baseline; }
+.dd-open { font-weight: 600; }
+.dd-hero { padding: 8px 0 28px; }
+.dd-hero h1 { font-size: clamp(30px, 4.4vw, 48px); }
+.dd-hero .hero-sub { max-width: 820px; }
+.dd-hero .deal-meta { margin-top: 18px; }
+.dd-kpis .kpi .s, .dd-kpis .kpi .l { white-space: normal; }
+.dd-tbl th, .dd-tbl td { padding: 9px 8px; }
+.dd-tbl td:first-child { white-space: normal; min-width: 120px; }
+.kpi.hl .v.pos { color: color-mix(in srgb, var(--pos) 70%, var(--bg)); }
+.kpi.hl .v.neg { color: color-mix(in srgb, var(--neg) 70%, var(--bg)); }
+.dd-small { font-size: 13px; line-height: 1.5; }
+.dd-lead { font-size: 16px; line-height: 1.6; color: var(--text); }
+.dd-side p { font-size: 14.5px; line-height: 1.55; color: var(--text-2); margin: 14px 0 0; }
+.dd-list { margin: 0; display: grid; }
+.dd-list > div { display: flex; justify-content: space-between; gap: 16px; padding: 9px 0; border-bottom: 1px solid var(--hairline); font-size: 14.5px; }
+.dd-list dt { color: var(--text-2); }
+.dd-list dd { margin: 0; font-weight: 600; font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
+.dd-list dd .muted { font-weight: 400; }
+.dd-list .dd-tot { border-bottom: 0; border-top: 2px solid var(--border-strong); margin-top: 2px; font-size: 16px; }
+.dd-list .dd-tot dt { color: var(--text); font-weight: 600; }
+.dd-list .dd-note dd { white-space: normal; font-weight: 400; font-size: 13px; }
+.dd-tbl caption { text-align: left; font-weight: 600; font-size: 14px; padding: 14px 0 6px; caption-side: top; }
+.dd-tbl tr.hl td { font-weight: 600; background: var(--bg); }
+.dd-tbl tfoot td { font-weight: 650; border-top: 2px solid var(--border-strong); border-bottom: 0; }
+.dd-sens td.r { font-variant-numeric: tabular-nums; }
+.dd-warn { border-left: 4px solid var(--oil); font-size: 14.5px; margin-bottom: 20px; }
+.dd-conc .card-head { align-items: center; }
+.dd-conc { margin-top: 0; margin-bottom: 20px; border-left: 4px solid var(--border-strong); }
+.dd-conc.v-cheap { border-left-color: var(--pos); } .dd-conc.v-fair { border-left-color: var(--accent); } .dd-conc.v-full { border-left-color: var(--oil); } .dd-conc.v-expensive { border-left-color: var(--neg); }
+.linkish { appearance: none; background: none; border: 0; padding: 0; font: inherit; color: var(--link); cursor: pointer; }
+.dd-inps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 8px; }
+.dd-inp { display: grid; gap: 6px; font-size: 13px; color: var(--text-2); }
+.dd-inp-row { display: flex; align-items: center; gap: 8px; }
+.dd-inp input { max-width: 110px; font-variant-numeric: tabular-nums; }
+.dd-range { position: relative; height: 96px; margin: 26px 6px 8px; }
+.dd-range-track { position: absolute; left: 0; right: 0; top: 44px; height: 10px; border-radius: 999px; background: var(--bg); }
+.dd-range-zone { position: absolute; top: 0; bottom: 0; border-radius: 999px; }
+.dd-range-zone.ok { background: color-mix(in srgb, var(--pos) 45%, transparent); }
+.dd-range-zone.gap { background: repeating-linear-gradient(45deg, color-mix(in srgb, var(--neg) 35%, transparent) 0 6px, transparent 6px 12px); }
+.dd-mark { position: absolute; top: 36px; width: 2px; height: 26px; background: var(--text); transform: translateX(-1px); }
+.dd-mark span { position: absolute; left: 50%; transform: translateX(-50%); font-size: 11.5px; line-height: 1.3; color: var(--muted); white-space: nowrap; text-align: center; }
+.dd-mark b { color: var(--text); font-variant-numeric: tabular-nums; }
+.dd-mark.price { background: var(--oil); width: 3px; }
+.dd-mark.price span { bottom: 30px; }
+.dd-mark.seller span, .dd-mark.buyer span { top: 30px; }
+.dd-mark.seller { background: var(--muted); }
+.dd-mark.buyer { background: var(--accent); }
+.dd-later { font-size: 11px; padding: 1px 7px; margin-left: 6px; }
+@media (max-width: 560px) { .dd-inps { grid-template-columns: 1fr; } .dd-mark span { font-size: 10.5px; } }
+
+@media (max-width: 900px) { .kpis.k6.dd-kpis { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 560px) { .card-head { flex-wrap: wrap; } .kpis.k6.dd-kpis { grid-template-columns: repeat(2, 1fr); } .dd-list > div { flex-direction: column; gap: 2px; } .dd-list dd { text-align: left; } }
 
 /* Prose (method page) */
 .prose { max-width: 700px; margin: 0 auto; }

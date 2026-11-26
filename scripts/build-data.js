@@ -5,7 +5,7 @@ const path = require('path');
 
 const BASE = 'https://factpages.sodir.no/public?/Factpages/external/tableview/';
 const QS = '&rs:Command=Render&rc:Toolbar=false&rc:Parameters=f&IpAddress=not_used&CultureCode=en&rs:Format=CSV&Top100=false';
-const TABLES = ['field', 'field_reserves', 'field_production_yearly', 'field_investment_yearly', 'field_licensee_hst', 'wellbore_exploration_all', 'field_description'];
+const TABLES = ['field', 'field_reserves', 'field_production_yearly', 'field_investment_yearly', 'field_licensee_hst', 'wellbore_exploration_all', 'field_description', 'licence_licensee_hst', 'discovery'];
 
 // Production outlook from Sodir's "Status" description text.
 // 'plateau' = Sodir describes the field as on plateau / stable / capacity-limited; 'off' = explicitly off plateau.

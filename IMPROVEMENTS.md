@@ -30,7 +30,7 @@ Scheduled cloud agents improve Feltverdi in small, focused steps (one topic per 
   - separate gas transport tariffs (Gassled)
   - tariff income for host fields: modelled since 2026-11-27 (run 2, `TIEBACK_HOST`); the $4/boe level itself is a rounded assumption
   - onshore plants that Sodir does not link to a field (Hammerfest LNG, Nyhamna)
-- **Decommissioning:** per facility and well since 2026-11-27. Unit costs are rounded industry levels; refine them if Sodir or the operators publish newer figures. Timing is still one year, two years after shut-down.
+- **Decommissioning:** per facility and well since 2026-11-27. Unit costs are rounded industry levels, checked on 2026-11-28 against the licensees' booked removal provisions (see run 4 in the overnight review). Timing is still one year, two years after shut-down.
 - **Tax:** deductions are modelled by investment year (depreciation, uplift, the temporary package) since 2026-11-27, and deals include the deductions the buyer takes over. Remaining simplifications:
   - rules before 1992 (royalty, older rates) are not modelled
   - unused deductions are lost if a field stops before using them (in reality refunded)
@@ -52,6 +52,52 @@ Scheduled cloud agents improve Feltverdi in small, focused steps (one topic per 
 ## Overnight assumptions review (2026-11-27/28)
 
 Ten hourly runs, one topic each, on branch `review/assumptions` (never main). Newest entry first.
+
+- **Run 4 – Decommissioning** (`DECOM_FAC`, the $0.5/boe floor, timing, shelf totals vs official and company figures)
+  - **Findings**
+    - *No official shelf total is public.* Sodir and Norsk Petroleum give no current total for future removal costs. Public facts used:
+      - about 2,900 wellbores still to be plugged, and well plugging is more than half of all cessation cost ([Sodir, Nov 2025](https://www.sodir.no/en/whats-new/news/general-news/2025/new-technology-is-profitable-when-shutting-down-wells/)); the model has 2,573 open development wells on fields in production or under development
+      - per well "just under NOK 50 million [the simplest] to several hundred million", over NOK 1 billion for the most complex ([Sodir resource report 2017](https://www.sodir.no/en/facts/publications/reports/resource-report/resource-report-2017/cessation/decommissioning-costs))
+      - spend 2012–16 was NOK 41 bn (about 8 bn a year); NOK 35 bn was forecast for 2017–21 (same source). The model has USD 4.9 bn (NOK 49 bn) for 2026–30, about NOK 10 bn a year, which is in line. Petoro expects the state's (SDFI) share to be NOK 2.8 bn in 2026.
+      - The headline "NOK 800 bn for 3,000+ wells" ([World Oil, 2020](https://worldoil.com/news/2020/7/8/norway-to-tackle-100-billion-p-a-liabilities-with-new-oilfield-tech/)) has no stated basis (it is probably nominal and includes wells not yet drilled), so it is not used.
+      - norskpetroleum.no, sodir.no, petoro.no, akerbp.com, equinor.com and cision are not reachable from this session; the figures come from search snippets.
+    - *Company check (the best benchmark).* The licensees' booked removal provisions are present values at a nominal risk-free rate of about 3.5–4.8 % with 2 % inflation, i.e. about 2 % real. I compared them with the model's share-weighted decommissioning, discounted at 2 % real from the model's decommissioning year:
+
+      | Licensee | Booked provision | Model, before | Model, after |
+      |---|---|---|---|
+      | Petoro/SDFI, end-2025 | NOK 76 bn ([Petoro directors' report 2025](https://aarsrapport2025.petoro.no/en/directors-report/)) | USD 6.5 bn | USD 6.7 bn |
+      | Aker BP, end-2025 | USD 4.67 bn ([Q4 2025](https://akerbp.com/wp-content/uploads/2026/02/aker-bp-2025-q4-report.pdf)) | 3.4 bn (incl. 0.25 bn on shut-down fields) | 3.65 bn |
+      | Vår Energi, end-2025 | USD 3.83 bn ([Q4 2025](https://mb.cision.com/Public/21086/4305025/bd1a0561bff4ea5b.pdf)) | 3.9 bn | 4.0 bn |
+      | ConocoPhillips Skandinavia, end-2024 | NOK 16.3 bn (wiki example) | 1.9 bn | 2.1 bn |
+      | **Total** | | **−14 %** | **−7 %** |
+
+      - Equinor's USD 13.6 bn ([20-F 2025](https://www.sec.gov/Archives/edgar/data/1140625/000114062526000013/eqnr-20251231.htm)) is for the whole group with no Norway split, so it is not used. The model has 10.6 bn for Norway, which is plausible.
+      - Part of the gap is timing: with reserve growth the model's fields live longer than the operators' plans, which lowers the present value. The provisions also include onshore plants and fields already shut down.
+    - *Platform wells were at Sodir's floor.* USD 6 m (NOK 60 m) per platform well is only just above the simplest case Sodir gives. Aker BP's portfolio, which has many platform wells (Valhall, Ula, Ivar Aasen, Edvard Grieg), was the most under-provisioned. ConocoPhillips, which also has many platform wells (Ekofisk, Eldfisk), points the other way, so the evidence is mixed. A modest rise to USD 8 m was chosen. Subsea wells (USD 18 m, rig-based plugging) and the facility removal costs were kept.
+    - *Floor and timing kept.* The $0.5/boe floor applies to 16 fields (Troll, Statfjord, Ormen Lange, Snøhvit, Oseberg, Sleipner Vest, Kvitebjørn and others) and covers wells still to be drilled and the onshore plants. A single payment two years after shut-down has about the same present value as a realistic spread (plugging from the last year, removal 2–5 years later). Not changed.
+    - Decommissioning does not affect the economic limit (it comes after the production loop), so the decline backtest and the opex calibration are unaffected.
+  - **Changed**
+    - `public/js/valuation.js`: `DECOM_FAC.wellPlatform` 6 → 8, with the sources and the company check in the comment
+    - `public/js/i18n.js` (nb + en): the cost tooltip and the method page. The shelf total, which said "about USD 48 bn", now says "about USD 55 bn for fields in production or under development, about 60 % well plugging", plus the company check.
+    - `README.md`
+    - This file: the backlog line
+  - **Shelf value at defaults:** 128.27 → 128.14 bn USD (−0.1 %). Brent 60 / 90: 113.98 / 142.47 bn (was 114.14 / 142.60).
+    - Total decommissioning for fields in production or under development: USD 52.3 → 54.5 bn (undiscounted, real)
+    - Largest field changes (USD m): Ekofisk 189 → 153, Gullfaks 18 → 1, Sleipner Øst −126 → −136, Brage 106 → 98, Valhall 547 → 540, Ula −41 → −47
+  - **Deal verdicts:** **deal-metrics needs regenerating** (factpages.sodir.no is still blocked). Rough check: `stakeCashflow` at 8 % from the deal year, before vs after. Every deal moves 0 to −0.4 % (Aker BP–Hess −0.39 %, OKEA–Wintershall Dea −0.35 %, Vår–ConocoPhillips −0.11 %). No verdict is expected to change.
+  - **Checks:**
+    - `npm test`: 19/19 pass (no expected value changed)
+    - `npm run validate:deals`: OK
+    - `npm run stamp`
+    - i18n: 563 keys in both nb and en
+    - valuation.js loads
+    - `node --check` on wiki.js
+  - **Proposals for the owner**
+    1. *Shut-down fields with decommissioning still ongoing are valued at zero.* Heimdal, Veslefrikk, Atla, Skirne, Gaupe, Vale, Knarr and Yttergryta still have removal work to do: about USD 0.7 bn by the crude $1/boe default, and about 3.1 bn for all shut-down fields. The owners carry this cost (in company mode it is about USD 0.25 bn for Aker BP). Booking the remaining cost after tax as a negative field value needs the remaining scope per field. Sodir's facility and well data have it, but the data is not reachable here.
+    2. *Shut-down facilities on producing fields are charged only at the field's end.* Examples are Valhall's old platforms and Ekofisk's remaining old structures. Operators remove these now, so the model defers real near-term costs by 10–20 years. This likely explains much of Aker BP's gap. `scripts/facilities.js` could count facilities in phase "SHUT DOWN" separately and charge them within 2–3 years.
+    3. *Open-well count.* `facilities.js` treats every development well whose status is not P&A, junked or "will never be drilled" as open. If Sodir's "PLUGGED" status (plugged, but the wellhead is still in place) is common on old fields, this overstates both wells to plug and the opex per well (Gyda, removed in 2022, still shows 16 open wells). Check the status values in `wellbore_development_all` when the data is reachable. If it changes, opex needs re-calibrating.
+    4. *Enoch* (UK cross-border, 2 MMboe) owns a large steel jacket in the model (USD 250 m removal, value −49 m). This is probably the UK host's platform registered against the field. Check it in the facility register.
+    5. *Host and tie-back timing.* A host's removal can come before its tie-backs stop (for example Statfjord and Sleipner Øst, which the model shuts in 2026 with removal in 2027). This is the same issue as run 2's proposal 4, a coupled shut-down.
 
 - **Run 3 – Capex** (Sodir expected investments, spreading, bounds, the pre-start-up share, totals vs official forecasts)
   - **Findings**

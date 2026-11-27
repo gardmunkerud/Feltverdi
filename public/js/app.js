@@ -537,7 +537,7 @@
 
   function lifeCard(f, k) {
     if (!state.hist) return '';
-    const h = V.valueHistory(f, state.hist, state.a, state.data.lastFullYear, state.overrides[f.slug] || {});
+    const h = V.valueHistory(f, state.hist, state.a, state.data.lastFullYear, { ...(state.overrides[f.slug] || {}), tiebacks: V.tiebacksOf(f, state.data.fields) });
     if (!h) return '';
     return `<div class="card section-gap">
       <div class="card-head"><h2>${t('lifeCard')}</h2><a href="#/historisk">${t('lifeMore')}</a></div>
@@ -774,7 +774,7 @@
     const out = new Map();
     if (!state.hist) return out;
     for (const f of state.data.fields) {
-      const h = V.valueHistory(f, state.hist, state.a, state.data.lastFullYear, state.overrides[f.slug] || {});
+      const h = V.valueHistory(f, state.hist, state.a, state.data.lastFullYear, { ...(state.overrides[f.slug] || {}), tiebacks: V.tiebacksOf(f, state.data.fields) });
       if (h) out.set(f.slug, h);
     }
     return out;
@@ -1202,7 +1202,7 @@
     const byYear = new Map(), per = [];
     for (const it of items) {
       const f = fieldBySlug(it.slug); if (!f) continue;
-      const ov = { ...(state.overrides[f.slug] || {}), ...((extraOv || {})[f.slug] || {}) };
+      const ov = { ...(state.overrides[f.slug] || {}), ...((extraOv || {})[f.slug] || {}), tiebacks: V.tiebacksOf(f, state.data.fields) };
       const rows = V.stakeCashflow(f, state.hist, a, state.data.lastFullYear, ov, year, deck && deck.flat ? { flat: deck.flat } : {});
       const s = it.share / 100;
       per.push({ it, f, s, rows });

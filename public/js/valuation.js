@@ -67,6 +67,49 @@
   // levels; concrete gravity-based substructures (Condeep) are normally left in place, so only the topside is counted.
   const DECOM_FAC = { gbs: 300, steelLarge: 250, steelSmall: 80, floater: 120, onshore: 0, template: 8, wellPlatform: 6, wellSubsea: 18 };
 
+  // Tie-backs pay the host a processing tariff (OPEX_FAC.tieback per boe). The host's owners receive it as income (taxed
+  // like other petroleum income), so it is credited to the host field; otherwise the same cost would be counted twice
+  // (once in the host's own facility costs, once as the tie-back's tariff) and nobody would earn it. Hosts from the
+  // operators' and Norsk Petroleum's public field descriptions. Not listed: tie-backs to hosts outside Norway (Rev, Trym)
+  // and Snøhvit/Ormen Lange, whose "tariff" stands for their own onshore plants (Hammerfest LNG, Nyhamna).
+  const TIEBACK_HOST = {
+    alve: 'norne', marulk: 'norne', urd: 'norne', skuld: 'norne', verdande: 'norne',
+    bauge: 'njord', fenja: 'njord', hyme: 'njord',
+    breidablikk: 'grane', svalin: 'grane',
+    boyla: 'alvheim', skogul: 'alvheim', vilje: 'alvheim', volund: 'alvheim', tyrving: 'alvheim',
+    duva: 'gjoa', nova: 'gjoa', vega: 'gjoa',
+    dvalin: 'heidrun',
+    fram: 'troll', 'fram-h-nord': 'troll', byrding: 'troll',
+    gimle: 'gullfaks', 'gullfaks-sor': 'gullfaks', sindre: 'gullfaks', tordis: 'gullfaks', 'visund-sor': 'gullfaks',
+    gungne: 'sleipner-ost', sigyn: 'sleipner-ost', utgard: 'sleipner-ost',
+    'halten-ost': 'asgard', mikkel: 'asgard', morvin: 'asgard', trestakk: 'asgard',
+    maria: 'kristin', tyrihans: 'kristin',
+    'idun-nord': 'skarv', orn: 'skarv', 'aerfugl-nord': 'skarv',
+    oda: 'ula', blane: 'ula', 'tambar-ost': 'tambar',
+    'ringhorne-ost': 'balder',
+    solveig: 'edvard-grieg', symra: 'ivar-aasen', hanz: 'ivar-aasen',
+    'statfjord-nord': 'statfjord', 'statfjord-ost': 'statfjord', sygna: 'statfjord',
+    'tommeliten-a': 'ekofisk', tor: 'ekofisk',
+    tune: 'oseberg', berling: 'oseberg',
+    vigdis: 'snorre',
+    eirin: 'gina-krog', irpa: 'aasta-hansteen', bestla: 'brage',
+  };
+  const paysTariff = (f, ov = {}) => !!(f.fac && f.fac.tieback && ov.opexBoe == null && TIEBACK_HOST[f.slug]);
+  /** Tie-back fields that pay their processing tariff to `host`. */
+  function tiebacksOf(host, fields) { return fields.filter((f) => TIEBACK_HOST[f.slug] === host.slug && paysTariff(f)); }
+  // Tariff income (real USD million per forecast year, index 0 = start year) from the tie-backs' modelled production
+  // Tariff income in an actual year y (real USD million) from the tie-backs' reported production
+  function tariffHist(tiebacks, y) {
+    let t = 0;
+    for (const tb of tiebacks || []) { const p = tb.prod.find((r) => r[0] === y); if (p) t += p[5] * BOE_PER_SM3 * OPEX_FAC.tieback; }
+    return t;
+  }
+  function tariffFromYears(list, a) {
+    const out = [], k = OPEX_FAC.tieback * FX_COST_REF / a.usdnok;
+    for (const years of list) for (const r of years) if (r.q > 0) { const i = r.year - a.startYear; out[i] = (out[i] || 0) + r.q * k; }
+    return out;
+  }
+
   function facilityOpex(field) {
     const p = field.fac;
     if (!p) return null;
@@ -246,7 +289,8 @@
         if (s.kind === 'decline') q = s.q0 * Math.pow(1 - d, k + 1);
         else q = k < plateauYears ? s.plateau : s.plateau * Math.pow(1 - d, k - plateauYears + 1);
       }
-      const rev = q * price;
+      const tariff = q > 0 && s.tariff ? s.tariff[i] || 0 : 0; // processing tariffs received from tie-backs
+      const rev = q * price + tariff;
       const opex = q > 0 ? fixed + varc * q : 0;
       if (q > 0) capex = s.capexBoe * q;
       if (q > 0 && rev - opex - 0.3 * capex <= 0) break; // economic limit
@@ -261,7 +305,7 @@
       const fcf = rev - opex - capex - tax;
       const df = Math.pow(1 + a.discount, -(i + 0.5));
       npv += fcf * df; taxPv += tax * df; cum += q; last = i;
-      if (record) years.push({ year: y, q, rev, opex, capex, tax, fcf, df, pv: fcf * df });
+      if (record) years.push({ year: y, q, rev, tariff, opex, capex, tax, fcf, df, pv: fcf * df });
     }
     const decom = s.decomTotal ?? (s.decomPerBoe ?? a.decomPerBoe) * s.recBoe;
     const decomYear = last + 2;
@@ -338,14 +382,24 @@
         declineBasis = cap > 1 ? 'growth' : 'reserves';
       }
     }
+    // Host field: tariff income from its tie-backs (given by valueAll, or valued here from ov.tiebacks). Added after the
+    // decline is set, so it only adds income (and can keep the host running longer), without changing the decline fit.
+    s.tariff = ov.tariffIncome || (ov.tiebacks && ov.tiebacks.length ? tariffFromYears(ov.tiebacks.map((tb) => valueField(tb, assumptions, lastFullYear).years), a) : null);
     const r = simulate(field, a, s, d, true);
-    return { ...base, npv: r.npv, taxPv: r.taxPv, grossValue: s.remSodir * price, decline: d, endYear: r.endYear, cum: r.cum, years: r.years,
+    const tariffPv = r.years.reduce((t, y) => t + (y.tariff || 0) * y.df, 0);
+    return { ...base, tariffPv, npv: r.npv, taxPv: r.taxPv, grossValue: s.remSodir * price, decline: d, endYear: r.endYear, cum: r.cum, years: r.years,
       declineBasis, observedDecline: obs, dLow, dHigh, reserveGrowth: cap, impliedGrowth: s.remSodir > 0 ? r.cum / s.remSodir : 0 };
   }
 
   function valueAll(fields, assumptions, lastFullYear, overrides = {}) {
     const out = new Map();
     for (const f of fields) out.set(f.slug, valueField(f, assumptions, lastFullYear, overrides[f.slug] || {}));
+    // Second pass: hosts get the processing tariffs their tie-backs pay (from the tie-backs' own forecasts)
+    const a = { ...DEFAULTS, ...assumptions }, byHost = new Map();
+    for (const f of fields) if (paysTariff(f, overrides[f.slug]) && out.has(TIEBACK_HOST[f.slug])) {
+      const h = TIEBACK_HOST[f.slug]; if (!byHost.has(h)) byHost.set(h, []); byHost.get(h).push(out.get(f.slug).years);
+    }
+    for (const f of fields) if (byHost.has(f.slug)) out.set(f.slug, valueField(f, assumptions, lastFullYear, { ...(overrides[f.slug] || {}), tariffIncome: tariffFromYears(byHost.get(f.slug), a) }));
     return out;
   }
 
@@ -392,7 +446,8 @@
       const p = prodY.get(y), pr = price.get(y), rf = realF(y);
       const q = p ? p[5] * BOE_PER_SM3 : 0;
       const revNom = p && pr ? (p[1] + p[4]) * BOE_PER_SM3 * (pr.b - 1) + p[3] * BOE_PER_SM3 * 0.6 * pr.b + p[2] * BOE_PER_SM3 * pr.g * MMBTU_PER_BOE_GAS : 0;
-      const rev = revNom * rf - (p ? p[2] * BOE_PER_SM3 * GAS_TARIFF : 0); // hub price minus the transport tariff, as in the forecast
+      const rev = revNom * rf - (p ? p[2] * BOE_PER_SM3 * GAS_TARIFF : 0) // hub price minus the transport tariff, as in the forecast
+        + (q > 0 ? tariffHist(ov.tiebacks, y) : 0); // processing tariffs received from tie-backs
       const capex = (invY.get(y) || 0) / (fx.get(y) || a.usdnok) * rf;
       const opex = histOpex(q);
       const pre = rev - opex - capex, tax = MARGINAL * (rev - opex) - taxSaving(ded, y) / (fx.get(y) || a.usdnok) * rf;
@@ -451,7 +506,7 @@
       const pr = opts.flat ? { b: opts.flat.b, g: opts.flat.g, real: true } : price.get(y);
       const q = p ? p[5] * BOE_PER_SM3 : 0;
       const revNom = p && pr ? (p[1] + p[4]) * BOE_PER_SM3 * (pr.b - 1) + p[3] * BOE_PER_SM3 * 0.6 * pr.b + p[2] * BOE_PER_SM3 * pr.g * MMBTU_PER_BOE_GAS : 0;
-      const rev = (pr && pr.real ? revNom : revNom * rf) - (p && pr ? p[2] * BOE_PER_SM3 * GAS_TARIFF : 0);
+      const rev = (pr && pr.real ? revNom : revNom * rf) - (p && pr ? p[2] * BOE_PER_SM3 * GAS_TARIFF : 0) + (q > 0 ? tariffHist(ov.tiebacks, y) : 0);
       const capex = (invY.get(y) || 0) / (fx.get(y) || a.usdnok) * rf;
       const opex = q <= 0 ? 0 : fo ? fo.fixed + fo.variable * q : opexBoe * (0.6 * Math.max(qRef, q) + 0.4 * q);
       const conv = rf / (fx.get(y) || a.usdnok);
@@ -470,5 +525,5 @@
     return [...m.entries()].map(([name, n]) => ({ name, fields: n })).sort((a, b) => a.name.localeCompare(b.name, 'nb'));
   }
 
-  return { DEFAULTS, MARGINAL, GAS_TARIFF, OPEX_BY_TYPE, BOE_PER_SM3, MWH_PER_BOE_GAS, valueField, valueAll, valueCompany, valueHistory, stakeCashflow, facilityOpex, facilityDecom, OPEX_FAC, DECOM_FAC, MMBTU_PER_BOE_GAS, companies, realisedPrice, prices, mix, investmentDeductions, deductionSchedule, taxSaving, UPLIFT };
+  return { DEFAULTS, MARGINAL, GAS_TARIFF, OPEX_BY_TYPE, BOE_PER_SM3, MWH_PER_BOE_GAS, valueField, valueAll, valueCompany, valueHistory, stakeCashflow, facilityOpex, tiebacksOf, TIEBACK_HOST, facilityDecom, OPEX_FAC, DECOM_FAC, MMBTU_PER_BOE_GAS, companies, realisedPrice, prices, mix, investmentDeductions, deductionSchedule, taxSaving, UPLIFT };
 });

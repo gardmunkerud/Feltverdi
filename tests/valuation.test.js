@@ -160,3 +160,24 @@ test('built data file values sensibly (if present)', { skip: !fs.existsSync(path
   assert.ok(troll && troll.npv > 0);
   for (const f of d.fields) assert.ok(Math.abs(f.owners.reduce((s, o) => s + o[1], 0) - 100) < 0.6 || !f.owners.length, f.name);
 });
+
+test('host fields receive the processing tariff their tie-backs pay (if data present)', { skip: !fs.existsSync(path.join(__dirname, '..', 'public', 'data', 'fields.json')) }, () => {
+  const d = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'public', 'data', 'fields.json'), 'utf8'));
+  for (const [tb, host] of Object.entries(V.TIEBACK_HOST)) {
+    assert.ok(d.fields.some((f) => f.slug === tb), `tie-back ${tb} exists`);
+    assert.ok(d.fields.some((f) => f.slug === host), `host ${host} exists`);
+  }
+  const vals = V.valueAll(d.fields, {}, d.lastFullYear);
+  const g = d.fields.find((f) => f.slug === 'gullfaks');
+  const tbs = V.tiebacksOf(g, d.fields);
+  assert.ok(tbs.some((f) => f.slug === 'gullfaks-sor'));
+  const alone = V.valueField(g, {}, d.lastFullYear);
+  const withTb = V.valueField(g, {}, d.lastFullYear, { tiebacks: tbs });
+  assert.ok(withTb.tariffPv > 0 && withTb.npv > alone.npv);
+  assert.strictEqual(withTb.decline, alone.decline); // the tariff does not change the decline fit
+  assert.ok(Math.abs(vals.get('gullfaks').npv - withTb.npv) < 1e-6); // valueAll and the stand-alone path agree
+  // the tariff income in a forecast year equals the tie-backs' modelled production × tariff
+  const y0 = d.lastFullYear + 1;
+  const expect = tbs.reduce((t, f) => t + ((vals.get(f.slug).years.find((r) => r.year === y0) || {}).q || 0) * V.OPEX_FAC.tieback, 0);
+  assert.ok(Math.abs(withTb.years.find((r) => r.year === y0).tariff - expect) < 1e-6);
+});

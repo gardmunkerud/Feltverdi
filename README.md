@@ -160,6 +160,7 @@ To update the data: run `npm run build:data` locally, then commit and push the c
       - subsea template 1
       - each open well 2.5
     - Variable cost: $0.5 per boe, plus a $4/boe processing tariff for tie-backs without their own platform.
+    - The host field receives that tariff as taxable income (`TIEBACK_HOST` in `valuation.js`, from public field descriptions), in actual years and in the forecast. It is added after the decline is set, so it can extend the host's life but does not change its decline.
     - Calibrated to the companies' reported production cost for 2025 (Aker BP 7.3, Vår Energi 11.1, OKEA ~25, DNO ~12 $/boe) and to Johan Sverdrup (below $2/boe).
     - Fields without a facility profile use the old default by field type.
   - Capex comes from Sodir's expected future investments per field (`field_investment_expected`, the operators' own plans), spread over the production the model expects (Sodir reserves × the middle of the reserve-growth range) and bounded to $1–20 per boe. New fields spend 80 % before first production. Fields without a Sodir figure use their own recent investment intensity, limited to $2–12 per boe.

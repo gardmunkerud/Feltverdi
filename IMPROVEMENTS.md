@@ -28,7 +28,7 @@ Scheduled cloud agents improve Feltverdi in small, focused steps (one topic per 
 - **Deal prices:** adjusted prices (`priceAdjusted`) exist for Aker BP–Lundin, Det norske–BP and Aker BP–Hess. Others still use the headline price; add more only with public sources.
 - **Opex:** facility-based and calibrated since 2026-11-27. Possible refinements:
   - separate gas transport tariffs (Gassled)
-  - tariff income for host fields, which is not modelled
+  - tariff income for host fields: modelled since 2026-11-27 (run 2, `TIEBACK_HOST`); the $4/boe level itself is a rounded assumption
   - onshore plants that Sodir does not link to a field (Hammerfest LNG, Nyhamna)
 - **Decommissioning:** per facility and well since 2026-11-27. Unit costs are rounded industry levels; refine them if Sodir or the operators publish newer figures. Timing is still one year, two years after shut-down.
 - **Tax:** deductions are modelled by investment year (depreciation, uplift, the temporary package) since 2026-11-27, and deals include the deductions the buyer takes over. Remaining simplifications:

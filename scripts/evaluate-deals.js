@@ -168,7 +168,7 @@ function reservesAt(fieldName, year) {
 // buyer takes over – are included; `inh` is their present value.
 function hindsightValue(f, s, year, synPct = 0, synRows = null) {
   let v = 0, inh = 0;
-  for (const r of V.stakeCashflow(f, H, {}, data.lastFullYear, {}, year)) {
+  for (const r of V.stakeCashflow(f, H, {}, data.lastFullYear, { tiebacks: V.tiebacksOf(f, data.fields) }, year)) {
     const df = Math.pow(1 + RATE, -(r.year - year + 0.5));
     v += r.fcf * s * df; inh += (r.taxInh || 0) * s * df;
     if (synRows && r.q > 0) synRows.set(r.year, (synRows.get(r.year) || 0) + (synPct > 0 && r.year > year ? synPct * (r.opex || 0) * s * (1 - V.MARGINAL) : 0));
@@ -309,7 +309,7 @@ function pkgFcf(m, year, deck) {
   const by = new Map();
   for (const it of m.items) {
     const f = bySlug.get(it.slug); if (!f) continue;
-    for (const r of V.stakeCashflow(f, H, deck || {}, data.lastFullYear, {}, year)) by.set(r.year, (by.get(r.year) || 0) + r.fcf * it.share / 100);
+    for (const r of V.stakeCashflow(f, H, deck || {}, data.lastFullYear, { tiebacks: V.tiebacksOf(f, data.fields) }, year)) by.set(r.year, (by.get(r.year) || 0) + r.fcf * it.share / 100);
   }
   if (m.taxPositionUsdM) by.set(year, (by.get(year) || 0) + m.taxPositionUsdM);
   for (const [y, v] of m.synergy.rows) by.set(y, (by.get(y) || 0) + v);

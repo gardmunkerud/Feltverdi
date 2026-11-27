@@ -14,7 +14,8 @@
  *  - Capex: Sodir's expected future investments per field, spread over expected production ($1–20/boe); without a Sodir
  *    figure, the field's own investment intensity (last 3 reported years, NOK → USD) per boe, clamped to $2–12/boe.
  *  - Tax (2022 rules): 22 % corporate tax (capex depreciated over 6 years) + 71.8 % special tax (capex expensed
- *    immediately plus uplift, corporate tax deductible) ≈ 78 % marginal. Losses are assumed usable (owner pays tax elsewhere).
+ *    immediately plus uplift, corporate tax deductible) ≈ 78 % marginal. Losses are assumed usable (owner pays tax elsewhere),
+ *    and deductions still unused when a field stops are counted in the years they fall due (tax is per company, not per field).
  *    Deductions from past investments that are not yet used (depreciation, uplift) follow the field and are counted,
  *    with the rules that applied in the year of each investment – see investmentDeductions().
  *  - Decommissioning: $/boe × original recoverable volume, two years after shut-down, 78 % tax-deductible.
@@ -352,12 +353,24 @@
       npv += fcf * df; taxPv += tax * df; cum += q; last = i;
       if (record) years.push({ year: y, q, rev, tariff, opex, capex, tax, fcf, df, pv: fcf * df });
     }
+    // Deductions not yet used when the field stops are not lost: tax is paid per company, not per field, so the owners
+    // use them against their other income on the shelf (special-tax losses are also refunded by the state). Counted in
+    // the years they fall due (2022 rules: special-tax deduction 71.8 %, corporate-tax deduction 22 % × (1 − 71.8 %)).
+    let restPv = 0;
+    for (let i = last + 1; i < Math.max(last + 7, s.histCit.length, s.histSpt.length); i++) {
+      let depr = s.histCit[i] || 0;
+      for (let j = Math.max(0, i - 5); j <= Math.min(i, last); j++) depr += dep[j] / 6 / Math.pow(1 + INFLATION, i - j);
+      restPv += (CIT * (1 - SPT) * depr + SPT * (s.histSpt[i] || 0)) * Math.pow(1 + a.discount, -(i + 0.5));
+    }
+    npv += restPv; taxPv -= restPv;
     const decom = s.decomTotal ?? (s.decomPerBoe ?? a.decomPerBoe) * s.recBoe;
     const decomYear = last + 2;
     const decomDf = Math.pow(1 + a.discount, -(decomYear + 0.5));
     const decomPv = decom * (1 - MARGINAL) * decomDf;
     npv -= decomPv; taxPv -= decom * MARGINAL * decomDf;
-    if (record && decom > 0) years.push({ year: a.startYear + decomYear, q: 0, rev: 0, opex: 0, capex: 0, decom, tax: -decom * MARGINAL, fcf: -decom * (1 - MARGINAL), df: decomDf, pv: -decomPv });
+    // Shown in the decommissioning year (same present value)
+    const rest = restPv / decomDf;
+    if (record && (decom > 0 || rest > 0)) years.push({ year: a.startYear + decomYear, q: 0, rev: 0, opex: 0, capex: 0, decom, tax: -decom * MARGINAL - rest, fcf: -decom * (1 - MARGINAL) + rest, df: decomDf, pv: -decomPv + restPv });
     return { cum, npv, taxPv, endYear: last >= 0 ? a.startYear + last : null, years, price };
   }
 
@@ -560,8 +573,19 @@
       rows.push({ year: y, hist: true, q, rev, opex, capex, tax, fcf: pre - tax, taxInh: taxSaving(dedInh, y) * conv });
     }
     const fut = valueField(field, a, lastFullYear, ov);
-    for (const r of fut.years) if (r.year >= fromYear) rows.push({ year: r.year, hist: false, q: r.q, rev: r.rev, opex: r.opex, capex: r.capex + (r.decom || 0), tax: r.tax, fcf: r.fcf,
-      taxInh: taxSaving(dedInh, r.year) / a.usdnok / Math.pow(1 + INFLATION, r.year - a.startYear) });
+    const inhAt = (t) => taxSaving(dedInh, t) / a.usdnok / Math.pow(1 + INFLATION, t - a.startYear);
+    for (const r of fut.years) {
+      if (r.year < fromYear) continue;
+      let taxInh = inhAt(r.year);
+      // The row after the last production year (decommissioning) also carries the inherited deductions that fall after
+      // the field has stopped (valueField counts them there, at the same present value)
+      const end = fut.endYear ?? a.startYear - 1;
+      if (r.q <= 0 && r.year > end) {
+        taxInh = 0;
+        for (let t = end + 1; t <= end + 45; t++) if (dedInh.has(t)) taxInh += inhAt(t) * Math.pow(1 + a.discount, r.year - t);
+      }
+      rows.push({ year: r.year, hist: false, q: r.q, rev: r.rev, opex: r.opex, capex: r.capex + (r.decom || 0), tax: r.tax, fcf: r.fcf, taxInh });
+    }
     return rows;
   }
 

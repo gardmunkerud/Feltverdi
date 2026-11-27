@@ -33,7 +33,8 @@ Scheduled cloud agents improve Feltverdi in small, focused steps (one topic per 
 - **Decommissioning:** per facility and well since 2026-11-27. Unit costs are rounded industry levels, checked on 2026-11-28 against the licensees' booked removal provisions (see run 4 in the overnight review). Timing is still one year, two years after shut-down.
 - **Tax:** deductions are modelled by investment year (depreciation, uplift, the temporary package) since 2026-11-27, and deals include the deductions the buyer takes over. Remaining simplifications:
   - rules before 1992 (royalty, older rates) are not modelled
-  - unused deductions are lost if a field stops before using them (in reality refunded)
+  - unused deductions when a field stops are counted in the years they fall due, as if the owner uses them elsewhere on the shelf (since 2026-11-28)
+  - tax is paid in the same year as the cash flow; in reality instalments fall half in the income year and half in the next (see the run 6 proposal)
   - exploration costs and company-level tax positions are only included where a deal sets `taxPosition`
 - **Deal-year deck:** now explained in the scenario text; could still be improved with public forward data.
 - **Bargaining-range defaults:** buyer and seller always use the same required return as the assumptions bar (8 % by default) – no per-deal rate differences (enforced by `validate-deals.js`). Extra synergies in the bargaining range default to 0; synergies in the deal value follow the announced low end or the standard rule. Review the wording and the reasoning.

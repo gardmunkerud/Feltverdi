@@ -180,6 +180,7 @@ To update the data: run `npm run build:data` locally, then commit and push the c
     - investments in 2020–21: expensed immediately with 24% uplift
     - fields with a development plan approved 2020–23 (field `approved`, from Sodir's field status history): 17.69% uplift until production starts
   - The same deductions apply in the forecast, the history page and the deals.
+  - Deductions still unused when a field stops producing (past investments, and the corporate-tax depreciation of the last years' capex) are counted in the years they fall due, at the 2022 values (71.8 % special tax, 6.2 % corporate tax): tax is paid per company, so the owners use them against other income on the shelf. They are shown in the decommissioning year.
   - In a deal they follow the stake, so the value the buyer receives includes them (`taxInh` in `stakeCashflow()`).
   - Company tax positions bought with a company (losses carried forward) can be set as `taxPosition` in deals.json, with sources (Aker BP–Hess).
 - **Value:** net present value after tax in real terms, discounted from 2026.

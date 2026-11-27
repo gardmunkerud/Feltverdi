@@ -207,3 +207,21 @@ test('Sodir expected investments from a past year are not charged to the forecas
   assert.ok(vp.years[0].q > 0);
   assert.ok(Math.abs(V.investmentsWithGap(p, V.DEFAULTS, LAST).find((r) => r[0] === 2025)[1] - 0.8 * 5000) < 1e-6);
 });
+
+test('deductions still unused when a field stops are counted in full (tax is per company, not per field)', () => {
+  // Short-lived field: about one year of production left, so most of a 2025 investment's corporate-tax depreciation
+  // (2025–2030) falls after the field has stopped.
+  const over = { rem: { oil: 1, gas: 0, ngl: 0, cond: 0, oe: 1 }, invExp: { year: 2026, mnok: 50 } };
+  const base = V.valueField(field(over), {}, LAST);
+  const extra = 10000; // NOK million in 2025
+  const withInv = V.valueField(field({ ...over, inv: [[2022, 1500], [2023, 1500], [2024, 1500], [2025, extra]] }), {}, LAST);
+  assert.ok(base.endYear <= 2028, `ends ${base.endYear}`);
+  const a = V.DEFAULTS, k = 1 / a.usdnok;
+  let expect = 0;
+  for (const [t, c, sp] of V.investmentDeductions(field(over), 2025, extra, 2023)) {
+    if (t < a.startYear) continue;
+    const i = t - a.startYear;
+    expect += (c * 0.22 * (1 - 0.718) + sp * 0.718) * k / Math.pow(1.02, i) * Math.pow(1 + a.discount, -(i + 0.5));
+  }
+  assert.ok(Math.abs(withInv.npv - base.npv - expect) < 1e-6 * Math.max(1, expect), `${withInv.npv - base.npv} vs ${expect}`);
+});

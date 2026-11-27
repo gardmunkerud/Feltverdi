@@ -30,7 +30,7 @@ A scheduled cloud agent improves Feltverdi in small steps, one change every 3 ho
   - The temporary 2020–22 package and the uplift before 2022 are not modelled in the historical values.
   - Tax balances taken over by the buyer are not valued.
   - Any of these could be explained better on the method page, or approximated.
-- **Deal-year deck:** "Value at the prices then" uses a flat price deck from the deal year, not that year's forward curve. Explain this, or improve it with public forward data.
+- **Deal-year deck:** now explained in the scenario text; could still be improved with public forward data.
 - **Bargaining-range defaults:** the per-deal views in `deals.json` (+2 percentage points on the seller's required return, 5–8 % synergies) are judgement calls. Review the wording and the reasoning.
 - **NGL price:** NGL is priced at 60 % of Brent. Gas is priced from €/MWh with fixed conversion factors. Check that the factors are documented in the wiki and on the method page.
 
@@ -46,6 +46,7 @@ A scheduled cloud agent improves Feltverdi in small steps, one change every 3 ho
 
 ## Log (newest first)
 
+- 2026-11-27 – Wording: the deal scenario intro (nb + en) now explains that "Prices in year X" is a flat price from the deal year, not the forward curve then.
 - 2026-11-26 – Wording/financial analysis: the deals method text (nb + en) now says the price is the value at announcement and moves with the share price for deals paid in shares.
 - 2026-11-26 – Log started. Recent changes:
   - deal analysis pages

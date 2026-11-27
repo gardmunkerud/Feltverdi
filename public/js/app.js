@@ -1191,6 +1191,18 @@
     }
     return null;
   }
+  // Break-even oil price for a required return: the flat future Brent (gas in proportion, actual prices for past years)
+  // at which the stakes' PV at `rate` equals the price paid. Returns { b } or { below: lo } / { above: hi } outside the range.
+  const DD_BE_RATE = 0.08;
+  function ddBreakevenAt(items, year, price, rate) {
+    const lo = 10, hi = 300;
+    const f = (b) => ddPv(ddPackage(items, year, { brent: b, gasEur: state.a.gasEur * b / state.a.brent }).rows, year, rate) - price;
+    if (f(lo) >= 0) return { below: lo };
+    if (f(hi) < 0) return { above: hi };
+    let a = lo, z = hi;
+    for (let k = 0; k < 16; k++) { const mid = (a + z) / 2; if (f(mid) >= 0) z = mid; else a = mid; }
+    return { b: (a + z) / 2 };
+  }
   // Sources for the tax-benefit estimate (numbered in the method text)
   const TAX_SOURCES = [
     ['Norsk Petroleum – Petroleumsskatt / Petroleum tax', 'https://www.norskpetroleum.no/en/economy/petroleum-tax/'],
@@ -1277,6 +1289,13 @@
     if (m.partial) out.push(t('ddP_partial'));
     else if (c.vsTyp != null) out.push(Math.abs(c.vsTyp) < 0.05 ? t('ddP_near') : t(c.vsTyp > 0 ? 'ddP_above' : 'ddP_below', pct(Math.abs(c.vsTyp) * 100, 0)));
     if (c.histSpan && c.price && c.realised > 0) out.push(t('ddP_realised', money(c.realised), pct(c.realised / c.price * 100, 0), c.histSpan[0], c.histSpan[1]));
+    if (m.partial && c.price) out.push(t('ddP_be8Partial', pct(DD_BE_RATE * 100, 0)));
+    if (c.be8) {
+      const rate = pct(DD_BE_RATE * 100, 0), from = Math.max(m.year, state.data.lastFullYear + 1), cmp = c.beCmp;
+      out.push(c.be8.below != null ? t('ddP_be8Below', rate, c.be8.below, from)
+        : c.be8.above != null ? t('ddP_be8Above', rate, c.be8.above, from)
+        : t('ddP_be8', rate, nf(c.be8.b, 0), from, m.year > state.data.lastFullYear, nf(cmp.brent, 0), cmp.then, state.hist.cpiBaseYear));
+    }
     return out;
   }
   // Price scale: cheap – usual – full – expensive, with a marker at price ÷ typical price
@@ -1493,7 +1512,10 @@
     </table></div>` : '';
     const multiples = hasPrice && (m.perFlowing || m.perBoe) ? `<p class="muted">${t('ddMultiples')}: ${m.perFlowing ? `USD ${nf(m.perFlowing, 0)} ${t('ddPerFlowing')}` : ''}${m.perFlowing && m.perBoe ? ' · ' : ''}${m.perBoe ? `USD ${nf(m.perBoe, 1)} ${t('ddPerBoe')} (${nf(m.perBoePctBrent, 0)} % ${t('dmOfBrent')})` : ''}</p>` : '';
 
-    const plain = { list: ddPlainList(d, m, { buyer, seller, vsTyp, price, realised, histSpan, taxBenefit: tb.total }), gauge: hasPrice && !m.partial && ratio ? ddGauge(ratio / baseline, d.assessment && d.assessment.verdict) : '' };
+    // Break-even Brent for 8 % real return after tax (fixed rate, independent of the discount-rate slider); not for partial packages
+    const be8 = hasPrice && !m.partial ? ddBreakevenAt(items, year, price, DD_BE_RATE) : null;
+    const beCmp = thenDeck ? { brent: thenDeck.brent, then: true } : { brent: state.a.brent, then: false };
+    const plain = { list: ddPlainList(d, m, { buyer, seller, vsTyp, price, realised, histSpan, taxBenefit: tb.total, be8, beCmp }), gauge: hasPrice && !m.partial && ratio ? ddGauge(ratio / baseline, d.assessment && d.assessment.verdict) : '' };
     el.innerHTML = ddHeader(d) + ddConclusion(d, plain) + `
       ${m.partial ? `<div class="card dd-warn">${t('ddPartial')}${m.note ? ` <span class="muted">(${esc(m.note)})</span>` : ''}</div>` : ''}
       ${kpis}

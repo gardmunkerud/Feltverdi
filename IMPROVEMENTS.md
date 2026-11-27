@@ -53,6 +53,62 @@ Scheduled cloud agents improve Feltverdi in small, focused steps (one topic per 
 
 Ten hourly runs, one topic each, on branch `review/assumptions` (never main). Newest entry first.
 
+- **Run 2 – Opex** (facility model vs reported company production costs and the shelf total)
+  - **Findings**
+    - *Company unit costs match reasonably.* Model 2025 share-weighted unit opex vs reported:
+      - Aker BP 6.9 vs 7.3 $/boe ([Q4 2025 report](https://akerbp.com/wp-content/uploads/2026/02/aker-bp-2025-q4-transcript.pdf))
+      - Vår Energi 12.2 vs 11.1 ([Q4 2025](https://live.euronext.com/en/products/equities/company-news/2026-02-10-var-energi-delivering-higher-production-and-more-value))
+      - OKEA 25.2 vs 24.5 in Q3 and 28.8 in Q4 2025 ([OKEA Q4 2025](https://okea.no/2026/02/okea-asa-fourth-quarter-2025-financial-results/))
+      - Equinor E&P Norway 6.7 vs at most 7.45. That ceiling is opex + SG&A of $3,834 m ÷ 1,410 kboe/d, which also includes some transport and overhead ([20-F 2025](https://www.sec.gov/Archives/edgar/data/1140625/000114062526000013/eqnr-20251231.htm)). Model production for Equinor (514.5 MMboe) matches the reported 1,410 kboe/d.
+      - ConocoPhillips 15.4, vs about 11.7 for the EMENA segment ($962 m / 82 MMboe), which also includes low-cost Libya ([10-K 2025](https://www.sec.gov/Archives/edgar/data/0001163165/000116316526000009/cop-20251231.htm)). Inconclusive.
+      - DNO 11.9, vs 9.6 group lifting cost incl. Kurdistan. Harbour group 12.8; there is no public Norway split for either.
+      - Calibration kept.
+    - *Shelf total is high.* Model 2025 opex is $12.0 bn, i.e. NOK 120 bn on the model's NOK-10 basis. Norsk Petroleum gives close to NOK 94 bn for 2025, excluding transport and tax ([Norsk Petroleum, investments and costs](https://www.norskpetroleum.no/en/economy/investments-operating-costs/); [Sodir Resource Report 2024](https://www.sodir.no/4969b7/globalassets/1-sodir/publikasjoner/rapporter/ressursrapporter/2024/en/resource-report-2024.pdf): opex excludes transport and tax). norskpetroleum.no is not reachable from this session; the figures come from search snippets.
+    - *Tie-back tariffs were counted twice (bug).* $1.42 bn of that $12.0 bn is the $4/boe tariff that 356 MMboe of tie-back production pays to hosts. The hosts already carry their full facility cost and never received the tariff, so a cost was booked that nobody earned. At the shelf level it is an internal transfer.
+    - Net of the transfers, model opex is $10.6 bn ≈ NOK 106 bn vs 94 bn (+13 %). The rest is plausibly SG&A, insurance and similar items in company production cost that Sodir leaves out. Wells are 52 % of model opex (2,470 open wells × $2.5 m); see proposal 1.
+    - *Snøhvit and Ormen Lange* are flagged as tie-backs because Sodir does not link Hammerfest LNG and Nyhamna to them. Their $4/boe "tariff" stands in for their own onshore plants, so they are left out of the host list. Their opex (6.3 and 5.9 $/boe) may be low; see proposal 2.
+  - **Changed**
+    - `public/js/valuation.js`:
+      - `TIEBACK_HOST`: 60 tie-back → host pairs, from public field descriptions (operators, Norsk Petroleum). Tie-backs to UK/Danish hosts (Rev, Trym) and Snøhvit/Ormen Lange are left out.
+      - `tiebacksOf()`.
+      - Hosts book the tariff as revenue, taxed at 78 %, in `valueAll` (from the tie-backs' modelled production), in `valueField` via `ov.tiebacks`, and in actual years in `valueHistory`/`stakeCashflow`.
+      - The tariff is added after the decline fit, so the decline method is untouched. It can keep a host running longer: Norne 2028 → 2033, Gullfaks 2034 → 2039, both in line with the operators' life-extension plans.
+      - New `tariffPv` in results; `tariff` in yearly rows, included in `rev`.
+    - `public/js/app.js`: the lifetime and deal cash flows pass the tie-backs.
+    - `scripts/evaluate-deals.js`: same.
+    - `public/js/i18n.js`: opex tooltip and method page, nb + en.
+    - `public/js/wiki.js`: opex entry, nb + en.
+    - `README.md`.
+    - `tests/valuation.test.js`: a new test checks that every map entry exists, that the host income equals tie-back production × tariff, that the decline is unchanged, and that `valueAll` and `valueField` agree.
+    - Backlog line in this file updated.
+  - **Shelf value at defaults:** 124.94 → 126.35 bn USD (+1.1 %). Brent 60 / 90: 112.2 / 140.7 bn.
+    - Largest field changes (USD m):
+      - Gullfaks −212 → 11
+      - Kristin 672 → 821
+      - Grane 418 → 545
+      - Åsgard 2129 → 2235
+      - Aasta Hansteen 1839 → 1940
+      - Gjøa 161 → 240
+      - Ekofisk 99 → 172
+      - Norne −104 → −31
+  - **Deal verdicts:** **deal-metrics needs regenerating.** factpages.sodir.no is still blocked, so `data/raw` is missing and `evaluate-deals.js` cannot run. Rough check: `stakeCashflow` value at 8 % from the deal year, with vs without host tariffs:
+    - most deals change 0–3 %: Vår–ConocoPhillips +2.9 %, Vår–Neptune +2.5 %, Vår–ExxonMobil +1.7 %, Aker BP–Lundin +0.5 %, OKEA–Shell +2.5 %
+    - Vår–DNO swap +14 %, on a small base
+    - Because almost all deals move up a little together, the median baseline moves with them. No verdict is expected to change, but this is not verified.
+  - **Checks:**
+    - `npm test`: 18/18 pass
+    - `npm run validate:deals`: OK
+    - `npm run stamp`
+    - i18n: 563 keys in both nb and en
+    - valuation.js loads
+    - `node --check` on app.js, wiki.js and evaluate-deals.js
+    - Headless browser: the Gullfaks field page, the Equinor company page and two deal pages render with no JS errors.
+  - **Proposals for the owner**
+    1. Net of transfers, the shelf opex is still about 13 % above Norsk Petroleum's NOK 94 bn. The largest single term is $2.5 m per open well (52 % of opex). Lowering it to about $2.0 m and raising the platform constants to keep the company calibration would cut the shelf total towards NOK 95–100 bn. This changes the calibration, so re-run the calibration and the backtest. Together with run 1's proposal (`FX_COST_REF` 10.39), check both against company production costs in one go.
+    2. Snøhvit (Hammerfest LNG) and Ormen Lange (Nyhamna) carry only $4/boe for their onshore plants. Hammerfest LNG is a large, power-intensive plant. Consider linking the onshore plants (an `onshore` facility, $100 m/yr) to these fields in `build-data.js` once Sodir data is reachable.
+    3. The $4/boe processing tariff is a rounded level for all hosts. NCS processing tariffs are negotiated per host and are not public, so keep it unless a public source appears.
+    4. A tie-back can outlive its host in the model, while in reality the host's shut-down ends both. Coupling the shut-down dates would need a joint simulation; not done.
+
 - **Run 1 – Prices** (oil, NGL, gas conversion and tariff, USD/NOK, real terms, CPI)
   - **Findings**
     - *US CPI 2025 was wrong (bug).* `history.json` had 2025 = 295.1, below 2024 (313.7). BLS never published October 2025 (government shutdown) and says the 2025 average is the mean of the 11 published months ([BLS FAQ](https://www.bls.gov/cpi/additional-resources/2025-federal-government-shutdown-impact-cpi-faq.htm)). `build-data.js` read the empty FRED value as 0 and divided by 12. Correct value 295.132 × 12/11 = 321.96. Effect: every actual-year 2025 amount (lifetime values, deal cash flows) was inflated by about 9 % in real terms.

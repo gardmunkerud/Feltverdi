@@ -7,9 +7,10 @@
  *    producing exactly those) and by reserves × reserveGrowth (never slower). See valueField() for details.
  *    New fields (first production in the last two years) and approved fields get a 3-year plateau first.
  *  - Price: product mix of the remaining reserves. Oil/condensate = Brent − $1; NGL = 60 % of Brent;
- *    gas = €/MWh × 1.72 MWh/boe × EURUSD.
+ *    gas = €/MWh × 1.72 MWh/boe × EURUSD − USD 2/boe transport tariff (Gassco).
  *  - Opex: 60 % fixed (based on the starting/plateau rate) + 40 % variable, so unit cost rises as the field declines.
- *  - Capex: the field's own investment intensity (last 3 reported years, NOK → USD) per boe, clamped to $2–12/boe.
+ *  - Capex: Sodir's expected future investments per field, spread over expected production ($1–20/boe); without a Sodir
+ *    figure, the field's own investment intensity (last 3 reported years, NOK → USD) per boe, clamped to $2–12/boe.
  *  - Tax (2022 rules): 22 % corporate tax (capex depreciated over 6 years) + 71.8 % special tax (capex expensed
  *    immediately plus uplift, corporate tax deductible) ≈ 78 % marginal. Losses are assumed usable (owner pays tax elsewhere).
  *    Deductions from past investments that are not yet used (depreciation, uplift) follow the field and are counted,
@@ -25,6 +26,9 @@
   const BOE_PER_SM3 = 6.29;
   const MWH_PER_BOE_GAS = 1.72; // 159 Sm3 gas × ~10.8 kWh/Sm3 (GCV)
   const CIT = 0.22, SPT = 0.718, MARGINAL = 0.78;
+  // Gas is sold at European hubs; NCS gas pays Gassco transport tariffs to get there (about NOK 0.10–0.15 per Sm³,
+  // ≈ USD 2 per boe). Company production costs (which the opex is calibrated to) exclude transport, so it is deducted here.
+  const GAS_TARIFF = 2.0; // USD per boe
 
   const DEFAULTS = {
     brent: 75,        // USD/bbl, real
@@ -124,7 +128,7 @@
   }
 
   function prices(a) {
-    return { oil: a.brent - 1, ngl: 0.6 * a.brent, gas: a.gasEur * MWH_PER_BOE_GAS * a.eurusd };
+    return { oil: a.brent - 1, ngl: 0.6 * a.brent, gas: Math.max(0, a.gasEur * MWH_PER_BOE_GAS * a.eurusd - GAS_TARIFF) };
   }
 
   function realisedPrice(field, a) {
@@ -142,6 +146,7 @@
     return row ? row[0] : null;
   }
 
+  const CAPEX_MIN = 1, CAPEX_MAX = 20; // USD/boe bounds on the Sodir-based capex intensity
   function capexIntensity(field, a, lastFullYear) {
     const inv = field.inv.slice(-3);
     let usd = 0, boe = 0;
@@ -183,7 +188,16 @@
       if (ov.plateauYears <= 0) { kind = 'decline'; plateauYears = 0; remBoe = remSodir; }
       else { if (kind === 'decline') { plateau = q0; kind = 'plateau'; plateauSource = 'user'; } plateauYears = Math.round(ov.plateauYears); }
     }
-    const capexBoe = ov.capexBoe ?? capexIntensity(field, a, lastFullYear);
+    // Future capex: Sodir's expected future investments for the field (operators' own plans, fixed NOK), spread over the
+    // production the model expects (Sodir reserves × the middle of the reserve-growth range), so total capex ≈ Sodir's
+    // figure. New fields spend 80 % before first production and 20 % as drilling/maintenance during production.
+    // Without a Sodir figure: the field's recent investment intensity (or $6/boe for new fields).
+    const exp = field.invExp && remSodir > 0.5 ? Math.max(0, field.invExp.mnok) / a.usdnok : null; // USD million, real
+    const prodBase = remSodir * Math.max(1, growth);
+    const isNew = field.status === 'Approved for production' || q0 <= 0;
+    const capexSodir = exp != null ? Math.min(CAPEX_MAX, Math.max(CAPEX_MIN, (isNew ? 0.2 : 1) * exp / prodBase)) : null;
+    const capexBoe = ov.capexBoe ?? capexSodir ?? capexIntensity(field, a, lastFullYear);
+    const capexBasis = ov.capexBoe != null ? 'user' : capexSodir != null ? 'sodir' : 'history';
     const refRate = kind === 'decline' ? q0 : plateau;
     // Opex: from the field's facilities when known (and not overridden by the user), otherwise by hydrocarbon type.
     const fo = ov.opexBoe == null ? facilityOpex(field) : null;
@@ -204,7 +218,7 @@
     const fd = facilityDecom(field);
     const decomTotal = ov.decomPerBoe != null ? ov.decomPerBoe * recBoe : fd != null ? Math.max(fd, 0.5 * recBoe) : null;
     return { histCit, histSpt, tempUplift: tempPackage(field) && !first, remBoe, remSodir, recBoe, q0, kind, startIndex, plateau, plateauYears, plateauSource, opexBoe, fixedOpex, varOpex, opexBasis, capexBoe, refRate,
-      devCapex: kind === 'new' ? 6 * remSodir : 0, decomPerBoe: ov.decomPerBoe, decomTotal, decomBasis: ov.decomPerBoe != null ? 'user' : fd != null ? 'facilities' : 'perBoe' };
+      capexBasis, devCapex: kind === 'new' ? (exp != null ? 0.8 * exp : 6 * remSodir) : 0, decomPerBoe: ov.decomPerBoe, decomTotal, decomBasis: ov.decomPerBoe != null ? 'user' : fd != null ? 'facilities' : 'perBoe' };
   }
 
   function simulate(field, a, s, d, record) {
@@ -295,7 +309,7 @@
     const mid = 1 + (cap - 1) / 2;
     const s = setup(field, a, lastFullYear, ov, mid);
     const price = realisedPrice(field, a);
-    const base = { field: field.slug, kind: s.kind, price, mix: mix(field), remBoe: s.remSodir, q0: s.q0, opexBoe: s.opexBoe, capexBoe: s.capexBoe,
+    const base = { field: field.slug, kind: s.kind, price, mix: mix(field), remBoe: s.remSodir, q0: s.q0, opexBoe: s.opexBoe, capexBoe: s.capexBoe, capexBasis: s.capexBasis, invExp: field.invExp || null,
       fixedOpex: s.fixedOpex, varOpex: s.varOpex, opexBasis: s.opexBasis, decomTotal: s.decomTotal ?? (s.decomPerBoe ?? a.decomPerBoe) * s.recBoe, decomBasis: s.decomBasis,
       plateauYears: s.plateauYears, plateauRate: s.plateau, plateauSource: s.plateauSource,
       plateauEnd: s.plateauYears ? a.startYear + s.startIndex + s.plateauYears - 1 : null };
@@ -447,5 +461,5 @@
     return [...m.entries()].map(([name, n]) => ({ name, fields: n })).sort((a, b) => a.name.localeCompare(b.name, 'nb'));
   }
 
-  return { DEFAULTS, MARGINAL, OPEX_BY_TYPE, BOE_PER_SM3, valueField, valueAll, valueCompany, valueHistory, stakeCashflow, facilityOpex, facilityDecom, OPEX_FAC, DECOM_FAC, MMBTU_PER_BOE_GAS, companies, realisedPrice, prices, mix, investmentDeductions, deductionSchedule, taxSaving, UPLIFT };
+  return { DEFAULTS, MARGINAL, GAS_TARIFF, OPEX_BY_TYPE, BOE_PER_SM3, valueField, valueAll, valueCompany, valueHistory, stakeCashflow, facilityOpex, facilityDecom, OPEX_FAC, DECOM_FAC, MMBTU_PER_BOE_GAS, companies, realisedPrice, prices, mix, investmentDeductions, deductionSchedule, taxSaving, UPLIFT };
 });

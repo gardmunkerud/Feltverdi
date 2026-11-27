@@ -5,7 +5,7 @@ const path = require('path');
 
 const BASE = 'https://factpages.sodir.no/public?/Factpages/external/tableview/';
 const QS = '&rs:Command=Render&rc:Toolbar=false&rc:Parameters=f&IpAddress=not_used&CultureCode=en&rs:Format=CSV&Top100=false';
-const TABLES = ['field', 'field_reserves', 'field_production_yearly', 'field_investment_yearly', 'field_licensee_hst', 'wellbore_exploration_all', 'field_description', 'licence_licensee_hst', 'discovery', 'facility_fixed', 'facility_moveable', 'wellbore_development_all', 'field_activity_status_hst'];
+const TABLES = ['field', 'field_reserves', 'field_production_yearly', 'field_investment_yearly', 'field_licensee_hst', 'wellbore_exploration_all', 'field_description', 'licence_licensee_hst', 'discovery', 'facility_fixed', 'facility_moveable', 'wellbore_development_all', 'field_activity_status_hst', 'field_investment_expected'];
 
 // Production outlook from Sodir's "Status" description text.
 // 'plateau' = Sodir describes the field as on plateau / stable / capacity-limited; 'off' = explicitly off plateau.
@@ -120,6 +120,10 @@ async function main() {
     if (y && (!approved.has(r.fldNpdidField) || y < approved.get(r.fldNpdidField))) approved.set(r.fldNpdidField, y);
   }
 
+  // Expected future investments (Sodir, NOK million in fixed prices of fldInvExpFixYear) – the operators' own plans, reported
+  // to Sodir; used as each field's future capex in the model
+  const invExp = new Map(t.field_investment_expected.map((r) => [r.fldNpdidField, { mnok: num(r.fldInvestmentExpected), year: num(r.fldInvExpFixYear) }]));
+
   // Facilities and open wells per field (for field-specific opex and decommissioning)
   const fac = require('./facilities').facilityProfiles(t.facility_fixed, t.facility_moveable, t.wellbore_development_all);
   const facProfile = (p) => (p ? { own: p.own, wells: p.wells, tieback: p.tieback, host: p.host || null } : null);
@@ -137,6 +141,7 @@ async function main() {
       hc: f.fldHcType, operator: f.cmpLongName, discovered: num((f.wlbCompletionDate || '').slice(-4)) || null,
       lat: r3(lat), lon: r3(lon), url: f.fldFactPageUrl,
       approved: approved.get(id) || null,
+      invExp: invExp.get(id) || null,
       resYear: res ? num(res.fldVersion) : null, rem, rec,
       prod: (prod.get(id) || []).sort((a, b) => a[0] - b[0]),
       inv: (inv.get(id) || []).sort((a, b) => a[0] - b[0]),

@@ -148,7 +148,7 @@ To update the data: run `npm run build:data` locally, then commit and push the c
   Plateau and new fields use reserves × 1.3. New fields and fields approved for development get a three-year plateau first.
 
   The method was calibrated on Sodir history. Backtested from 2010 and 2015, actual production divided by the forecast was 1.14 and 1.06 with this method and the facility-based costs (1.26 and 1.16 with the earlier generic costs), against 1.45 and 1.35 when fitting to reserves alone. Setting reserve growth to ×1.0 reproduces the old method.
-- **Prices:** oil is Brent − $1, NGL is 60% of Brent, gas is €/MWh × 1.72 × EURUSD.
+- **Prices:** oil is Brent − $1, NGL is 60% of Brent, gas is €/MWh × 1.72 × EURUSD minus a USD 2/boe Gassco transport tariff (company production costs, which opex is calibrated to, exclude transport).
 - **Costs:**
   - **Opex is field-specific.** It is calculated from each field's facilities ([scripts/facilities.js](scripts/facilities.js), using Sodir's facility register and development wells).
     - Fixed annual cost (USD million):
@@ -162,7 +162,7 @@ To update the data: run `npm run build:data` locally, then commit and push the c
     - Variable cost: $0.5 per boe, plus a $4/boe processing tariff for tie-backs without their own platform.
     - Calibrated to the companies' reported production cost for 2025 (Aker BP 7.3, Vår Energi 11.1, OKEA ~25, DNO ~12 $/boe) and to Johan Sverdrup (below $2/boe).
     - Fields without a facility profile use the old default by field type.
-  - Capex uses the field's own investment intensity from Sodir, limited to $2–12 per boe.
+  - Capex comes from Sodir's expected future investments per field (`field_investment_expected`, the operators' own plans), spread over the production the model expects (Sodir reserves × the middle of the reserve-growth range) and bounded to $1–20 per boe. New fields spend 80 % before first production. Fields without a Sodir figure use their own recent investment intensity, limited to $2–12 per boe.
   - **Decommissioning is per facility.**
     - Plugging each well that is not yet permanently plugged: $6 m on a platform, $18 m subsea.
     - Removing each facility: large steel platform $250 m, small $80 m, floater $120 m, Condeep topside $300 m, subsea template $8 m.

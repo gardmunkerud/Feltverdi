@@ -40,10 +40,10 @@ test('after-tax margin is roughly 22 % of the pre-tax margin (78 % marginal tax)
   assert.ok(Math.abs(post / pre - 0.22) < 0.02, `ratio ${post / pre}`);
 });
 
-test('gas is priced from EUR/MWh', () => {
+test('gas is priced from EUR/MWh, net of the transport tariff', () => {
   const gasField = field({ hc: 'GAS', rem: { oil: 0, gas: 10, ngl: 0, cond: 0, oe: 10 } });
   const p = V.realisedPrice(gasField, { ...V.DEFAULTS, gasEur: 35, eurusd: 1.15 });
-  assert.ok(Math.abs(p - 35 * 1.72 * 1.15) < 1e-9);
+  assert.ok(Math.abs(p - (35 * 1.72 * 1.15 - V.GAS_TARIFF)) < 1e-9);
 });
 
 test('shut-down fields and fields without reserves are worth zero', () => {

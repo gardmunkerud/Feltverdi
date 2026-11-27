@@ -94,7 +94,7 @@
   const ASSUMPTIONS = [
     { k: 'brent', label: 'brent', min: 40, max: 130, step: 1, fmt: (v) => `$${nf(v)}`, hint: 'brentHint' },
     { k: 'gasEur', label: 'gas', min: 10, max: 100, step: 1, fmt: (v) => `€${nf(v)}/MWh`, hint: 'gasHint',
-      note: (v) => { const eurusd = V.DEFAULTS.eurusd; return t('gasConv', nf(eurusd, 2), nf(1.72 * eurusd, 2), nf(v), nf(v * 1.72 * eurusd, 1), nf(v * eurusd / 3.412, 1)); } },
+      note: (v) => { const eurusd = V.DEFAULTS.eurusd; return t('gasConv', nf(eurusd, 2), nf(1.72 * eurusd, 2), nf(v), nf(v * 1.72 * eurusd, 1), nf(v * eurusd / 3.412, 1), nf(Math.max(0, v * 1.72 * eurusd - V.GAS_TARIFF), 1)); } },
     { k: 'usdnok', label: 'usdnok', min: 7, max: 13, step: 0.1, fmt: (v) => nf(v, 1), hint: 'usdnokHint' },
     { k: 'discount', label: 'discount', min: 0.04, max: 0.14, step: 0.005, fmt: (v) => pct(v * 100, 1), hint: 'discountHint' },
     { k: 'reserveGrowth', label: 'growth', min: 1, max: 2, step: 0.1, fmt: (v) => `×${nf(v, 1)}`, hint: 'growthHint' },
@@ -428,7 +428,7 @@
           <div class="card-head"><h2>${t('fieldAssumptions')}</h2><button type="button" class="reset" id="ov-reset">${t('resetField')}</button></div>
           <div class="ov">
             <div><label for="ov-opex">${t('opexBoe')}</label><input id="ov-opex" type="number" min="0" max="60" step="0.5" value="${ov.opexBoe ?? ''}" placeholder="${nf(v.opexBoe, 1)}"><div class="auto">${t('auto')}: ${nf(ov.opexBoe != null ? (V.facilityOpex(f) ? (V.facilityOpex(f).fixed + V.facilityOpex(f).variable * Math.max(v.q0, 0.01)) / Math.max(v.q0, 0.01) : V.OPEX_BY_TYPE[f.hc] ?? 10) : v.opexBoe, 1)}${v.opexBasis === 'facilities' ? ` (${t('basisFac')})` : ''}</div></div>
-            <div><label for="ov-capex">${t('capexBoe')}</label><input id="ov-capex" type="number" min="0" max="60" step="0.5" value="${ov.capexBoe ?? ''}" placeholder="${nf(v.capexBoe, 1)}"><div class="auto">${t('auto')}: ${nf(v.capexBoe, 1)}</div></div>
+            <div><label for="ov-capex">${t('capexBoe')}</label><input id="ov-capex" type="number" min="0" max="60" step="0.5" value="${ov.capexBoe ?? ''}" placeholder="${nf(v.capexBoe, 1)}"><div class="auto">${t('auto')}: ${nf(ov.capexBoe != null ? V.valueField(f, state.a, state.data.lastFullYear, { ...ov, capexBoe: undefined }).capexBoe : v.capexBoe, 1)}${v.invExp && v.capexBasis !== 'history' ? ` (${t('basisSodirInv', nf(v.invExp.mnok / 1000, 1))})` : ''}</div></div>
             <div><label for="ov-dec">${t('declineRate')}</label><input id="ov-dec" type="number" min="0" max="60" step="0.5" value="${ov.decline != null ? nf(ov.decline * 100, 1).replace(',', '.') : ''}" placeholder="${nf(v.decline * 100, 1)}"><div class="auto">${t('autoDecl', nf(v.decline * 100, 1))}</div></div>
             <div><label for="ov-plat">${t('plateauYearsLbl')}</label><input id="ov-plat" type="number" min="0" max="30" step="1" value="${ov.plateauYears ?? ''}" placeholder="${v.plateauYears || 0}"><div class="auto">${t('auto')}: ${v.kind === 'plateau' && v.plateauSource !== 'user' ? t('plateauAuto', v.plateauYears) : '0'}</div></div>
             <div><label for="ov-decom">${t('decomBoe')}</label><input id="ov-decom" type="number" min="0" max="10" step="0.1" value="${ov.decomPerBoe ?? ''}" placeholder="${nf(decomAutoBoe, 1)}"><div class="auto">${t('auto')}: ${nf(decomAutoBoe, 1)}${V.facilityDecom(f) != null ? ` (${t('basisFac')})` : ''}</div></div>
@@ -638,8 +638,8 @@
       </div>
       <div class="card section-gap">
         <div class="card-head"><h2>${t('fieldsOwned')}</h2></div>
-        <div class="tbl-wrap"><table><thead><tr><th>${t('colField')}</th><th>${t('colArea')}</th><th>${t('colOperator')}</th><th class="r">${t('share')}</th><th class="r">${t('colRem')}</th><th class="r">${t('colProd', y)}</th><th class="r">${t('colValue')}</th><th class="r">${t('colPerBoe')}</th></tr></thead><tbody>
-        ${r.rows.map((x) => `<tr class="link" data-href="#/felt/${x.field.slug}"><td><a href="#/felt/${x.field.slug}">${esc(x.field.name)}</a></td><td>${esc(tmap('area', x.field.area))}</td><td>${x.operator ? `<span class="tag prod">${t('operator')}</span>` : esc(shortCompany(x.field.operator))}</td><td class="r">${pct(x.share, 2)}</td><td class="r">${nf(x.remBoe, 1)}</td><td class="r">${nf(kboed(x.q0), 1)}</td><td class="r ${x.npv < 0 ? 'neg' : ''}">${money(x.npv, { bare: true })}</td><td class="r">${perBoe(x.npv, x.remBoe)}</td></tr>`).join('')}
+        <div class="tbl-wrap"><table class="rank-tbl"><thead><tr><th class="col-name">${t('colField')}</th><th class="col-area">${t('colArea')}</th><th class="col-operator">${t('colOperator')}</th><th class="r">${t('share')}</th><th class="r col-rem">${t('colRem')}</th><th class="r col-prod">${t('colProd', y)}</th><th class="r">${t('colValue')}</th><th class="r col-hperboe">${t('colPerBoe')}</th></tr></thead><tbody>
+        ${r.rows.map((x) => `<tr class="link" data-href="#/felt/${x.field.slug}"><td class="col-name"><a href="#/felt/${x.field.slug}">${esc(x.field.name)}</a></td><td class="col-area">${esc(tmap('area', x.field.area))}</td><td class="col-operator">${x.operator ? `<span class="tag prod">${t('operator')}</span>` : esc(shortCompany(x.field.operator))}</td><td class="r">${pct(x.share, 2)}</td><td class="r col-rem">${nf(x.remBoe, 1)}</td><td class="r col-prod">${nf(kboed(x.q0), 1)}</td><td class="r ${x.npv < 0 ? 'neg' : ''}">${money(x.npv, { bare: true })}</td><td class="r col-hperboe">${perBoe(x.npv, x.remBoe)}</td></tr>`).join('')}
         </tbody></table></div>
       </div>`;
     wireExplorer(el, 'company');
@@ -697,8 +697,8 @@
           <select id="rs" aria-label="${t('filterStatus')}"><option value="">${t('filterStatus')}</option>${['Producing', 'Approved for production', 'Shut down'].map((s) => `<option value="${s}"${R.status === s ? ' selected' : ''}>${tmap('status', s)}</option>`).join('')}</select>` : ''}
           <span class="muted" style="align-self:center;margin-left:auto">${rows.length} · ${state.cur} ${t('mn')}/${t('bn')}</span>
         </div>
-        <div class="tbl-wrap"><table><thead><tr>${cols.map(([k, l, c]) => `<th class="sortable ${c || ''} ${sortKey === k ? 'sorted' + (R.asc ? ' asc' : '') : ''}" data-sort="${k}" scope="col">${esc(l)}</th>`).join('')}</tr></thead>
-        <tbody>${rows.map((r) => `<tr class="link" data-href="${r.href}">${cols.map(([k, , c]) => `<td class="${c || ''}">${cell(r, k)}</td>`).join('')}</tr>`).join('') || `<tr><td colspan="${cols.length}" class="empty">–</td></tr>`}</tbody></table></div>
+        <div class="tbl-wrap"><table class="rank-tbl"><thead><tr>${cols.map(([k, l, c]) => `<th class="sortable col-${k} ${c || ''} ${sortKey === k ? 'sorted' + (R.asc ? ' asc' : '') : ''}" data-sort="${k}" scope="col">${esc(l)}</th>`).join('')}</tr></thead>
+        <tbody>${rows.map((r) => `<tr class="link" data-href="${r.href}">${cols.map(([k, , c]) => `<td class="col-${k} ${c || ''}">${cell(r, k)}</td>`).join('')}</tr>`).join('') || `<tr><td colspan="${cols.length}" class="empty">–</td></tr>`}</tbody></table></div>
       </div>`;
     $$('[data-tab]', el).forEach((b) => b.addEventListener('click', () => { R.tab = b.dataset.tab; R.sort = 'npv'; R.asc = false; route(); }));
     $$('th[data-sort]', el).forEach((th) => th.addEventListener('click', () => { const k = th.dataset.sort; if (R.sort === k) R.asc = !R.asc; else { R.sort = k; R.asc = ['name', 'area', 'status', 'operator'].includes(k); } route({ keepScroll: true }); }));
@@ -1205,12 +1205,14 @@
     for (const x of rows) { c += x.fcf * Math.pow(1 + r, -(x.year - year + 0.5)); if (c >= price) return x.year; }
     return null;
   }
-  // Brent grid with gas moving in proportion; returns [[brent, value]]
-  function ddBrentCurve(items, year, extraOv) {
-    const out = [];
-    for (let b = 40; b <= 120; b += 10) out.push([b, ddPv(ddPackage(items, year, { brent: b, gasEur: state.a.gasEur * b / state.a.brent }, extraOv).rows, year, state.a.discount)]);
-    return out;
+  // One Brent grid (gas moving in proportion) shared by the value-vs-Brent chart (40–120, at the page's discount rate) and
+  // the 8 % break-even (20–300). Each grid point is one package calculation; the PV is close to linear in Brent, so linear
+  // interpolation between points is accurate to about a dollar – far cheaper than a bisection of its own.
+  const DD_BE_RATE = 0.08, DD_GRID = [20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 140, 160, 200, 250, 300];
+  function ddBrentGrid(items, year, extraOv) {
+    return DD_GRID.map((b) => [b, ddPackage(items, year, { brent: b, gasEur: state.a.gasEur * b / state.a.brent }, extraOv).rows]);
   }
+  const ddBrentCurve = (grid, year, r) => grid.filter(([b]) => b >= 40 && b <= 120).map(([b, rows]) => [b, ddPv(rows, year, r)]);
   function ddBreakeven(curve, price) {
     for (let i = 1; i < curve.length; i++) {
       const [b0, v0] = curve[i - 1], [b1, v1] = curve[i];
@@ -1218,17 +1220,14 @@
     }
     return null;
   }
-  // Break-even oil price for a required return: the flat future Brent (gas in proportion, actual prices for past years)
-  // at which the stakes' PV at `rate` equals the price paid. Returns { b } or { below: lo } / { above: hi } outside the range.
-  const DD_BE_RATE = 0.08;
-  function ddBreakevenAt(items, year, price, rate) {
-    const lo = 10, hi = 300;
-    const f = (b) => ddPv(ddPackage(items, year, { brent: b, gasEur: state.a.gasEur * b / state.a.brent }).rows, year, rate) - price;
-    if (f(lo) >= 0) return { below: lo };
-    if (f(hi) < 0) return { above: hi };
-    let a = lo, z = hi;
-    for (let k = 0; k < 16; k++) { const mid = (a + z) / 2; if (f(mid) >= 0) z = mid; else a = mid; }
-    return { b: (a + z) / 2 };
+  // Break-even oil price for a required return: the flat future Brent (actual prices for past years) at which the stakes'
+  // PV at `rate` equals the price paid. Returns { b } or { below: lo } / { above: hi } outside the grid.
+  function ddBreakevenAt(grid, year, price, rate) {
+    const pts = grid.map(([b, rows]) => [b, ddPv(rows, year, rate)]);
+    if (pts[0][1] >= price) return { below: pts[0][0] };
+    if (pts[pts.length - 1][1] < price) return { above: pts[pts.length - 1][0] };
+    const b = ddBreakeven(pts, price);
+    return b == null ? null : { b };
   }
   // Sources for the tax-benefit estimate (numbered in the method text)
   const TAX_SOURCES = [
@@ -1483,7 +1482,8 @@
     if (thenDeck) decks.push(['then', thenDeck, `${t('ddDeckThen', year)} ($${nf(thenDeck.brent)} / €${nf(thenDeck.gasEur)})`]);
     const scen = decks.map(([k, deck, label]) => ({ k, label, rows: k === 'base' ? base.rows : ddPackage(items, year, deck).rows }));
     if (up) scen.push({ k: 'up', label: t('ddDeckUp'), rows: up.rows });
-    const curve = ddBrentCurve(items, year);
+    const grid = ddBrentGrid(items, year);
+    const curve = ddBrentCurve(grid, year, r);
     const be = hasPrice ? ddBreakeven(curve, price) : null;
     const realised = histRows.reduce((s, x) => s + x.fcf, 0);
     const histSpan = histRows.length ? [histRows[0].year, histRows[histRows.length - 1].year] : null;
@@ -1553,7 +1553,7 @@
     const multiples = hasPrice && (m.perFlowing || m.perBoe) ? `<p class="muted">${t('ddMultiples')}: ${m.perFlowing ? `USD ${nf(m.perFlowing, 0)} ${t('ddPerFlowing')}` : ''}${m.perFlowing && m.perBoe ? ' · ' : ''}${m.perBoe ? `USD ${nf(m.perBoe, 1)} ${t('ddPerBoe')} (${nf(m.perBoePctBrent, 0)} % ${t('dmOfBrent')})` : ''}</p>` : '';
 
     // Break-even Brent for 8 % real return after tax (fixed rate, independent of the discount-rate slider); not for partial packages
-    const be8 = hasPrice && !m.partial ? ddBreakevenAt(items, year, price, DD_BE_RATE) : null;
+    const be8 = hasPrice && !m.partial ? ddBreakevenAt(grid, year, price, DD_BE_RATE) : null;
     const beCmp = thenDeck ? { brent: thenDeck.brent, then: true } : { brent: state.a.brent, then: false };
     const plain = { ...ddPlainList(d, m, { buyer, seller, vsTyp, price, realised, histSpan, taxBenefit: tb.total, synPv, be8, beCmp }), gauge: hasPrice && !m.partial && ratio ? ddGauge(ratio / baseline, d.assessment && d.assessment.verdict) : '' };
     el.innerHTML = ddHeader(d) + ddConclusion(d, plain) + `

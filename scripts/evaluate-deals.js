@@ -164,25 +164,15 @@ function reservesAt(fieldName, year) {
 
 // Hindsight value of a stake bought in the deal year: actual years (Sodir production and investment, historical prices,
 // fixed opex anchored to the production rate at the time of the deal) + Feltverdi forecast from next year. Real USD, 8 % real.
-const fx = new Map(H.usdnok);
-const priceY = new Map(H.prices.map(([y, b, g]) => [y, { b, g }]));
+// Same engine as the deal pages (V.stakeCashflow), so tax deductions from investments made before the deal – which the
+// buyer takes over – are included; `inh` is their present value.
 function hindsightValue(f, s, year) {
-  const opexBoe = V.OPEX_BY_TYPE[f.hc] ?? 10;
-  const fo = V.facilityOpex(f); // field-specific (facility-based) opex when the facility profile is known
-  const pRef = f.prod.find((r) => r[0] === year - 1) || f.prod.find((r) => r[0] === year);
-  const qRef = pRef ? pRef[5] * BOE : 0;
-  let v = 0;
-  for (let y = year; y <= data.lastFullYear; y++) {
-    const p = f.prod.find((r) => r[0] === y), pr = priceY.get(y), rf = cpiNow / cpi.get(y);
-    const q = p ? p[5] * BOE : 0;
-    const rev = p && pr ? ((p[1] + p[4]) * BOE * (pr.b - 1) + p[3] * BOE * 0.6 * pr.b + p[2] * BOE * pr.g * 5.87) * rf : 0;
-    const inv = (f.inv.find((r) => r[0] === y) || [0, 0])[1] / (fx.get(y) || 10) * rf;
-    const opex = q <= 0 ? 0 : fo ? fo.fixed + fo.variable * q : opexBoe * (0.6 * Math.max(qRef, q) + 0.4 * q);
-    v += (rev - opex - inv) * (1 - 0.78) * s * Math.pow(1 + RATE, -(y - year + 0.5));
+  let v = 0, inh = 0;
+  for (const r of V.stakeCashflow(f, H, {}, data.lastFullYear, {}, year)) {
+    const df = Math.pow(1 + RATE, -(r.year - year + 0.5));
+    v += r.fcf * s * df; inh += (r.taxInh || 0) * s * df;
   }
-  const fut = V.valueField(f, {}, data.lastFullYear);
-  for (const r of fut.years) v += r.fcf * s * Math.pow(1 + RATE, -(r.year - year + 0.5));
-  return v;
+  return { v, inh };
 }
 
 // Sodir fields that Feltverdi shows as one asset (e.g. Hugin, Munin, Fulla → Yggdrasil): a stake in a part
@@ -200,7 +190,7 @@ function mergeParts(stakes) {
 
 function evalPackage(stakesIn, year, later = new Set()) {
   const stakes = mergeParts(stakesIn);
-  let prod = 0, rem = 0, hindsight = 0, remNow = 0, prodAfter = 0;
+  let prod = 0, rem = 0, hindsight = 0, taxInh = 0, remNow = 0, prodAfter = 0;
   const items = [];
   for (const [name, sh] of stakes) {
     const f = byName.get(name); if (!f || sh <= 0) continue;
@@ -208,12 +198,13 @@ function evalPackage(stakesIn, year, later = new Set()) {
     const p = f.prod.find((r) => r[0] === year - 1); const q = p ? p[5] * BOE * s : 0;
     const r0 = reservesAt(name, year - 1) * BOE * s;
     prod += q; rem += r0;
-    hindsight += hindsightValue(f, s, year);
+    const hv = hindsightValue(f, s, year);
+    hindsight += hv.v; taxInh += hv.inh;
     prodAfter += f.prod.filter((r) => r[0] >= year && r[0] <= data.lastFullYear).reduce((t, r) => t + r[5] * BOE * s, 0);
     remNow += (f.rem ? f.rem.oe : 0) * BOE * s;
     items.push({ field: f.name, slug: f.slug, ...(later.has(name) ? { later: true } : {}), share: Math.round(sh * 1000) / 1000, prodKboed: Math.round(q / 0.365 * 10) / 10, remMmboe: Math.round(r0 * 10) / 10 });
   }
-  return { prod, rem, hindsight, remNow, prodAfter, items: items.sort((a, z) => z.remMmboe - a.remMmboe) };
+  return { prod, rem, hindsight, taxInh, remNow, prodAfter, items: items.sort((a, z) => z.remMmboe - a.remMmboe) };
 }
 
 const out = {};
@@ -226,7 +217,7 @@ for (const d of deals) {
       const st = L.diff ? shareDiff(L.diff) : new Map(Object.entries(L.shares));
       const r = evalPackage(st, year);
       return { from: L.from, to: L.to, cash: L.cash || 0, note: L.note || null, items: r.items,
-        prodKboed: Math.round(r.prod / 0.365 * 10) / 10, remMmboe: Math.round(r.rem * 10) / 10, hindsightValue: Math.round(r.hindsight) };
+        prodKboed: Math.round(r.prod / 0.365 * 10) / 10, remMmboe: Math.round(r.rem * 10) / 10, hindsightValue: Math.round(r.hindsight), taxInheritedUsdM: Math.round(r.taxInh) };
     });
     out[d.id] = { year, swap: true, legs, brent: brent.get(year) ?? brent.get(year - 1), items: legs.flatMap((l) => l.items) };
     continue;
@@ -235,11 +226,14 @@ for (const d of deals) {
   const later = spec.shares ? new Map() : laterFields(spec.sellers, date, spec.fields, d.completed ? new Date(d.completed + 'T00:00:00Z') : null);
   for (const [k, v] of Object.entries(spec.extra || {})) later.set(k, v);
   for (const [k, v] of later) if (!stakes.has(k)) stakes.set(k, v);
-  const { prod, rem, hindsight, remNow, prodAfter, items } = evalPackage(stakes, year, new Set(later.keys()));
+  const { prod, rem, hindsight: fieldValue, taxInh, remNow, prodAfter, items } = evalPackage(stakes, year, new Set(later.keys()));
   if (!items.length) continue;
   // Adjusted price (shares valued at completion, tax assets taken out) when public; otherwise the headline price
   const price = spec.price ?? (d.priceAdjusted ? d.priceAdjusted.valueUsdM : d.valueUsdM);
   const realF = cpiNow / cpi.get(year);
+  // Company tax positions bought with the company (e.g. losses carried forward), where public – value at the deal date
+  const taxPos = d.taxPosition ? d.taxPosition.valueUsdM * realF : 0;
+  const hindsight = fieldValue + taxPos * Math.pow(1 + RATE, -0.5); // booked in the deal year, mid-year like the deal pages
   const b = brent.get(year) ?? brent.get(year - 1);
   const m = {
     year, ...(ROLES[d.id] || {}), partial: !!spec.partial, note: spec.note || null, items,
@@ -248,14 +242,16 @@ for (const d of deals) {
     perFlowing: price != null && prod > 0 ? Math.round(price * 1e6 / (prod / 0.365 * 1000)) : null,
     perBoe: price != null && rem > 0 ? Math.round(price / rem * 100) / 100 : null,
     perBoePctBrent: price != null && rem > 0 && b ? Math.round(price / rem / b * 1000) / 10 : null,
-    hindsightValue: Math.round(hindsight), // real USD of the CPI base year, at the deal year
+    hindsightValue: Math.round(hindsight), // real USD of the CPI base year, at the deal year (incl. tax deductions taken over)
+    taxInheritedUsdM: Math.round(taxInh), // PV of deductions from the seller's past investments in the stakes
+    taxPositionUsdM: taxPos ? Math.round(taxPos) : 0, // company tax positions (real)
     ratio: price != null && hindsight > 0 ? Math.round(price * realF / hindsight * 100) / 100 : null,
     reserveGrowth: rem > 0 ? Math.round((prodAfter + remNow) / rem * 100) / 100 : null,
   };
   out[d.id] = m;
 }
-// Baseline: median price/value ratio of complete packages with a disclosed price. Systematic model gaps (tax balances,
-// upside, buyers' price decks and required returns) affect all deals alike, so each deal is judged relative to this.
+// Baseline: median price/value ratio of complete packages with a disclosed price. Systematic model gaps (upside,
+// buyers' price decks and required returns) affect all deals alike, so each deal is judged relative to this.
 // Deals marked 'early' (value depends on things not yet in Sodir's reserves) do not set the norm.
 const verdictOf = (id) => (deals.find((x) => x.id === id) || {}).assessment?.verdict;
 const ratios = Object.entries(out).filter(([id, m]) => m.ratio && !m.partial && verdictOf(id) !== 'early').map(([, m]) => m.ratio).sort((a, b) => a - b);
@@ -265,5 +261,5 @@ fs.writeFileSync(path.join(root, 'public', 'data', 'deal-metrics.json'), JSON.st
 if (trace.length) console.log('Later fields:\n  ' + trace.join('\n  '));
 for (const [id, m] of Object.entries(out)) {
   if (m.swap) { console.log(`${id.padEnd(28)} swap ` + m.legs.map((l) => `${l.from}→${l.to}: ${l.items.map((i) => i.field + ' ' + i.share + '%').join(', ')} value ${l.hindsightValue} cash ${l.cash}`).join(' | ')); continue; }
-  console.log(`${id.padEnd(28)} prod ${String(m.prodKboed).padStart(6)} kboe/d  rem ${String(m.remMmboe).padStart(5)} MMboe  Brent ${m.brent}  price ${m.priceUsdM ?? '-'} (real ${m.priceReal ?? '-'})  $/flow ${m.perFlowing ?? '-'}  $/boe ${m.perBoe ?? '-'} (${m.perBoePctBrent ?? '-'}% Brent)  hindsight ${m.hindsightValue}  ratio ${m.ratio ?? '-'}  growth ${m.reserveGrowth}`);
+  console.log(`${id.padEnd(28)} prod ${String(m.prodKboed).padStart(6)} kboe/d  rem ${String(m.remMmboe).padStart(5)} MMboe  Brent ${m.brent}  price ${m.priceUsdM ?? '-'} (real ${m.priceReal ?? '-'})  $/flow ${m.perFlowing ?? '-'}  $/boe ${m.perBoe ?? '-'} (${m.perBoePctBrent ?? '-'}% Brent)  hindsight ${m.hindsightValue} (tax ${m.taxInheritedUsdM}+${m.taxPositionUsdM})  ratio ${m.ratio ?? '-'}  growth ${m.reserveGrowth}`);
 }

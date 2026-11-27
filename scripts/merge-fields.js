@@ -53,6 +53,7 @@ function applyMerges(fields, upper = (f) => f.name.toUpperCase()) {
       operator: main.operator, discovered: Math.min(...parts.map((f) => f.discovered || 9999)),
       lat: r3(parts.reduce((s, f, i) => s + f.lat * wt(i), 0)), lon: r3(parts.reduce((s, f, i) => s + f.lon * wt(i), 0)),
       url: main.url,
+      approved: Math.min(...parts.map((f) => f.approved || 9999)) < 9999 ? Math.min(...parts.map((f) => f.approved || 9999)) : null,
       resYear: Math.max(...parts.map((f) => f.resYear || 0)) || null,
       rem: sumVol(parts.map((f) => f.rem)), rec: sumVol(parts.map((f) => f.rec)),
       prod: sumYears(parts.map((f) => f.prod)), inv: sumYears(parts.map((f) => f.inv)),

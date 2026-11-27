@@ -5,7 +5,7 @@ const path = require('path');
 
 const BASE = 'https://factpages.sodir.no/public?/Factpages/external/tableview/';
 const QS = '&rs:Command=Render&rc:Toolbar=false&rc:Parameters=f&IpAddress=not_used&CultureCode=en&rs:Format=CSV&Top100=false';
-const TABLES = ['field', 'field_reserves', 'field_production_yearly', 'field_investment_yearly', 'field_licensee_hst', 'wellbore_exploration_all', 'field_description', 'licence_licensee_hst', 'discovery', 'facility_fixed', 'facility_moveable', 'wellbore_development_all'];
+const TABLES = ['field', 'field_reserves', 'field_production_yearly', 'field_investment_yearly', 'field_licensee_hst', 'wellbore_exploration_all', 'field_description', 'licence_licensee_hst', 'discovery', 'facility_fixed', 'facility_moveable', 'wellbore_development_all', 'field_activity_status_hst'];
 
 // Production outlook from Sodir's "Status" description text.
 // 'plateau' = Sodir describes the field as on plateau / stable / capacity-limited; 'off' = explicitly off plateau.
@@ -112,6 +112,14 @@ async function main() {
 
   const statusText = new Map(t.field_description.filter((d) => d.fldDescriptionHeading === 'Status').map((d) => [d.fldNpdidField, d.fldDescriptionText.replace(/\s+/g, ' ').trim()]));
 
+  // Year the field was approved for production (PDO approval) – decides whether the temporary 2020–22 tax package applies
+  const approved = new Map();
+  for (const r of t.field_activity_status_hst) {
+    if (r.fldStatus !== 'Approved for production') continue;
+    const y = num((r.fldStatusFromDate || '').slice(-4));
+    if (y && (!approved.has(r.fldNpdidField) || y < approved.get(r.fldNpdidField))) approved.set(r.fldNpdidField, y);
+  }
+
   // Facilities and open wells per field (for field-specific opex and decommissioning)
   const fac = require('./facilities').facilityProfiles(t.facility_fixed, t.facility_moveable, t.wellbore_development_all);
   const facProfile = (p) => (p ? { own: p.own, wells: p.wells, tieback: p.tieback, host: p.host || null } : null);
@@ -128,6 +136,7 @@ async function main() {
       status: f.fldCurrentActivitySatus, area: f.fldMainArea.toLowerCase().replace(/^\w/, (c) => c.toUpperCase()),
       hc: f.fldHcType, operator: f.cmpLongName, discovered: num((f.wlbCompletionDate || '').slice(-4)) || null,
       lat: r3(lat), lon: r3(lon), url: f.fldFactPageUrl,
+      approved: approved.get(id) || null,
       resYear: res ? num(res.fldVersion) : null, rem, rec,
       prod: (prod.get(id) || []).sort((a, b) => a[0] - b[0]),
       inv: (inv.get(id) || []).sort((a, b) => a[0] - b[0]),

@@ -6,6 +6,7 @@ A scheduled cloud agent improves Feltverdi in small steps, one change every 3 ho
 
 - **Costs (2026-11-27):** operating costs and decommissioning come from each field's facilities (`scripts/facilities.js`; `OPEX_FAC` and `DECOM_FAC` in `valuation.js`), calibrated against reported company production costs. Do not change the calibration constants without re-running the calibration and the decline backtest.
 - **Deal baseline:** deals marked "early" are excluded from the median price/value. Adjusted prices are used where public sources give them.
+- **Tax benefits in deals (2026-11-27):** the deal value includes the unused tax deductions the buyer takes over, plus company tax positions (`taxPosition`) where public. The Hess tax loss is on the value side, not taken off the price.
 - **Look:** Apple.com-inspired light/dark theme, Inter font, key figures that shrink to fit their tiles.
 - **Language:**
   - Norwegian bokmål and English must always be updated together (`public/js/i18n.js`).
@@ -30,11 +31,10 @@ A scheduled cloud agent improves Feltverdi in small steps, one change every 3 ho
   - tariff income for host fields, which is not modelled
   - onshore plants that Sodir does not link to a field (Hammerfest LNG, Nyhamna)
 - **Decommissioning:** per facility and well since 2026-11-27. Unit costs are rounded industry levels; refine them if Sodir or the operators publish newer figures. Timing is still one year, two years after shut-down.
-- **Tax:**
-  - The model uses a flat 78 % from 2022.
-  - The temporary 2020–22 package and the uplift before 2022 are not modelled in the historical values.
-  - Tax balances taken over by the buyer are not valued.
-  - Any of these could be explained better on the method page, or approximated.
+- **Tax:** deductions are modelled by investment year (depreciation, uplift, the temporary package) since 2026-11-27, and deals include the deductions the buyer takes over. Remaining simplifications:
+  - rules before 1992 (royalty, older rates) are not modelled
+  - unused deductions are lost if a field stops before using them (in reality refunded)
+  - exploration costs and company-level tax positions are only included where a deal sets `taxPosition`
 - **Deal-year deck:** now explained in the scenario text; could still be improved with public forward data.
 - **Bargaining-range defaults:** the per-deal views in `deals.json` (+2 percentage points on the seller's required return, 5–8 % synergies) are judgement calls. Review the wording and the reasoning.
 - **NGL price:** NGL is priced at 60 % of Brent. Gas is priced from €/MWh with fixed conversion factors. Check that the factors are documented in the wiki and on the method page.
@@ -50,6 +50,14 @@ A scheduled cloud agent improves Feltverdi in small steps, one change every 3 ho
 - Company names: Sodir legal names such as "Equinor Energy AS" against brand names in deals ("Equinor").
 
 ## Log (newest first)
+
+- 2026-11-27 – Tax (with the owner):
+  - investment deductions follow the rules of each year: depreciation, uplift, the temporary 2020–22 package, the cash-flow tax from 2022
+  - deals include the tax benefits the buyer takes over; the Hess tax loss moved to the value side
+
+  Shelf value went from 116 to 124 bn USD. The deal median went from 1.45 to 1.18. Verdict changes:
+  - Lundin and DNO–Sval became more expensive
+  - Hess and OKEA–Shell became cheaper
 
 - 2026-11-27 – Financial analysis (with the owner):
   - facility-based operating costs and decommissioning

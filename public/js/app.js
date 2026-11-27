@@ -1123,12 +1123,24 @@
       const s = it.share / 100;
       per.push({ it, f, s, rows });
       for (const r of rows) {
-        const o = byYear.get(r.year) || { year: r.year, hist: r.hist, q: 0, rev: 0, opex: 0, capex: 0, tax: 0, fcf: 0 };
-        for (const k of ['q', 'rev', 'opex', 'capex', 'tax', 'fcf']) o[k] += r[k] * s;
+        const o = byYear.get(r.year) || { year: r.year, hist: r.hist, q: 0, rev: 0, opex: 0, capex: 0, tax: 0, fcf: 0, taxInh: 0 };
+        for (const k of ['q', 'rev', 'opex', 'capex', 'tax', 'fcf', 'taxInh']) o[k] += (r[k] || 0) * s;
         byYear.set(r.year, o);
       }
     }
+    if (items.taxPos > 0) {
+      const o = byYear.get(year) || { year, hist: year <= state.data.lastFullYear, q: 0, rev: 0, opex: 0, capex: 0, tax: 0, fcf: 0, taxInh: 0 };
+      o.tax -= items.taxPos; o.fcf += items.taxPos; o.taxPos = items.taxPos; byYear.set(year, o);
+    }
     return { rows: [...byYear.values()].sort((x, y) => x.year - y.year), per };
+  }
+  // Stakes of a deal plus the company tax positions bought with it (real USD at the deal year)
+  const ddItems = (m, year) => Object.assign([...m.items], { taxPos: (m.taxPositionUsdM || 0) > 0 ? m.taxPositionUsdM : 0 });
+  // PV at the deal year of the deductions the buyer takes over (stakes) and of company tax positions
+  function ddTaxBenefit(rows, year, r) {
+    let inh = 0, pos = 0;
+    for (const x of rows) { const df = Math.pow(1 + r, -(x.year - year + 0.5)); inh += (x.taxInh || 0) * df; if (x.taxPos) pos += x.taxPos * df; }
+    return { inh, pos, total: inh + pos };
   }
   const ddPv = (rows, year, r) => rows.reduce((s, x) => s + x.fcf * Math.pow(1 + r, -(x.year - year + 0.5)), 0);
   // Real after-tax return on a price: the discount rate at which the stakes' PV equals the price
@@ -1160,6 +1172,20 @@
       if ((v0 - price) * (v1 - price) <= 0 && v1 !== v0) return b0 + (price - v0) / (v1 - v0) * (b1 - b0);
     }
     return null;
+  }
+  function ddTaxCard(d, tb, V0, year) {
+    const tp = d.taxPosition;
+    const row = (k, v) => `<div><dt>${k}</dt><dd>${v}</dd></div>`;
+    return `<div class="card section-gap dd-tax">
+        <div class="card-head"><h2>${t('ddH_tax')}</h2><span class="muted">${t('ddTaxSub', year)}</span></div>
+        ${intro('ddL_tax')}
+        <dl class="dd-list">
+          ${row(t('ddTaxInh') + tipBtn(t('ddT_taxInh')), money(tb.inh))}
+          ${tp ? row(t('ddTaxPos'), money(tb.pos)) : ''}
+          ${row(`<strong>${t('ddTaxTotal')}</strong>`, `<strong>${money(tb.total)}</strong> <span class="muted">(${V0 > 0 ? t('ddTaxShare', pct(tb.total / V0 * 100, 0)) : '–'})</span>`)}
+        </dl>
+        ${tp ? `<p class="muted dd-small">${esc(tp.note[state.lang])} · ${t('ddAdjSources')}: ${tp.sources.map((u, i) => `<a href="${esc(u)}" target="_blank" rel="noopener">${i + 1}</a>`).join(', ')}</p>` : ''}
+      </div>`;
   }
   const ddUpsideOv = (d) => (d.upside && d.upside.length ? Object.fromEntries(d.upside.map((u) => [u.slug, { remAdd: u.remAdd }])) : null);
   const signed = (usd) => `${usd >= 0 ? '+' : '−'}${money(Math.abs(usd))}`;
@@ -1201,6 +1227,7 @@
     const headline = d.valueUsdM ?? m.priceUsdM;
     out.push(headline != null ? t('ddP_bought', c.buyer, ddWhat(m.items), c.seller, usdStated(headline), m.year) : t('ddP_boughtNoPrice', c.buyer, ddWhat(m.items), c.seller, m.year));
     if (d.priceAdjusted) out.push(t('ddP_adj', usdStated(d.priceAdjusted.valueUsdM), t('ddAdjBasis_' + d.priceAdjusted.basis)));
+    if (c.taxBenefit > 0.5) out.push(t('ddP_tax', money(c.taxBenefit)));
     if (m.prodKboed >= 0.1) {
       const sh = m.prodKboed / shelfKboed(m.year - 1) * 100;
       const yrs = m.remMmboe / (m.prodKboed * 0.365);
@@ -1330,13 +1357,15 @@
     const year = m.year, r = state.a.discount, last = state.data.lastFullYear;
     const upOv = ddUpsideOv(d);
     const price = m.priceUsdM != null ? m.priceUsdM * ddCpiF(year) : null;
-    const base = ddPackage(m.items, year);
+    const items = ddItems(m, year);
+    const base = ddPackage(items, year);
     const V0 = ddPv(base.rows, year, r);
+    const tb = ddTaxBenefit(base.rows, year, r);
     const histRows = base.rows.filter((x) => x.hist);
     const vHist = ddPv(histRows, year, r);
     const thenDeck = ddDeckThen(year);
-    const vThen = thenDeck ? ddPv(ddPackage(m.items, year, thenDeck).rows, year, r) : null;
-    const up = upOv ? ddPackage(m.items, year, null, upOv) : null;
+    const vThen = thenDeck ? ddPv(ddPackage(items, year, thenDeck).rows, year, r) : null;
+    const up = upOv ? ddPackage(items, year, null, upOv) : null;
     const vUp = up ? ddPv(up.rows, year, r) : null;
     const hasPrice = price != null;
     const gain = hasPrice ? V0 - price : null;
@@ -1349,9 +1378,9 @@
     // scenarios
     const decks = [['low', DD_DECKS.low, `${t('ddDeckLow')} ($${DD_DECKS.low.brent} / €${DD_DECKS.low.gasEur})`], ['base', null, `${t('ddDeckBase')} ($${nf(state.a.brent)} / €${nf(state.a.gasEur)})`], ['high', DD_DECKS.high, `${t('ddDeckHigh')} ($${DD_DECKS.high.brent} / €${DD_DECKS.high.gasEur})`]];
     if (thenDeck) decks.push(['then', thenDeck, `${t('ddDeckThen', year)} ($${nf(thenDeck.brent)} / €${nf(thenDeck.gasEur)})`]);
-    const scen = decks.map(([k, deck, label]) => ({ k, label, rows: k === 'base' ? base.rows : ddPackage(m.items, year, deck).rows }));
+    const scen = decks.map(([k, deck, label]) => ({ k, label, rows: k === 'base' ? base.rows : ddPackage(items, year, deck).rows }));
     if (up) scen.push({ k: 'up', label: t('ddDeckUp'), rows: up.rows });
-    const curve = ddBrentCurve(m.items, year);
+    const curve = ddBrentCurve(items, year);
     const be = hasPrice ? ddBreakeven(curve, price) : null;
     const realised = histRows.reduce((s, x) => s + x.fcf, 0);
     const histSpan = histRows.length ? [histRows[0].year, histRows[histRows.length - 1].year] : null;
@@ -1378,6 +1407,7 @@
         <dl class="dd-list">
           ${hasPrice ? row(t('ddPaid'), money(price)) : ''}
           ${row(t('ddGot'), money(V0))}
+          ${tb.total > 0.5 ? row(t('ddTaxRow') + tipBtn(t('ddT_taxRow')), `${money(tb.total)} <span class="muted">(${V0 > 0 ? pct(tb.total / V0 * 100, 0) : '–'})</span>`) : ''}
           ${histSpan ? row(t('ddRealised', histSpan[0], histSpan[1]) + tipBtn(t('ddT_realised')), `${money(vHist)} <span class="muted">(${V0 > 0 ? pct(vHist / V0 * 100, 0) : '–'})</span>`) : ''}
           ${hasPrice && !m.partial ? row(t('ddVsTypRow') + tipBtn(t('ddT_vsTypRow')), signed(gainTyp), gainCls(gainTyp)) : ''}
           ${hasPrice ? row(`${t('ddGain')} <span class="muted">(${t('ddKpiModel').toLowerCase()})</span>${tipBtn(t('ddT_gain'))}`, signed(gain), gainCls(gain)) : ''}
@@ -1416,7 +1446,7 @@
     </table></div>` : '';
     const multiples = hasPrice && (m.perFlowing || m.perBoe) ? `<p class="muted">${t('ddMultiples')}: ${m.perFlowing ? `USD ${nf(m.perFlowing, 0)} ${t('ddPerFlowing')}` : ''}${m.perFlowing && m.perBoe ? ' · ' : ''}${m.perBoe ? `USD ${nf(m.perBoe, 1)} ${t('ddPerBoe')} (${nf(m.perBoePctBrent, 0)} % ${t('dmOfBrent')})` : ''}</p>` : '';
 
-    const plain = { list: ddPlainList(d, m, { buyer, seller, vsTyp, price, realised, histSpan }), gauge: hasPrice && !m.partial && ratio ? ddGauge(ratio / baseline) : '' };
+    const plain = { list: ddPlainList(d, m, { buyer, seller, vsTyp, price, realised, histSpan, taxBenefit: tb.total }), gauge: hasPrice && !m.partial && ratio ? ddGauge(ratio / baseline) : '' };
     el.innerHTML = ddHeader(d) + ddConclusion(d, plain) + `
       ${m.partial ? `<div class="card dd-warn">${t('ddPartial')}${m.note ? ` <span class="muted">(${esc(m.note)})</span>` : ''}</div>` : ''}
       ${kpis}
@@ -1426,6 +1456,7 @@
         <p class="dd-intro">${esc(d.priceAdjusted.note[state.lang])}</p>
         <p class="muted dd-small">${t('ddAdjLine', usdStated(d.valueUsdM), usdStated(d.priceAdjusted.valueUsdM))} · ${t('ddAdjSources')}: ${d.priceAdjusted.sources.map((u, i) => `<a href="${esc(u)}" target="_blank" rel="noopener">${i + 1}</a>`).join(', ')}</p>
       </div>` : ''}
+${ddTaxCard(d, tb, V0, year)}
       <div class="grid g-2 section-gap">${buyerCard}${sellerCard}</div>
       ${ddViewsCard(d, year, base.rows, m.partial ? null : price, baseline, buyer, seller)}
       <div class="card section-gap">
@@ -1454,7 +1485,6 @@
         ${intro('ddL_stakes')}
         ${ddStakeTable(m.items, base.per, year, r)}
       </div>
-      <div class="card section-gap"><div class="card-head"><h2>${t('ddH_tax')}</h2></div>${intro('ddL_tax')}</div>
       ${ddGlossaryCard()}`;
     bindDealViews(el, d);
     if (!window.Chart) return;

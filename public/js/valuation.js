@@ -11,7 +11,9 @@
  *  - Opex: 60 % fixed (based on the starting/plateau rate) + 40 % variable, so unit cost rises as the field declines.
  *  - Capex: the field's own investment intensity (last 3 reported years, NOK → USD) per boe, clamped to $2–12/boe.
  *  - Tax (2022 rules): 22 % corporate tax (capex depreciated over 6 years) + 71.8 % special tax (capex expensed
- *    immediately, corporate tax deductible) ≈ 78 % marginal. Losses are assumed usable (owner pays tax elsewhere).
+ *    immediately plus uplift, corporate tax deductible) ≈ 78 % marginal. Losses are assumed usable (owner pays tax elsewhere).
+ *    Deductions from past investments that are not yet used (depreciation, uplift) follow the field and are counted,
+ *    with the rules that applied in the year of each investment – see investmentDeductions().
  *  - Decommissioning: $/boe × original recoverable volume, two years after shut-down, 78 % tax-deductible.
  */
 (function (root, factory) {
@@ -70,6 +72,46 @@
     return D.gbs * o.gbs + D.steelLarge * o.steelLarge + D.steelSmall * o.steelSmall + D.floater * o.floater + D.onshore * (o.onshore || 0)
       + D.template * o.template + D.wellPlatform * p.wells.platform + D.wellSubsea * p.wells.subsea;
   }
+
+  // ----- Petroleum tax deductions from investments (Norway) -----
+  // Before 2022: corporate tax (28 % → 22 %) and special tax (78 % minus the corporate rate) on the same base; investments
+  // depreciated over 6 years from the year they are made, plus uplift (friinntekt) in the special-tax base over 4 years
+  // (30 % until 2012, 22 % 2013–15, then 21.6/21.2/20.8 %). Temporary package: investments made in 2020–21 are expensed
+  // immediately in the special-tax base with 24 % uplift; fields with a development plan approved 2020–23 get 17.69 %
+  // uplift on investments until production starts. From 2022: special tax is a cash-flow tax (71.8 %, investments expensed
+  // immediately, 12.4 % uplift) and corporate tax is deductible in it, so a corporate-tax deduction is worth
+  // 22 % × (1 − 71.8 %) ≈ 6.2 % and a special-tax deduction 71.8 %. In every year the two together are worth 78 %.
+  const INFLATION = 0.02; // turns future nominal NOK deductions into real terms
+  function citRate(y) { return y <= 2013 ? 0.28 : y <= 2015 ? 0.27 : y === 2016 ? 0.25 : y === 2017 ? 0.24 : y === 2018 ? 0.23 : 0.22; }
+  function deductionWorth(y) { return y >= 2022 ? { cit: CIT * (1 - SPT), spt: SPT } : { cit: citRate(y), spt: MARGINAL - citRate(y) }; }
+  const UPLIFT = { perm: 0.124, temp: 0.1769, y2020: 0.24 };
+  const tempPackage = (field) => field.approved >= 2020 && field.approved <= 2023;
+  // Deductions from an investment I made in year y: [[year, corporate-tax deduction, special-tax deduction], …] (same unit as I)
+  function investmentDeductions(field, y, I, firstProd) {
+    const out = [];
+    for (let k = 0; k < 6; k++) out.push([y + k, I / 6, 0]);
+    if (y >= 2020) {
+      const up = y < 2022 ? UPLIFT.y2020 : tempPackage(field) && (firstProd == null || y <= firstProd) ? UPLIFT.temp : UPLIFT.perm;
+      out[0][2] += I * (1 + up);
+    } else {
+      const up = y <= 2012 ? 0.30 : y <= 2015 ? 0.22 : y === 2016 ? 0.216 : y === 2017 ? 0.212 : 0.208;
+      for (let k = 0; k < 6; k++) out[k][2] += I / 6;
+      for (let k = 0; k < 4; k++) out[k][2] += I * up / 4;
+    }
+    return out;
+  }
+  // All deductions from the field's reported investments (nominal NOK million), by tax year; keep(y) filters investment years
+  function deductionSchedule(field, keep = () => true) {
+    const fp = firstProductionYear(field);
+    const m = new Map();
+    for (const [y, I] of field.inv) {
+      if (!I || !keep(y)) continue;
+      for (const [t, c, sp] of investmentDeductions(field, y, I, fp)) { const o = m.get(t) || { cit: 0, spt: 0 }; o.cit += c; o.spt += sp; m.set(t, o); }
+    }
+    return m;
+  }
+  // Tax saved in year t by the deductions in a schedule (nominal NOK million)
+  function taxSaving(sched, t) { const d = sched.get(t); if (!d) return 0; const w = deductionWorth(t); return d.cit * w.cit + d.spt * w.spt; }
 
   function mix(field) {
     const r = field.rem || { oil: 0, gas: 0, ngl: 0, cond: 0, oe: 0 };
@@ -155,9 +197,13 @@
     }
     // Decommissioning: user's $/boe, else from facilities (at least $0.5/boe of recoverable volume, for wells and
     // facilities still to be installed), else the default $/boe.
+    // Deductions from past investments still to be used from the start year (real USD; corporate and special tax base)
+    const hd = deductionSchedule(field, (y) => y < a.startYear);
+    const histCit = [], histSpt = [];
+    for (const [t, d] of hd) if (t >= a.startYear) { const i = t - a.startYear, k = 1 / a.usdnok / Math.pow(1 + INFLATION, i); histCit[i] = (histCit[i] || 0) + d.cit * k; histSpt[i] = (histSpt[i] || 0) + d.spt * k; }
     const fd = facilityDecom(field);
     const decomTotal = ov.decomPerBoe != null ? ov.decomPerBoe * recBoe : fd != null ? Math.max(fd, 0.5 * recBoe) : null;
-    return { remBoe, remSodir, recBoe, q0, kind, startIndex, plateau, plateauYears, plateauSource, opexBoe, fixedOpex, varOpex, opexBasis, capexBoe, refRate,
+    return { histCit, histSpt, tempUplift: tempPackage(field) && !first, remBoe, remSodir, recBoe, q0, kind, startIndex, plateau, plateauYears, plateauSource, opexBoe, fixedOpex, varOpex, opexBasis, capexBoe, refRate,
       devCapex: kind === 'new' ? 6 * remSodir : 0, decomPerBoe: ov.decomPerBoe, decomTotal, decomBasis: ov.decomPerBoe != null ? 'user' : fd != null ? 'facilities' : 'perBoe' };
   }
 
@@ -183,9 +229,10 @@
       if (q > 0) capex = s.capexBoe * q;
       if (q > 0 && rev - opex - 0.3 * capex <= 0) break; // economic limit
       dep.push(capex);
-      const depr = dep.slice(-6).reduce((x, v) => x + v, 0) / 6;
+      const depr = dep.slice(-6).reduce((x, v) => x + v, 0) / 6 + (s.histCit[i] || 0);
       const cit = CIT * (rev - opex - depr);
-      const spt = SPT * (rev - opex - capex - cit);
+      const uplift = capex * (s.tempUplift && q <= 0 ? UPLIFT.temp : UPLIFT.perm);
+      const spt = SPT * (rev - opex - capex - uplift - (s.histSpt[i] || 0) - cit);
       const tax = cit + spt;
       const fcf = rev - opex - capex - tax;
       const df = Math.pow(1 + a.discount, -(i + 0.5));
@@ -316,6 +363,7 @@
     const peak = top.length ? top.reduce((s, x) => s + x, 0) / top.length : 0;
     const fo = ov.opexBoe == null ? facilityOpex(field) : null;
     const histOpex = (q) => (q <= 0 ? 0 : fo ? fo.fixed + fo.variable * q : 0.6 * opexBoe * peak + 0.4 * opexBoe * q);
+    const ded = deductionSchedule(field);
     const rows = [];
     for (const y of histYears) {
       const p = prodY.get(y), pr = price.get(y), rf = realF(y);
@@ -324,7 +372,7 @@
       const rev = revNom * rf;
       const capex = (invY.get(y) || 0) / (fx.get(y) || a.usdnok) * rf;
       const opex = histOpex(q);
-      const pre = rev - opex - capex, tax = MARGINAL * pre;
+      const pre = rev - opex - capex, tax = MARGINAL * (rev - opex) - taxSaving(ded, y) / (fx.get(y) || a.usdnok) * rf;
       rows.push({ year: y, hist: true, q, rev, opex, capex, pre, tax, post: pre - tax, brentReal: pr ? pr.b * rf : null });
     }
     for (const r of fut.years) {
@@ -371,6 +419,9 @@
     const prodY = new Map(field.prod.map((r) => [r[0], r])), invY = new Map(field.inv);
     const pRef = prodY.get(fromYear - 1) || prodY.get(fromYear);
     const qRef = pRef ? pRef[5] * BOE_PER_SM3 : 0;
+    // Tax: 78 % of the operating margin minus the deductions from investments (all years); taxInh = the part of the saving
+    // that comes from investments made before the deal year – the deductions the buyer takes over.
+    const ded = deductionSchedule(field), dedInh = deductionSchedule(field, (y) => y < fromYear);
     const rows = [];
     for (let y = fromYear; y <= lastFullYear; y++) {
       const p = prodY.get(y), rf = cpiNow / (cpi.get(y) || cpiNow);
@@ -380,11 +431,13 @@
       const rev = pr && pr.real ? revNom : revNom * rf;
       const capex = (invY.get(y) || 0) / (fx.get(y) || a.usdnok) * rf;
       const opex = q <= 0 ? 0 : fo ? fo.fixed + fo.variable * q : opexBoe * (0.6 * Math.max(qRef, q) + 0.4 * q);
-      const pre = rev - opex - capex, tax = MARGINAL * pre;
-      rows.push({ year: y, hist: true, q, rev, opex, capex, tax, fcf: pre - tax });
+      const conv = rf / (fx.get(y) || a.usdnok);
+      const pre = rev - opex - capex, tax = MARGINAL * (rev - opex) - taxSaving(ded, y) * conv;
+      rows.push({ year: y, hist: true, q, rev, opex, capex, tax, fcf: pre - tax, taxInh: taxSaving(dedInh, y) * conv });
     }
     const fut = valueField(field, a, lastFullYear, ov);
-    for (const r of fut.years) if (r.year >= fromYear) rows.push({ year: r.year, hist: false, q: r.q, rev: r.rev, opex: r.opex, capex: r.capex + (r.decom || 0), tax: r.tax, fcf: r.fcf });
+    for (const r of fut.years) if (r.year >= fromYear) rows.push({ year: r.year, hist: false, q: r.q, rev: r.rev, opex: r.opex, capex: r.capex + (r.decom || 0), tax: r.tax, fcf: r.fcf,
+      taxInh: taxSaving(dedInh, r.year) / a.usdnok / Math.pow(1 + INFLATION, r.year - a.startYear) });
     return rows;
   }
 
@@ -394,5 +447,5 @@
     return [...m.entries()].map(([name, n]) => ({ name, fields: n })).sort((a, b) => a.name.localeCompare(b.name, 'nb'));
   }
 
-  return { DEFAULTS, OPEX_BY_TYPE, BOE_PER_SM3, valueField, valueAll, valueCompany, valueHistory, stakeCashflow, facilityOpex, facilityDecom, OPEX_FAC, DECOM_FAC, MMBTU_PER_BOE_GAS, companies, realisedPrice, prices, mix };
+  return { DEFAULTS, OPEX_BY_TYPE, BOE_PER_SM3, valueField, valueAll, valueCompany, valueHistory, stakeCashflow, facilityOpex, facilityDecom, OPEX_FAC, DECOM_FAC, MMBTU_PER_BOE_GAS, companies, realisedPrice, prices, mix, investmentDeductions, deductionSchedule, taxSaving, UPLIFT };
 });

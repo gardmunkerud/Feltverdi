@@ -72,6 +72,13 @@ function validate(dealsFile = path.join(root, 'public', 'data', 'deals.json')) {
       if (!bothLangs(pa.note)) err('priceAdjusted.note needs nb and en');
       if (!Array.isArray(pa.sources) || !pa.sources.length || !pa.sources.every((u) => /^https:\/\/[^\s"<>]+$/.test(u))) err('priceAdjusted.sources must list https links');
     }
+    // Company tax positions bought with the company (losses carried forward etc.): value at the deal date, USD million
+    if (d.taxPosition != null) {
+      const tp = d.taxPosition;
+      if (!(typeof tp.valueUsdM === 'number' && tp.valueUsdM > 0)) err('taxPosition.valueUsdM must be a positive number');
+      if (!bothLangs(tp.note)) err('taxPosition.note needs nb and en');
+      if (!Array.isArray(tp.sources) || !tp.sources.length || !tp.sources.every((u) => /^https:\/\/[^\s"<>]+$/.test(u))) err('taxPosition.sources must list https links');
+    }
   });
 
   // The same deal twice: same parties (any order) announced within 45 days of each other.

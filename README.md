@@ -163,8 +163,15 @@ To update the data: run `npm run build:data` locally, then commit and push the c
     - Removing each facility: large steel platform $250 m, small $80 m, floater $120 m, Condeep topside $300 m, subsea template $8 m.
     - The minimum is $0.5 per boe of recoverable volume.
     - The shelf total is about $48 bn.
-- **Deal prices:** an optional `priceAdjusted` in deals.json replaces the headline price in the analysis. It is used for shares valued at completion and for tax positions bought with the company. The page shows both prices, with sources.
-- **Tax (2022 rules):** 22% corporate tax plus 71.8% special tax, about 78% at the margin.
+- **Deal prices:** an optional `priceAdjusted` in deals.json replaces the headline price in the analysis. It is used for shares valued at completion. Tax positions bought with a company go on the value side (`taxPosition`). The page shows both prices, with sources.
+- **Tax (2022 rules):** 22% corporate tax plus 71.8% special tax with 12.4% uplift, about 78% at the margin.
+  - Deductions from past investments that are not yet used are counted with the rules of the investment year (`investmentDeductions()` in valuation.js):
+    - before 2022: six-year depreciation in both bases plus uplift (30% until 2012, then 22% falling to 20.8%)
+    - investments in 2020–21: expensed immediately with 24% uplift
+    - fields with a development plan approved 2020–23 (field `approved`, from Sodir's field status history): 17.69% uplift until production starts
+  - The same deductions apply in the forecast, the history page and the deals.
+  - In a deal they follow the stake, so the value the buyer receives includes them (`taxInh` in `stakeCashflow()`).
+  - Company tax positions bought with a company (losses carried forward) can be set as `taxPosition` in deals.json, with sources (Aker BP–Hess).
 - **Value:** net present value after tax in real terms, discounted from 2026.
 
 ## Data and licences

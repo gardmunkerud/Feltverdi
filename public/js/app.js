@@ -951,6 +951,18 @@
 
   // ----- Deals: ticker + list of NCS transactions -----
   const DEAL_TYPES = ['merger', 'corporate', 'asset', 'swap'];
+  // Headline with the price where one is stated: "X buys Y for 4.43 billion USD"
+  function dealAmount(v) {
+    if (v >= 1000) { const b = v / 1000; const dec = Math.abs(b * 10 - Math.round(b * 10)) < 1e-9 ? (Number.isInteger(b) ? 0 : 1) : 2; return t('amtBn', nf(b, dec)); }
+    return t('amtMn', nf(v, Number.isInteger(v) ? 0 : 1));
+  }
+  function dealHeadline(d) {
+    const title = d.title[state.lang];
+    if (d.valueUsdM == null) return title;
+    const a = dealAmount(d.valueUsdM);
+    const kind = d.type === 'swap' ? 'swap' : d.type === 'merger' ? 'merger' : /up to/i.test(d.valueNote.en || '') ? 'upto' : 'for';
+    return t('dealHead_' + kind, title, a);
+  }
   function dealDate(d) {
     const dt = new Date(d.date + 'T12:00:00');
     const opts = d.datePrecision === 'month' ? { month: 'long', year: 'numeric' } : { day: 'numeric', month: 'short', year: 'numeric' };
@@ -1052,7 +1064,7 @@
           <div class="deal-year"><div class="az-letter">${y}</div><div class="deal-list">
           ${ds.map((d) => `<article class="deal ${d.id === focusId ? 'focus' : ''}" id="deal-${d.id}">
             <div class="deal-top"><span class="deal-date">${esc(dealDate(d))}</span><span class="tick-type t-${d.type}">${esc(t('dealType_' + d.type))}</span><span class="tag ${d.status === 'completed' ? 'prod' : 'appr'}">${esc(t('dealStatus_' + d.status))}${d.completed && d.status === 'completed' ? ` ${esc(new Intl.DateTimeFormat(locale(), { month: 'short', year: 'numeric' }).format(new Date(d.completed + 'T12:00:00')))}` : ''}</span></div>
-            <h3>${esc(d.title[state.lang])}</h3>
+            <h3>${esc(dealHeadline(d))}</h3>
             <p>${esc(d.summary[state.lang])}</p>
             <div class="deal-meta">
               <div><span class="l">${t('dealsParties')}</span>${d.parties.map((p) => `<span class="tag">${esc(p)}</span>`).join('')}</div>
@@ -1158,7 +1170,7 @@
     return `<nav class="crumbs"><a href="#/deals/${esc(d.id)}">${t('ddBack')}</a></nav>
       <section class="hero dd-hero">
         <div class="eyebrow">${esc(dealDate(d))} · ${esc(t('dealType_' + d.type))} · ${esc(t('dealStatus_' + d.status))}</div>
-        <h1>${esc(d.title[state.lang])}</h1>
+        <h1>${esc(dealHeadline(d))}</h1>
         <p class="hero-sub">${esc(d.summary[state.lang])}</p>
         <div class="deal-meta">
           <div><span class="l">${t('dealsParties')}</span>${d.parties.map((p) => `<span class="tag">${esc(p)}</span>`).join('')}</div>

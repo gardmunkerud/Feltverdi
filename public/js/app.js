@@ -158,6 +158,11 @@
   $('.msheet-bg').addEventListener('click', () => setSheet(false));
   $$('#msheet a').forEach((a) => a.addEventListener('click', () => setSheet(false)));
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') setSheet(false); });
+  // While the on-screen keyboard is up, phones move fixed elements around, which can leave the tab bar floating mid-screen.
+  // Hide it while a text field has focus.
+  const typing = (el) => el && (el.tagName === 'TEXTAREA' || (el.tagName === 'INPUT' && !['checkbox', 'radio', 'range', 'button', 'submit'].includes(el.type)));
+  document.addEventListener('focusin', (e) => { if (typing(e.target)) document.body.classList.add('kb-open'); });
+  document.addEventListener('focusout', () => setTimeout(() => document.body.classList.toggle('kb-open', typing(document.activeElement)), 0));
   // Two-way toggles: a click anywhere in the box switches to the other option
   const TOGGLES = { lang: ['nb', 'en'], cur: ['NOK', 'USD'] };
   $$('[data-toggle]').forEach((box) => box.addEventListener('click', () => {

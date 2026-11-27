@@ -648,3 +648,10 @@ th .info { text-transform: none; letter-spacing: 0; }
 .owners-card .bar-row .name a { color: var(--text); font-weight: 600; }
 .owners-card .bar-row .pct { font-size: 15px; font-weight: 600; }
 @media (max-width: 560px) { .owners-card .bar-row { grid-template-columns: minmax(0, 130px) 1fr auto; } }
+
+/* Phones: iOS Safari zooms in on any input under 16px and never zooms back, which strands the fixed tab bar
+   mid-screen. 16px fields stop the zoom; the bar is also hidden while the keyboard is up. */
+@media (max-width: 900px), (pointer: coarse) {
+  input, select, textarea { font-size: 16px !important; }
+}
+body.kb-open .mnav { display: none; }

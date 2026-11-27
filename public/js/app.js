@@ -1005,7 +1005,10 @@
     const base = state.dealMetrics ? state.dealMetrics.baseYear : 2026;
     const usd = (v) => (v >= 1000 ? `${nf(v / 1000, 2)} ${t('bn')}` : `${nf(v, 0)} ${t('mn')}`);
     const cells = [];
-    if (m) {
+    if (m && m.swap) {
+      // Swaps have no single package: show what each party gives (model value in hindsight, plus any cash)
+      for (const l of m.legs || []) cells.push([t('dmSwapGives', l.from), `USD ${usd(l.hindsightValue)}${l.cash ? ` + USD ${usd(l.cash)} ${t('dmCash')}` : ''}`, t('dmT_swapGives')]);
+    } else if (m) {
       cells.push([t('dmProd'), `${nf(m.prodKboed, 1)} ${t('kboed')}`]);
       // [label, value, explanation]
       cells.push([t('dmRem'), `${nf(m.remMmboe, 0)} ${t('mmboe')}`]);
@@ -1018,9 +1021,11 @@
     return `<div class="deal-assess v-${a.verdict}">
       <div class="da-head"><span class="verdict v-${a.verdict}">${esc(t('verdict_' + a.verdict))}</span></div>
       ${m && m.relative && !m.partial ? `<p class="da-plain">${esc(Math.abs(m.relative - 1) < 0.05 ? t('dealsPlainNear') : t(m.relative > 1 ? 'dealsPlainAbove' : 'dealsPlainBelow', pct(Math.abs(m.relative - 1) * 100, 0)))}</p>` : ''}
+      <details class="da-more"><summary>${t('dealsReadMore')}</summary>
       ${cells.length ? `<dl class="da-metrics">${cells.map(([k, v, tip]) => `<div><dt>${esc(k)}${tip ? tipBtn(tip) : ''}</dt><dd>${v}</dd></div>`).join('')}</dl>` : ''}
       <p>${esc(a.text[state.lang])}</p>
       ${m && m.items && m.items.length ? `<p class="da-stakes muted">${t('dmStakes')}: ${m.items.slice(0, 8).map((i) => `<a href="#/felt/${i.slug}">${esc(i.field)}</a> ${nf(i.share, i.share % 1 ? 2 : 0)} %`).join(' · ')}${m.items.length > 8 ? ' …' : ''}</p>` : ''}
+      </details>
     </div>`;
   }
 
@@ -1113,6 +1118,7 @@
     }
     if (focusId) {
       const card = $('#deal-' + CSS.escape(focusId), el);
+      if (card) { const dm = $('.da-more', card); if (dm) dm.open = true; }
       if (card) setTimeout(() => window.scrollTo({ top: card.getBoundingClientRect().top + window.scrollY - 140, behavior: 'smooth' }), 50);
     }
   }
@@ -1295,32 +1301,35 @@
     return t('ddP_whatN', its.length, listJoin(its.slice(0, 3).map((i) => i.field)));
   }
   // "In short": plain sentences generated from the numbers
+  // "In short": plain sentences generated from the numbers. The four most important are shown; the rest sit behind
+  // "more details" (priority: what was bought → price vs typical → break-even → size, then tax, synergies, multiples, history).
   function ddPlainList(d, m, c) {
-    const out = [];
+    const out = [], add = (p, s) => out.push({ p, s });
     const headline = d.valueUsdM ?? m.priceUsdM;
-    out.push(headline != null ? t('ddP_bought', c.buyer, ddWhat(m.items), c.seller, usdStated(headline), m.year) : t('ddP_boughtNoPrice', c.buyer, ddWhat(m.items), c.seller, m.year));
-    if (d.priceAdjusted) out.push(t('ddP_adj', usdStated(d.priceAdjusted.valueUsdM), t('ddAdjBasis_' + d.priceAdjusted.basis)));
-    if (c.taxBenefit > 0.5) out.push(t('ddP_tax', money(c.taxBenefit)));
-    if (m.synergy) out.push(d.synergies ? t('ddP_synAnn', money(c.synPv), c.buyer) : m.synergy.rows.length ? t('ddP_synRule', money(c.synPv)) : t('ddP_synNone'));
+    add(1, headline != null ? t('ddP_bought', c.buyer, ddWhat(m.items), c.seller, usdStated(headline), m.year) : t('ddP_boughtNoPrice', c.buyer, ddWhat(m.items), c.seller, m.year));
+    if (d.priceAdjusted) add(5, t('ddP_adj', usdStated(d.priceAdjusted.valueUsdM), t('ddAdjBasis_' + d.priceAdjusted.basis)));
+    if (m.partial) add(2, t('ddP_partial'));
+    else if (c.vsTyp != null) add(2, Math.abs(c.vsTyp) < 0.05 ? t('ddP_near') : t(c.vsTyp > 0 ? 'ddP_above' : 'ddP_below', pct(Math.abs(c.vsTyp) * 100, 0)));
+    const rate = pct(DD_BE_RATE * 100, 0), from = Math.max(m.year, state.data.lastFullYear + 1);
+    if (m.partial && c.price) add(3, t('ddP_be8Partial', rate));
+    if (c.be8) {
+      const typ = state.dealMetrics.typical, cmp = c.beCmp;
+      add(3, c.be8.below != null ? t('ddP_be8Below', rate, c.be8.below, from)
+        : c.be8.above != null ? t('ddP_be8Above', rate, c.be8.above, from)
+        : t('ddP_be8', rate, nf(c.be8.b, 0), from, typ && typ.be8 != null ? nf(typ.be8, 0) : null, nf(cmp.brent, 0), cmp.then));
+      add(9, t('ddP_be8Note', state.hist.cpiBaseYear, m.year > state.data.lastFullYear));
+    }
     if (m.prodKboed >= 0.1) {
       const sh = m.prodKboed / shelfKboed(m.year - 1) * 100;
       const yrs = m.remMmboe / (m.prodKboed * 0.365);
-      out.push(t('ddP_size', nf(m.prodKboed, m.prodKboed < 10 ? 1 : 0), pct(sh, sh < 1 ? 1 : 0), nf(m.remMmboe, 0), nf(yrs, 0)));
-    } else if (m.remMmboe > 0) out.push(t('ddP_sizeNoProd', nf(m.remMmboe, 0)));
-    if (m.perBoe && m.brent) out.push(t('ddP_perBoe', nf(m.perBoe, 1), nf(m.brent, 0)));
-    if (m.partial) out.push(t('ddP_partial'));
-    else if (c.vsTyp != null) out.push(Math.abs(c.vsTyp) < 0.05 ? t('ddP_near') : t(c.vsTyp > 0 ? 'ddP_above' : 'ddP_below', pct(Math.abs(c.vsTyp) * 100, 0)));
-    if (c.histSpan && c.price && c.realised > 0) out.push(t('ddP_realised', money(c.realised), pct(c.realised / c.price * 100, 0), c.histSpan[0], c.histSpan[1]));
-    if (m.partial && c.price) out.push(t('ddP_be8Partial', pct(DD_BE_RATE * 100, 0)));
-    if (c.be8) {
-      const rate = pct(DD_BE_RATE * 100, 0), from = Math.max(m.year, state.data.lastFullYear + 1), cmp = c.beCmp;
-      out.push(c.be8.below != null ? t('ddP_be8Below', rate, c.be8.below, from)
-        : c.be8.above != null ? t('ddP_be8Above', rate, c.be8.above, from)
-        : t('ddP_be8', rate, nf(c.be8.b, 0), from, m.year > state.data.lastFullYear, nf(cmp.brent, 0), cmp.then, state.hist.cpiBaseYear));
-      const typ = state.dealMetrics.typical;
-      if (typ && typ.be8 != null && c.be8.b != null) out[out.length - 1] += ' ' + t('ddP_be8Typ', nf(typ.be8, 0), c.be8.b - typ.be8);
-    }
-    return out;
+      add(4, t('ddP_size', nf(m.prodKboed, m.prodKboed < 10 ? 1 : 0), pct(sh, sh < 1 ? 1 : 0), nf(m.remMmboe, 0), nf(yrs, 0)));
+    } else if (m.remMmboe > 0) add(4, t('ddP_sizeNoProd', nf(m.remMmboe, 0)));
+    if (c.taxBenefit > 0.5) add(6, t('ddP_tax', money(c.taxBenefit)));
+    if (m.synergy) add(6, d.synergies ? t('ddP_synAnn', money(c.synPv), c.buyer) : m.synergy.rows.length ? t('ddP_synRule', money(c.synPv)) : t('ddP_synNone'));
+    if (m.perBoe && m.brent) add(7, t('ddP_perBoe', nf(m.perBoe, 1), nf(m.brent, 0)));
+    if (c.histSpan && c.price && c.realised > 0) add(8, t('ddP_realised', money(c.realised), pct(c.realised / c.price * 100, 0), c.histSpan[0], c.histSpan[1]));
+    out.sort((x, y) => x.p - y.p);
+    return { list: out.filter((x) => x.p <= 4).map((x) => x.s), more: out.filter((x) => x.p > 4).map((x) => x.s) };
   }
   // Price scale: cheap – usual – full – expensive, with a marker at price ÷ typical price
   // Verdict band of a price/value ratio relative to the median (same thresholds as scripts/evaluate-deals.js)
@@ -1337,7 +1346,7 @@
     return `<div class="gauge" role="img" aria-label="${esc(t('ddGaugeNote', nf(rel, 2)))}">
       <div class="gauge-title">${t('ddGaugeTitle')}</div>
       <div class="gauge-track">
-        <div class="gauge-bar">${['cheap', 'fair', 'full', 'expensive'].map((v) => `<span class="g-${v}">${esc(t('verdict_' + v))}</span>`).join('')}</div>
+        <div class="gauge-bar">${['cheap', 'fair', 'full', 'expensive'].map((v) => `<span class="g-${v}" title="${esc(t('verdict_' + v))}"><i class="gl-long">${esc(t('verdict_' + v))}</i><i class="gl-short">${esc(t('vshort_' + v))}</i></span>`).join('')}</div>
         <div class="gauge-mark" style="left:${pos.toFixed(1)}%"><b>${nf(rel, 2)}×</b></div>
       </div>
       <p class="muted dd-small">${esc(t('ddGaugeNote', nf(rel, 2)))}</p>
@@ -1357,6 +1366,7 @@
     return `<div class="card dd-conc v-${a ? a.verdict : 'na'}">
         <div class="card-head"><h2>${t('ddShort')}</h2>${a ? `<span class="verdict v-${a.verdict}">${esc(t('verdict_' + a.verdict))}</span>` : ''}</div>
         ${plain && plain.list.length ? `<ul class="dd-plain">${plain.list.map((s) => `<li>${esc(s)}</li>`).join('')}</ul>` : ''}
+        ${plain && plain.more && plain.more.length ? `<details class="dd-more"><summary>${t('ddMore', plain.more.length)}</summary><ul class="dd-plain">${plain.more.map((s) => `<li>${esc(s)}</li>`).join('')}</ul></details>` : ''}
         ${plain && plain.gauge ? plain.gauge : ''}
         ${a ? `<h3 class="dd-sub">${t('ddExpert')}</h3><p class="dd-lead">${esc(a.text[state.lang])}</p>` : ''}
         <div class="deal-foot"><div><span class="deal-val">${d.valueUsdM == null ? t('dealsNoValue') : `USD ${d.valueUsdM >= 1000 ? nf(d.valueUsdM / 1000, 2) + ' ' + t('bn') : nf(d.valueUsdM, Number.isInteger(d.valueUsdM) ? 0 : 1) + ' ' + t('mn')}`}</span> <span class="muted">${esc(d.valueNote[state.lang])}</span></div>
@@ -1545,7 +1555,7 @@
     // Break-even Brent for 8 % real return after tax (fixed rate, independent of the discount-rate slider); not for partial packages
     const be8 = hasPrice && !m.partial ? ddBreakevenAt(items, year, price, DD_BE_RATE) : null;
     const beCmp = thenDeck ? { brent: thenDeck.brent, then: true } : { brent: state.a.brent, then: false };
-    const plain = { list: ddPlainList(d, m, { buyer, seller, vsTyp, price, realised, histSpan, taxBenefit: tb.total, synPv, be8, beCmp }), gauge: hasPrice && !m.partial && ratio ? ddGauge(ratio / baseline, d.assessment && d.assessment.verdict) : '' };
+    const plain = { ...ddPlainList(d, m, { buyer, seller, vsTyp, price, realised, histSpan, taxBenefit: tb.total, synPv, be8, beCmp }), gauge: hasPrice && !m.partial && ratio ? ddGauge(ratio / baseline, d.assessment && d.assessment.verdict) : '' };
     el.innerHTML = ddHeader(d) + ddConclusion(d, plain) + `
       ${m.partial ? `<div class="card dd-warn">${t('ddPartial')}${m.note ? ` <span class="muted">(${esc(m.note)})</span>` : ''}</div>` : ''}
       ${kpis}

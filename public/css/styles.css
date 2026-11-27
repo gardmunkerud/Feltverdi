@@ -526,7 +526,8 @@ th .info { text-transform: none; letter-spacing: 0; }
 .dd-caveats summary { cursor: pointer; font-size: 14px; font-weight: 600; color: var(--link); }
 .dd-caveats[open] summary { margin-bottom: 8px; }
 .deal-method .dd-caveats p { font-size: 13.5px; }
-@media (max-width: 560px) { .gauge-bar span { font-size: 10.5px; padding: 6px 2px; } .dd-plain li { font-size: 15px; } }
+.gauge-bar i { font-style: normal; } .gauge-bar .gl-short { display: none; }
+@media (max-width: 560px) { .gauge-bar span { font-size: 11.5px; padding: 6px 2px; } .gauge-bar .gl-long { display: none; } .gauge-bar .gl-short { display: inline; } .dd-plain li { font-size: 15px; } }
 
 /* Prose (method page) */
 .prose { max-width: 700px; margin: 0 auto; }
@@ -610,3 +611,10 @@ th .info { text-transform: none; letter-spacing: 0; }
 .dd-taxref ol { padding-left: 1.4em; margin: 8px 0; }
 .dd-taxref li { margin: 4px 0; }
 .tax-src li { overflow-wrap: anywhere; }
+
+.dd-more { margin-top: 4px; }
+.dd-more summary { cursor: pointer; color: var(--accent); font-weight: 500; font-size: 15px; padding: 6px 0; }
+.dd-more[open] summary { margin-bottom: 4px; }
+
+.da-more summary { cursor: pointer; color: var(--accent); font-weight: 500; font-size: 14px; padding: 6px 0; }
+.da-more[open] summary { margin-bottom: 6px; }

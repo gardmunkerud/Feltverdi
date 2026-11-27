@@ -1325,6 +1325,48 @@
         </details>
       </div>`;
   }
+  // "Ambitious" case (deals.json `ambitious`): `addGrossMMboe` extra for the fields as a whole (100 %), on top of the base case.
+  // The buyer's net share is its stake in each field, weighted by where the acquired remaining volumes are (net forecast
+  // volumes per field). Production rises linearly over `rampYears` from the year after the deal to `peakGrossKboed` (100 %), then
+  // declines at the constant yearly rate that makes the total come to `addGrossMMboe`.
+  // Sold at the package's own average realised price per boe (so it follows the assumptions bar), with flat incremental
+  // opex and capex per boe (capex spent the year before the barrels it supports) and the 78 % marginal tax.
+  function ddAmbitious(A, base, year) {
+    const baseRows = base.rows;
+    const fut = baseRows.filter((x) => !x.hist && x.q > 0);
+    const sq = fut.reduce((s, x) => s + x.q, 0);
+    if (!A || !sq) return null;
+    const avgRev = fut.reduce((s, x) => s + x.rev, 0) / sq;
+    const unitRev = new Map(fut.map((x) => [x.year, x.rev / x.q]));
+    const mkShape = (dec) => { const sh = []; for (let k = 0; k < 100; k++) { const v = k < A.rampYears ? (k + 1) / A.rampYears : Math.pow(1 - dec, k - A.rampYears + 1); if (v < 0.005) break; sh.push(v); } return sh; };
+    const sum = (sh) => sh.reduce((s, v) => s + v, 0);
+    // Decline rate so that peak × shape adds up to the total (bisection: a faster decline gives less volume)
+    const target = A.addGrossMMboe / (A.peakGrossKboed * 365 / 1000);
+    let lo = 0.005, hi = 0.9;
+    for (let k = 0; k < 60; k++) { const m = (lo + hi) / 2; if (sum(mkShape(m)) > target) lo = m; else hi = m; }
+    const decline = (lo + hi) / 2, shape = mkShape(decline);
+    // Net share of the gross extra volumes: stake per field weighted by the buyer's net remaining volumes in that field
+    let wn = 0, ws = 0;
+    for (const p of base.per) { const net = p.s * p.rows.reduce((s, x) => s + (!x.hist && x.q > 0 ? x.q : 0), 0); wn += net; ws += net * p.s; }
+    const shareNet = wn > 0 ? ws / wn : 0;
+    const netMMboe = A.addGrossMMboe * shareNet;
+    const scale = netMMboe / sum(shape);
+    const add = new Map();
+    const at = (y) => { let o = add.get(y); if (!o) { o = { q: 0, rev: 0, opex: 0, capex: 0 }; add.set(y, o); } return o; };
+    shape.forEach((v, k) => {
+      const y = year + 1 + k, q = v * scale, o = at(y);
+      o.q += q; o.rev += q * (unitRev.get(y) ?? avgRev); o.opex += q * A.opexBoe;
+      at(y - 1).capex += q * A.capexBoe;
+    });
+    const byYear = new Map(baseRows.map((x) => [x.year, { ...x }]));
+    for (const [y, a] of add) {
+      const o = byYear.get(y) || { year: y, hist: false, q: 0, rev: 0, opex: 0, capex: 0, tax: 0, fcf: 0, taxInh: 0 };
+      const tax = V.MARGINAL * (a.rev - a.opex - a.capex);
+      o.q += a.q; o.rev += a.rev; o.opex += a.opex; o.capex += a.capex; o.tax += tax; o.fcf += a.rev - a.opex - a.capex - tax;
+      byYear.set(y, o);
+    }
+    return { rows: [...byYear.values()].sort((x, y) => x.year - y.year), shareNet, netMMboe, decline, peakKboed: scale / 365 * 1000, peakGrossKboed: shareNet > 0 ? scale / shareNet / 365 * 1000 : 0, peakYear: year + A.rampYears };
+  }
   const ddUpsideOv = (d) => (d.upside && d.upside.length ? Object.fromEntries(d.upside.map((u) => [u.slug, { remAdd: u.remAdd }])) : null);
   const signed = (usd) => `${usd >= 0 ? '+' : '−'}${money(Math.abs(usd))}`;
   const gainCls = (v) => (v >= 0 ? 'pos' : 'neg');
@@ -1542,6 +1584,8 @@
     if (thenDeck) decks.push(['then', thenDeck, `${t('ddDeckThen', year)} ($${nf(thenDeck.brent)} / €${nf(thenDeck.gasEur)})`]);
     const scen = decks.map(([k, deck, label]) => ({ k, label, rows: k === 'base' ? base.rows : ddPackage(items, year, deck).rows }));
     if (up) scen.push({ k: 'up', label: t('ddDeckUp'), rows: up.rows });
+    const amb = d.ambitious ? ddAmbitious(d.ambitious, base, year) : null;
+    if (amb) scen.push({ k: 'amb', label: t('ddDeckAmb', nf(d.ambitious.addGrossMMboe / 1000, 1)), rows: amb.rows });
     const grid = ddBrentGrid(items, year);
     const curve = ddBrentCurve(grid, year, r);
     const be = hasPrice ? ddBreakeven(curve, price) : null;
@@ -1646,6 +1690,7 @@ ${ddTaxCard(d, tb, V0, year, base.per, r)}
           <div class="card-head"><h2>${t('ddH_scen')}</h2><span class="muted">${t('ddScenSub')} (${pct(r * 100, 0)})</span></div>
           ${intro('ddL_scen')}
           ${scenTable}
+          ${amb ? `<p class="muted dd-small">${esc(d.ambitious.note[state.lang])} ${esc(t('ddAmbPeak', nf(amb.netMMboe, 0), pct(amb.shareNet * 100, 0), nf(amb.peakGrossKboed, 0), nf(amb.peakKboed, 0), amb.peakYear, pct(amb.decline * 100, 1)))}</p>` : ''}
           ${multiples}
         </div>
       </div>

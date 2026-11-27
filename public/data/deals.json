@@ -112,6 +112,17 @@
     "sources": [
      "https://www.ogj.com/general-interest/companies/news/55420939/var-energi-to-acquire-conocophillips-norway-business-including-greater-ekofisk-operatorship-in-44-billion-deal"
     ]
+   },
+   "ambitious": {
+    "addGrossMMboe": 1000,
+    "rampYears": 5,
+    "peakGrossKboed": 180,
+    "opexBoe": 8,
+    "capexBoe": 12,
+    "note": {
+     "nb": "Ambisiøs: feltene i porteføljen gir til sammen 1 mrd. fat o.e. mer (brutto, 100 %) enn i basis – for eksempel nye brønner, forlenget levetid og tilknytninger rundt Ekofisk. Tilleggsproduksjonen øker jevnt de første fem årene etter avtalen til 180 tusen fat o.e. per dag (brutto) og faller deretter jevnt, slik at summen blir 1 mrd. fat o.e. Vår Energi får sin eierandel. Tilleggsvolumene selges til samme pris som resten av porteføljen, med 8 dollar per fat i driftskostnader og 12 dollar per fat i investeringer (brukt året før produksjonen), og 78 % skatt.",
+     "en": "Ambitious: the fields in the portfolio recover a total of 1 bn boe more (gross, 100 %) than in the base case – for example new wells, longer field life and tie-backs around Ekofisk. The extra production rises steadily over the first five years after the deal to 180 thousand boe per day (gross) and then declines steadily, so the total comes to 1 bn boe. Vår Energi gets its ownership share. The extra volumes sell at the same price as the rest of the portfolio, with USD 8 per barrel in operating costs and USD 12 per barrel in investment (spent the year before production), and 78 % tax."
+    }
    }
   },
   {

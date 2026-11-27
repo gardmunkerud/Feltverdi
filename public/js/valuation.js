@@ -62,10 +62,15 @@
     tieback: 4,      // USD per boe processing tariff paid to the host
   };
   // Decommissioning from the same profile (USD million, real): plugging each open well + removing each facility.
-  // Plugging: Sodir gives "just under NOK 50 million to several hundred million" per well; UK averages are about
-  // £3 million per platform well and £15 million per subsea production well. Removal costs are rounded industry
-  // levels; concrete gravity-based substructures (Condeep) are normally left in place, so only the topside is counted.
-  const DECOM_FAC = { gbs: 300, steelLarge: 250, steelSmall: 80, floater: 120, onshore: 0, template: 8, wellPlatform: 6, wellSubsea: 18 };
+  // Plugging: Sodir gives "just under NOK 50 million [the simplest] to several hundred million" per well, more than
+  // NOK 1 billion for the most complex, and well plugging is more than half of all cessation cost. A platform well is
+  // set at USD 8 million (NOK 80 million, above Sodir's floor), a subsea well (plugged from a rig) at USD 18 million.
+  // Checked 2026-11-28 against operators' discounted removal provisions (Petoro/SDFI NOK 76 bn, Aker BP USD 4.67 bn,
+  // Vår Energi USD 3.83 bn at end-2025; ConocoPhillips Skandinavia NOK 16.3 bn at end-2024): the model's share-weighted
+  // PV at ~2 % real is about 7 % lower in total (Aker BP −22 %, Petoro −11 %, Vår +4 %, ConocoPhillips +27 %).
+  // Removal costs are rounded industry levels; concrete gravity-based substructures (Condeep) are normally left in
+  // place, so only the topside is counted.
+  const DECOM_FAC = { gbs: 300, steelLarge: 250, steelSmall: 80, floater: 120, onshore: 0, template: 8, wellPlatform: 8, wellSubsea: 18 };
 
   // Tie-backs pay the host a processing tariff (OPEX_FAC.tieback per boe). The host's owners receive it as income (taxed
   // like other petroleum income), so it is credited to the host field; otherwise the same cost would be counted twice

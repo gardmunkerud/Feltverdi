@@ -165,10 +165,10 @@ To update the data: run `npm run build:data` locally, then commit and push the c
     - Fields without a facility profile use the old default by field type.
   - Capex comes from Sodir's expected future investments per field (`field_investment_expected`, the operators' own plans), spread over the production the model expects (Sodir reserves × the middle of the reserve-growth range) and bounded to $1–20 per boe. New fields spend 80 % before first production, spread evenly over the years until start-up. Sodir's figure runs from 1 January of its year (2025), so the part that belongs to years before the forecast start is left out, and years Sodir has not reported yet get an estimate in the actual-year cash flows and the tax deductions. Fields Sodir lists as producing but without production last year are treated as starting this year. Fields without a Sodir figure use their own recent investment intensity, limited to $2–12 per boe.
   - **Decommissioning is per facility.**
-    - Plugging each well that is not yet permanently plugged: $6 m on a platform, $18 m subsea.
+    - Plugging each well that is not yet permanently plugged: $8 m on a platform, $18 m subsea.
     - Removing each facility: large steel platform $250 m, small $80 m, floater $120 m, Condeep topside $300 m, subsea template $8 m.
     - The minimum is $0.5 per boe of recoverable volume.
-    - The shelf total is about $48 bn.
+    - The total for fields in production or under development is about $55 bn, about 60 % of it well plugging. In present-value terms this is about 7 % below the licensees' booked decommissioning provisions (Petoro, Aker BP, Vår Energi, ConocoPhillips).
 - **Deal prices:** an optional `priceAdjusted` in deals.json replaces the headline price in the analysis. It is used for shares valued at completion. Tax positions bought with a company go on the value side (`taxPosition`). The page shows both prices, with sources.
 - **Tax (2022 rules):** 22% corporate tax plus 71.8% special tax with 12.4% uplift, about 78% at the margin.
   - Deductions from past investments that are not yet used are counted with the rules of the investment year (`investmentDeductions()` in valuation.js):

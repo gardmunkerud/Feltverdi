@@ -7,7 +7,9 @@
  *    producing exactly those) and by reserves × reserveGrowth (never slower). See valueField() for details.
  *    New fields (first production in the last two years) and approved fields get a 3-year plateau first.
  *  - Price: product mix of the remaining reserves. Oil/condensate = Brent − $1; NGL = 60 % of Brent;
- *    gas = €/MWh × 1.72 MWh/boe × EURUSD − USD 2/boe transport tariff (Gassco).
+ *    gas = €/MWh × 1.75 MWh/boe × EURUSD − USD 2/boe transport tariff (Gassco).
+ *    Operating and decommissioning costs are mostly paid in NOK: they are calibrated in USD at USD/NOK 10 and scale with
+ *    10 / USD/NOK when the exchange rate is changed (like the NOK capex).
  *  - Opex: 60 % fixed (based on the starting/plateau rate) + 40 % variable, so unit cost rises as the field declines.
  *  - Capex: Sodir's expected future investments per field, spread over expected production ($1–20/boe); without a Sodir
  *    figure, the field's own investment intensity (last 3 reported years, NOK → USD) per boe, clamped to $2–12/boe.
@@ -24,7 +26,11 @@
   'use strict';
 
   const BOE_PER_SM3 = 6.29;
-  const MWH_PER_BOE_GAS = 1.72; // 159 Sm3 gas × ~10.8 kWh/Sm3 (GCV)
+  // 1 boe of gas = 159 Sm3 (1000 Sm3 = 1 Sm3 o.e.). Gassco's deliveries: 1,295 TWh from 117.6 bn Sm3 in 2024 and 1,207 TWh
+  // from 109.1 bn Sm3 in 2023 ≈ 11.0 kWh/Sm3 (gross calorific value, the basis of TTF/NBP prices) → 159 × 11.0 ≈ 1.75 MWh.
+  const MWH_PER_BOE_GAS = 1.75;
+  const MMBTU_PER_BOE_GAS = 5.97; // 1.75 MWh × 3.412 MMBtu/MWh
+  const FX_COST_REF = 10.0; // USD/NOK at which the USD opex/decommissioning constants apply (NOK costs)
   const CIT = 0.22, SPT = 0.718, MARGINAL = 0.78;
   // Gas is sold at European hubs; NCS gas pays Gassco transport tariffs to get there (about NOK 0.10–0.15 per Sm³,
   // ≈ USD 2 per boe). Company production costs (which the opex is calibrated to) exclude transport, so it is deducted here.
@@ -200,13 +206,15 @@
     const capexBasis = ov.capexBoe != null ? 'user' : capexSodir != null ? 'sodir' : 'history';
     const refRate = kind === 'decline' ? q0 : plateau;
     // Opex: from the field's facilities when known (and not overridden by the user), otherwise by hydrocarbon type.
+    // Model costs are NOK costs expressed in USD at USD/NOK 10; a weaker NOK (higher USD/NOK) makes them cheaper in USD.
+    const fxCost = FX_COST_REF / a.usdnok;
     const fo = ov.opexBoe == null ? facilityOpex(field) : null;
     let fixedOpex, varOpex, opexBoe, opexBasis;
     if (fo && refRate > 0) {
-      fixedOpex = fo.fixed; varOpex = fo.variable; opexBasis = 'facilities';
+      fixedOpex = fo.fixed * fxCost; varOpex = fo.variable * fxCost; opexBasis = 'facilities';
       opexBoe = (fixedOpex + varOpex * refRate) / refRate;
     } else {
-      opexBoe = ov.opexBoe ?? OPEX_BY_TYPE[field.hc] ?? 10;
+      opexBoe = ov.opexBoe ?? (OPEX_BY_TYPE[field.hc] ?? 10) * fxCost;
       fixedOpex = 0.6 * opexBoe * refRate; varOpex = 0.4 * opexBoe; opexBasis = ov.opexBoe != null ? 'user' : 'type';
     }
     // Decommissioning: user's $/boe, else from facilities (at least $0.5/boe of recoverable volume, for wells and
@@ -216,7 +224,7 @@
     const histCit = [], histSpt = [];
     for (const [t, d] of hd) if (t >= a.startYear) { const i = t - a.startYear, k = 1 / a.usdnok / Math.pow(1 + INFLATION, i); histCit[i] = (histCit[i] || 0) + d.cit * k; histSpt[i] = (histSpt[i] || 0) + d.spt * k; }
     const fd = facilityDecom(field);
-    const decomTotal = ov.decomPerBoe != null ? ov.decomPerBoe * recBoe : fd != null ? Math.max(fd, 0.5 * recBoe) : null;
+    const decomTotal = ov.decomPerBoe != null ? ov.decomPerBoe * recBoe : fd != null ? Math.max(fd, 0.5 * recBoe) * fxCost : null;
     return { histCit, histSpt, tempUplift: tempPackage(field) && !first, remBoe, remSodir, recBoe, q0, kind, startIndex, plateau, plateauYears, plateauSource, opexBoe, fixedOpex, varOpex, opexBasis, capexBoe, refRate,
       capexBasis, devCapex: kind === 'new' ? (exp != null ? 0.8 * exp : 6 * remSodir) : 0, decomPerBoe: ov.decomPerBoe, decomTotal, decomBasis: ov.decomPerBoe != null ? 'user' : fd != null ? 'facilities' : 'perBoe' };
   }
@@ -243,7 +251,9 @@
       if (q > 0) capex = s.capexBoe * q;
       if (q > 0 && rev - opex - 0.3 * capex <= 0) break; // economic limit
       dep.push(capex);
-      const depr = dep.slice(-6).reduce((x, v) => x + v, 0) / 6 + (s.histCit[i] || 0);
+      // Tax depreciation is fixed in nominal NOK: in real terms each later year's sixth is worth 2 % a year less
+      let depr = s.histCit[i] || 0;
+      for (let j = Math.max(0, i - 5); j <= i; j++) depr += dep[j] / 6 / Math.pow(1 + INFLATION, i - j);
       const cit = CIT * (rev - opex - depr);
       const uplift = capex * (s.tempUplift && q <= 0 ? UPLIFT.temp : UPLIFT.perm);
       const spt = SPT * (rev - opex - capex - uplift - (s.histSpt[i] || 0) - cit);
@@ -360,7 +370,6 @@
    * H = history.json: { prices: [[y, brent, gasEuropeUsdMmbtu]], usdnok: [[y, rate]], cpi: [[y, index]], cpiBaseYear }
    * Simplifications: historical opex from the same $/boe model as the forecast; tax as a 78 % cash-flow tax every year.
    */
-  const MMBTU_PER_BOE_GAS = 5.87;
   function valueHistory(field, H, assumptions = {}, lastFullYear, ov = {}) {
     const a = { ...DEFAULTS, ...assumptions };
     const price = new Map(H.prices.map(([y, b, g]) => [y, { b, g }]));
@@ -383,7 +392,7 @@
       const p = prodY.get(y), pr = price.get(y), rf = realF(y);
       const q = p ? p[5] * BOE_PER_SM3 : 0;
       const revNom = p && pr ? (p[1] + p[4]) * BOE_PER_SM3 * (pr.b - 1) + p[3] * BOE_PER_SM3 * 0.6 * pr.b + p[2] * BOE_PER_SM3 * pr.g * MMBTU_PER_BOE_GAS : 0;
-      const rev = revNom * rf;
+      const rev = revNom * rf - (p ? p[2] * BOE_PER_SM3 * GAS_TARIFF : 0); // hub price minus the transport tariff, as in the forecast
       const capex = (invY.get(y) || 0) / (fx.get(y) || a.usdnok) * rf;
       const opex = histOpex(q);
       const pre = rev - opex - capex, tax = MARGINAL * (rev - opex) - taxSaving(ded, y) / (fx.get(y) || a.usdnok) * rf;
@@ -442,7 +451,7 @@
       const pr = opts.flat ? { b: opts.flat.b, g: opts.flat.g, real: true } : price.get(y);
       const q = p ? p[5] * BOE_PER_SM3 : 0;
       const revNom = p && pr ? (p[1] + p[4]) * BOE_PER_SM3 * (pr.b - 1) + p[3] * BOE_PER_SM3 * 0.6 * pr.b + p[2] * BOE_PER_SM3 * pr.g * MMBTU_PER_BOE_GAS : 0;
-      const rev = pr && pr.real ? revNom : revNom * rf;
+      const rev = (pr && pr.real ? revNom : revNom * rf) - (p && pr ? p[2] * BOE_PER_SM3 * GAS_TARIFF : 0);
       const capex = (invY.get(y) || 0) / (fx.get(y) || a.usdnok) * rf;
       const opex = q <= 0 ? 0 : fo ? fo.fixed + fo.variable * q : opexBoe * (0.6 * Math.max(qRef, q) + 0.4 * q);
       const conv = rf / (fx.get(y) || a.usdnok);
@@ -461,5 +470,5 @@
     return [...m.entries()].map(([name, n]) => ({ name, fields: n })).sort((a, b) => a.name.localeCompare(b.name, 'nb'));
   }
 
-  return { DEFAULTS, MARGINAL, GAS_TARIFF, OPEX_BY_TYPE, BOE_PER_SM3, valueField, valueAll, valueCompany, valueHistory, stakeCashflow, facilityOpex, facilityDecom, OPEX_FAC, DECOM_FAC, MMBTU_PER_BOE_GAS, companies, realisedPrice, prices, mix, investmentDeductions, deductionSchedule, taxSaving, UPLIFT };
+  return { DEFAULTS, MARGINAL, GAS_TARIFF, OPEX_BY_TYPE, BOE_PER_SM3, MWH_PER_BOE_GAS, valueField, valueAll, valueCompany, valueHistory, stakeCashflow, facilityOpex, facilityDecom, OPEX_FAC, DECOM_FAC, MMBTU_PER_BOE_GAS, companies, realisedPrice, prices, mix, investmentDeductions, deductionSchedule, taxSaving, UPLIFT };
 });

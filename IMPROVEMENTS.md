@@ -1,6 +1,6 @@
 # Feltverdi – improvement log
 
-A scheduled cloud agent improves Feltverdi in small steps, one change every 3 hours. It reads this file first and adds one entry when it finishes. The newest entries go at the top of the log.
+Scheduled cloud agents improve Feltverdi in small, focused steps (one topic per run). Each run reads this file first and adds one entry when it finishes. The newest entries go at the top of the log.
 
 ## Decisions the owner has made (do not undo)
 
@@ -36,7 +36,7 @@ A scheduled cloud agent improves Feltverdi in small steps, one change every 3 ho
   - unused deductions are lost if a field stops before using them (in reality refunded)
   - exploration costs and company-level tax positions are only included where a deal sets `taxPosition`
 - **Deal-year deck:** now explained in the scenario text; could still be improved with public forward data.
-- **Bargaining-range defaults:** the per-deal views in `deals.json` (+2 percentage points on the seller's required return, 5–8 % synergies) are judgement calls. Review the wording and the reasoning.
+- **Bargaining-range defaults:** buyer and seller always use the same required return as the assumptions bar (8 % by default) – no per-deal rate differences (enforced by `validate-deals.js`). Extra synergies in the bargaining range default to 0; synergies in the deal value follow the announced low end or the standard rule. Review the wording and the reasoning.
 - **NGL price:** NGL is priced at 60 % of Brent. Gas is priced from €/MWh with fixed conversion factors. Check that the factors are documented in the wiki and on the method page.
 
 ### Wording and explanations

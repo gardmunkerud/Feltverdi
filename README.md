@@ -148,7 +148,7 @@ To update the data: run `npm run build:data` locally, then commit and push the c
   Plateau and new fields use reserves × 1.3. New fields and fields approved for development get a three-year plateau first.
 
   The method was calibrated on Sodir history. Backtested from 2010 and 2015, actual production divided by the forecast was 1.14 and 1.06 with this method and the facility-based costs (1.26 and 1.16 with the earlier generic costs), against 1.45 and 1.35 when fitting to reserves alone. Setting reserve growth to ×1.0 reproduces the old method.
-- **Prices:** oil is Brent − $1, NGL is 60% of Brent, gas is €/MWh × 1.72 × EURUSD minus a USD 2/boe Gassco transport tariff (company production costs, which opex is calibrated to, exclude transport).
+- **Prices:** oil is Brent − $1, NGL is 60% of Brent, gas is €/MWh × 1.75 × EURUSD (159 Sm³ at ~11.0 kWh, Gassco's average for delivered gas) minus a USD 2/boe Gassco transport tariff (company production costs, which opex is calibrated to, exclude transport); the tariff is deducted in historical years too. Opex and decommissioning are NOK costs, calibrated at USD/NOK 10 and scaled by 10 / USD/NOK.
 - **Costs:**
   - **Opex is field-specific.** It is calculated from each field's facilities ([scripts/facilities.js](scripts/facilities.js), using Sodir's facility register and development wells).
     - Fixed annual cost (USD million):

@@ -43,7 +43,31 @@ test('after-tax margin is roughly 22 % of the pre-tax margin (78 % marginal tax)
 test('gas is priced from EUR/MWh, net of the transport tariff', () => {
   const gasField = field({ hc: 'GAS', rem: { oil: 0, gas: 10, ngl: 0, cond: 0, oe: 10 } });
   const p = V.realisedPrice(gasField, { ...V.DEFAULTS, gasEur: 35, eurusd: 1.15 });
-  assert.ok(Math.abs(p - (35 * 1.72 * 1.15 - V.GAS_TARIFF)) < 1e-9);
+  // 1.75 MWh/boe = 159 Sm3 at ~11.0 kWh (Gassco deliveries); MMBtu factor must match it
+  assert.ok(Math.abs(p - (35 * 1.75 * 1.15 - V.GAS_TARIFF)) < 1e-9);
+  assert.ok(Math.abs(V.MMBTU_PER_BOE_GAS - V.MWH_PER_BOE_GAS * 3.412) < 0.01);
+});
+
+test('NOK costs: a weaker krone lowers opex in USD; the default rate leaves the calibrated level unchanged', () => {
+  const f = field();
+  const base = V.valueField(f, {}, LAST), weak = V.valueField(f, { usdnok: 12 }, LAST);
+  assert.ok(Math.abs(weak.opexBoe - base.opexBoe * 10 / 12) < 1e-9, `${weak.opexBoe} vs ${base.opexBoe}`);
+  assert.ok(weak.npv > base.npv);
+  // a user override in USD/boe is not rescaled
+  assert.strictEqual(V.valueField(f, { usdnok: 12 }, LAST, { opexBoe: 15 }).opexBoe, 15);
+});
+
+test('historical gas revenue is net of the transport tariff, as in the forecast', () => {
+  const H = { prices: [[2024, 80, 10], [2025, 70, 12]], usdnok: [[2024, 10], [2025, 10]], cpi: [[2024, 100], [2025, 100]], cpiBaseYear: 2025 };
+  const g = field({ hc: 'GAS', rem: { oil: 0, gas: 10, ngl: 0, cond: 0, oe: 10 }, prod: [[2024, 0, 2, 0, 0, 2], [2025, 0, 2, 0, 0, 2]] });
+  const r = V.valueHistory(g, H, {}, LAST).rows.find((x) => x.year === 2025);
+  assert.ok(Math.abs(r.rev - 2 * V.BOE_PER_SM3 * (12 * V.MMBTU_PER_BOE_GAS - V.GAS_TARIFF)) < 1e-6, `rev ${r.rev}`);
+});
+
+test('history.json CPI has no year with a gap counted as zero (rises every year since 2000)', () => {
+  const H = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'public', 'data', 'history.json'), 'utf8'));
+  const c = H.cpi.filter(([y]) => y >= 2000);
+  for (let i = 1; i < c.length; i++) assert.ok(c[i][1] > c[i - 1][1] * 0.97, `CPI ${c[i][0]} ${c[i][1]} vs ${c[i - 1][1]}`);
 });
 
 test('shut-down fields and fields without reserves are worth zero', () => {

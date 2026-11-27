@@ -94,7 +94,7 @@
   const ASSUMPTIONS = [
     { k: 'brent', label: 'brent', min: 40, max: 130, step: 1, fmt: (v) => `$${nf(v)}`, hint: 'brentHint' },
     { k: 'gasEur', label: 'gas', min: 10, max: 100, step: 1, fmt: (v) => `€${nf(v)}/MWh`, hint: 'gasHint',
-      note: (v) => { const eurusd = V.DEFAULTS.eurusd; return t('gasConv', nf(eurusd, 2), nf(1.72 * eurusd, 2), nf(v), nf(v * 1.72 * eurusd, 1), nf(v * eurusd / 3.412, 1), nf(Math.max(0, v * 1.72 * eurusd - V.GAS_TARIFF), 1)); } },
+      note: (v) => { const eurusd = V.DEFAULTS.eurusd; return t('gasConv', nf(eurusd, 2), nf(V.MWH_PER_BOE_GAS * eurusd, 2), nf(v), nf(v * V.MWH_PER_BOE_GAS * eurusd, 1), nf(v * eurusd / 3.412, 1), nf(Math.max(0, v * V.MWH_PER_BOE_GAS * eurusd - V.GAS_TARIFF), 1)); } },
     { k: 'usdnok', label: 'usdnok', min: 7, max: 13, step: 0.1, fmt: (v) => nf(v, 1), hint: 'usdnokHint' },
     { k: 'discount', label: 'discount', min: 0.04, max: 0.14, step: 0.005, fmt: (v) => pct(v * 100, 1), hint: 'discountHint' },
     { k: 'reserveGrowth', label: 'growth', min: 1, max: 2, step: 0.1, fmt: (v) => `×${nf(v, 1)}`, hint: 'growthHint' },
@@ -1194,7 +1194,7 @@
     const pr = state.hist.prices.find((p) => p[0] === year) || state.hist.prices.find((p) => p[0] === year - 1);
     if (!pr || year > state.data.lastFullYear) return null;
     const rf = ddCpiF(pr[0]), b = pr[1] * rf, g = pr[2] * rf;
-    return { brent: b, gasEur: g * V.MMBTU_PER_BOE_GAS / (1.72 * V.DEFAULTS.eurusd), flat: { b, g } };
+    return { brent: b, gasEur: g * V.MMBTU_PER_BOE_GAS / (V.MWH_PER_BOE_GAS * V.DEFAULTS.eurusd), flat: { b, g } };
   }
   // Aggregated yearly cash flow for a package of stakes [{slug, share}] from `year`
   function ddPackage(items, year, deck, extraOv) {

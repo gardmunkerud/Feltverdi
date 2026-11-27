@@ -166,13 +166,38 @@ function reservesAt(fieldName, year) {
 // fixed opex anchored to the production rate at the time of the deal) + Feltverdi forecast from next year. Real USD, 8 % real.
 // Same engine as the deal pages (V.stakeCashflow), so tax deductions from investments made before the deal – which the
 // buyer takes over – are included; `inh` is their present value.
-function hindsightValue(f, s, year) {
+function hindsightValue(f, s, year, synPct = 0, synRows = null) {
   let v = 0, inh = 0;
   for (const r of V.stakeCashflow(f, H, {}, data.lastFullYear, {}, year)) {
     const df = Math.pow(1 + RATE, -(r.year - year + 0.5));
     v += r.fcf * s * df; inh += (r.taxInh || 0) * s * df;
+    if (synRows && r.q > 0) synRows.set(r.year, (synRows.get(r.year) || 0) + (synPct > 0 && r.year > year ? synPct * (r.opex || 0) * s * (1 - V.MARGINAL) : 0));
   }
   return { v, inh };
+}
+
+// ---- Synergies (buyer's view) ----
+// Announced synergies (deals.json `synergies`, low end of any stated range) take precedence. Otherwise a standard rule:
+// opex on the acquired stakes falls by 10 % where the buyer already held a share of the field on the deal date, 15 % where
+// the buyer operates the field, plus 3 % for corporate deals (overhead) – from the year after the deal, after tax (78 %).
+const SYN_RULE = { partner: 0.10, operator: 0.15, corporate: 0.03, announcedYears: 10 };
+// Buyer entities in Sodir's licensee history (regex on company name), per deal
+const BUYERS = {
+  '2016-aker-bp-merger': /^Det norske/, '2017-akerbp-hess': /^Aker BP/, '2018-okea-shell': /^OKEA/, '2019-dno-faroe': /^DNO/,
+  '2019-var-exxonmobil': /^(Vår Energi|Point Resources|Eni Norge)/, '2020-sval-edison': /^Sval/, '2021-sval-spirit': /^Sval/,
+  '2021-akerbp-lundin': /^Aker BP/, '2022-okea-wintershalldea': /^OKEA/, '2023-var-neptune': /^Vår Energi/, '2025-dno-sval': /^DNO/,
+  '2026-var-pandion': /^Vår Energi/, '2026-var-goliat-fenja': /^(Orlen|PGNiG|Concedo)/, '2026-var-conocophillips': /^Vår Energi/,
+};
+function buyerStakes(re, date) {
+  const names = [...new Set(lic.map((r) => r.cmpLongName))].filter((n) => re.test(n));
+  return mergeParts(stakesAt(names, date));
+}
+function synergyPct(d, re, pre, f) {
+  let p = 0, why = 'none';
+  if (re && re.test(f.operator || '')) { p = SYN_RULE.operator; why = 'operator'; }
+  else if ((pre.get(f.name.toUpperCase()) || 0) > 0.01) { p = SYN_RULE.partner; why = 'partner'; }
+  if (d.type === 'corporate' || d.type === 'merger') p += SYN_RULE.corporate;
+  return { p, why };
 }
 
 // Sodir fields that Feltverdi shows as one asset (e.g. Hugin, Munin, Fulla → Yggdrasil): a stake in a part
@@ -188,23 +213,38 @@ function mergeParts(stakes) {
   return out;
 }
 
-function evalPackage(stakesIn, year, later = new Set()) {
+function evalPackage(stakesIn, year, later = new Set(), syn = null) {
   const stakes = mergeParts(stakesIn);
   let prod = 0, rem = 0, hindsight = 0, taxInh = 0, remNow = 0, prodAfter = 0;
-  const items = [];
+  const items = [], synRows = new Map();
   for (const [name, sh] of stakes) {
     const f = byName.get(name); if (!f || sh <= 0) continue;
     const s = sh / 100;
     const p = f.prod.find((r) => r[0] === year - 1); const q = p ? p[5] * BOE * s : 0;
     const r0 = reservesAt(name, year - 1) * BOE * s;
     prod += q; rem += r0;
-    const hv = hindsightValue(f, s, year);
+    const sp = syn ? syn(f) : { p: 0, why: 'none' };
+    const hv = hindsightValue(f, s, year, sp.p, synRows);
     hindsight += hv.v; taxInh += hv.inh;
     prodAfter += f.prod.filter((r) => r[0] >= year && r[0] <= data.lastFullYear).reduce((t, r) => t + r[5] * BOE * s, 0);
     remNow += (f.rem ? f.rem.oe : 0) * BOE * s;
-    items.push({ field: f.name, slug: f.slug, ...(later.has(name) ? { later: true } : {}), share: Math.round(sh * 1000) / 1000, prodKboed: Math.round(q / 0.365 * 10) / 10, remMmboe: Math.round(r0 * 10) / 10 });
+    items.push({ field: f.name, slug: f.slug, ...(later.has(name) ? { later: true } : {}), share: Math.round(sh * 1000) / 1000, prodKboed: Math.round(q / 0.365 * 10) / 10, remMmboe: Math.round(r0 * 10) / 10, ...(syn ? { syn: sp.why } : {}) });
   }
-  return { prod, rem, hindsight, taxInh, remNow, prodAfter, items: items.sort((a, z) => z.remMmboe - a.remMmboe) };
+  return { prod, rem, hindsight, taxInh, remNow, prodAfter, synRows, items: items.sort((a, z) => z.remMmboe - a.remMmboe) };
+}
+// Yearly after-tax synergy cash flow (real USD m) for a deal; announced synergies replace the rule
+function dealSynergy(d, year, realF, synRows) {
+  const a = d.synergies;
+  const prodYears = [...synRows.keys()].sort((x, y) => x - y); // years with production in the package
+  let rows;
+  if (a && a.basis === 'postTaxNpv') rows = [[year, a.lowUsdM * realF * Math.pow(1 + RATE, 0.5)]]; // PV at the deal date
+  else if (a && a.basis === 'preTaxAnnual') {
+    const yrs = prodYears.filter((y) => y > year).slice(0, a.years || SYN_RULE.announcedYears);
+    rows = yrs.map((y) => [y, a.lowUsdM * (1 - V.MARGINAL)]);
+  } else rows = [...synRows.entries()].filter(([, v]) => v > 0.005).sort((x, y) => x[0] - y[0]);
+  rows = rows.map(([y, v]) => [y, Math.round(v * 100) / 100]);
+  const pv = rows.reduce((t, [y, v]) => t + v * Math.pow(1 + RATE, -(y - year + 0.5)), 0);
+  return { basis: a ? 'announced' : 'rule', pvUsdM: Math.round(pv), rows };
 }
 
 const out = {};
@@ -226,14 +266,16 @@ for (const d of deals) {
   const later = spec.shares ? new Map() : laterFields(spec.sellers, date, spec.fields, d.completed ? new Date(d.completed + 'T00:00:00Z') : null);
   for (const [k, v] of Object.entries(spec.extra || {})) later.set(k, v);
   for (const [k, v] of later) if (!stakes.has(k)) stakes.set(k, v);
-  const { prod, rem, hindsight: fieldValue, taxInh, remNow, prodAfter, items } = evalPackage(stakes, year, new Set(later.keys()));
+  const re = BUYERS[d.id], pre = re ? buyerStakes(re, date) : new Map();
+  const { prod, rem, hindsight: fieldValue, taxInh, remNow, prodAfter, synRows, items } = evalPackage(stakes, year, new Set(later.keys()), d.synergies ? null : (f) => synergyPct(d, re, pre, f));
   if (!items.length) continue;
   // Adjusted price (shares valued at completion, tax assets taken out) when public; otherwise the headline price
   const price = spec.price ?? (d.priceAdjusted ? d.priceAdjusted.valueUsdM : d.valueUsdM);
-  const realF = cpiNow / cpi.get(year);
+  const realF = cpiNow / (cpi.get(year) || cpiNow);
   // Company tax positions bought with the company (e.g. losses carried forward), where public – value at the deal date
   const taxPos = d.taxPosition ? d.taxPosition.valueUsdM * realF : 0;
-  const hindsight = fieldValue + taxPos * Math.pow(1 + RATE, -0.5); // booked in the deal year, mid-year like the deal pages
+  const synergy = dealSynergy(d, year, realF, synRows);
+  const hindsight = fieldValue + taxPos * Math.pow(1 + RATE, -0.5) + synergy.pvUsdM; // tax position booked in the deal year, mid-year like the deal pages
   const b = brent.get(year) ?? brent.get(year - 1);
   const m = {
     year, ...(ROLES[d.id] || {}), partial: !!spec.partial, note: spec.note || null, items,
@@ -245,6 +287,7 @@ for (const d of deals) {
     hindsightValue: Math.round(hindsight), // real USD of the CPI base year, at the deal year (incl. tax deductions taken over)
     taxInheritedUsdM: Math.round(taxInh), // PV of deductions from the seller's past investments in the stakes
     taxPositionUsdM: taxPos ? Math.round(taxPos) : 0, // company tax positions (real)
+    synergy, // buyer's synergies: after-tax real USD m per year (announced, low end, or the standard rule) and PV at 8 %
     ratio: price != null && hindsight > 0 ? Math.round(price * realF / hindsight * 100) / 100 : null,
     reserveGrowth: rem > 0 ? Math.round((prodAfter + remNow) / rem * 100) / 100 : null,
   };
@@ -261,5 +304,5 @@ fs.writeFileSync(path.join(root, 'public', 'data', 'deal-metrics.json'), JSON.st
 if (trace.length) console.log('Later fields:\n  ' + trace.join('\n  '));
 for (const [id, m] of Object.entries(out)) {
   if (m.swap) { console.log(`${id.padEnd(28)} swap ` + m.legs.map((l) => `${l.from}→${l.to}: ${l.items.map((i) => i.field + ' ' + i.share + '%').join(', ')} value ${l.hindsightValue} cash ${l.cash}`).join(' | ')); continue; }
-  console.log(`${id.padEnd(28)} prod ${String(m.prodKboed).padStart(6)} kboe/d  rem ${String(m.remMmboe).padStart(5)} MMboe  Brent ${m.brent}  price ${m.priceUsdM ?? '-'} (real ${m.priceReal ?? '-'})  $/flow ${m.perFlowing ?? '-'}  $/boe ${m.perBoe ?? '-'} (${m.perBoePctBrent ?? '-'}% Brent)  hindsight ${m.hindsightValue} (tax ${m.taxInheritedUsdM}+${m.taxPositionUsdM})  ratio ${m.ratio ?? '-'}  growth ${m.reserveGrowth}`);
+  console.log(`${id.padEnd(28)} prod ${String(m.prodKboed).padStart(6)} kboe/d  rem ${String(m.remMmboe).padStart(5)} MMboe  Brent ${m.brent}  price ${m.priceUsdM ?? '-'} (real ${m.priceReal ?? '-'})  $/flow ${m.perFlowing ?? '-'}  $/boe ${m.perBoe ?? '-'} (${m.perBoePctBrent ?? '-'}% Brent)  hindsight ${m.hindsightValue} (tax ${m.taxInheritedUsdM}+${m.taxPositionUsdM}, syn ${m.synergy.basis} ${m.synergy.pvUsdM})  ratio ${m.ratio ?? '-'}  growth ${m.reserveGrowth}`);
 }

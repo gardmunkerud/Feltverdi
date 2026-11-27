@@ -87,20 +87,31 @@
    },
    "source": "https://www.worldoil.com/news/2026/11/23/conocophillips-to-sell-norway-business-teesside-stake-to-var-energi-for-4-4-billion/",
    "assessment": {
-    "verdict": "expensive",
+    "verdict": "full",
     "confidence": "medium",
     "text": {
-     "nb": "Høy pris. Vår Energi betaler om lag 36 000 dollar per flytende fat og 12,3 dollar per fat av Sodirs gjenværende reserver – 1,57 ganger det en typisk avtale på sokkelen har kostet målt mot Feltverdis verdi. Ekofisk-området har mange eldre plattformer og brønner, og med feltspesifikke driftskostnader er andelene verdt mindre enn før. Skattefradragene som følger med er små, fordi investeringer siden 2022 trekkes fra i særskatten med en gang. Prisen forutsetter reservevekst, langsiktige priser rundt 75 dollar og synergier på 0,7–1 mrd. dollar. Strategisk sterk (operatørskap, Teesside, Norpipe), men med lite rom for feil.",
-     "en": "High price. Vår Energi pays about 36,000 dollars per flowing barrel and 12.3 dollars per barrel of Sodir's remaining reserves – 1.57 times what a typical deal on the shelf has cost relative to Feltverdi's value. The Ekofisk area has many older platforms and wells, and with field-specific operating costs the stakes are worth less than before. The tax deductions that come with the stakes are small, because investments since 2022 are deducted from the special tax straight away. The price assumes reserve growth, long-term prices around 75 dollars and 0.7–1 billion dollars of synergies. Strategically strong (operatorship, Teesside, Norpipe), but with little room for error."
+     "nb": "Fullt priset. Vår Energi betaler om lag 36 000 dollar per flytende fat og 12,3 dollar per fat av Sodirs gjenværende reserver. Med synergiene Vår Energi selv anslår (vi bruker den lave enden, 0,7 mrd. dollar etter skatt) er prisen 1,28 ganger det en typisk avtale på sokkelen har kostet målt mot Feltverdis verdi; uten synergiene ville den sett høy ut. Ekofisk-området har mange eldre plattformer og brønner, og med feltspesifikke driftskostnader er andelene verdt mindre enn før. Skattefradragene som følger med er små, fordi investeringer siden 2022 trekkes fra i særskatten med en gang. Prisen forutsetter reservevekst, langsiktige priser rundt 75 dollar og at synergiene faktisk tas ut. Strategisk sterk (operatørskap, Teesside, Norpipe), men med lite rom for feil.",
+     "en": "Fully priced. Vår Energi pays about 36,000 dollars per flowing barrel and 12.3 dollars per barrel of Sodir's remaining reserves. With the synergies Vår Energi itself estimates (we use the low end, 0.7 billion dollars after tax) the price is 1.28 times what a typical deal on the shelf has cost relative to Feltverdi's value; without them it would look high. The Ekofisk area has many older platforms and wells, and with field-specific operating costs the stakes are worth less than before. The tax deductions that come with the stakes are small, because investments since 2022 are deducted from the special tax straight away. The price assumes reserve growth, long-term prices around 75 dollars and that the synergies are actually delivered. Strategically strong (operatorship, Teesside, Norpipe), but with little room for error."
     }
    },
    "views": {
     "sellerRateDelta": 0.02,
-    "synergy": 0.05,
     "note": {
-     "nb": "ConocoPhillips spisser porteføljen og har trolig høyere avkastningskrav (+2 prosentpoeng). Vår Energi får 5 % lavere driftskostnader gjennom overlapp på Heidrun, Alvheim og Grane og en større norsk organisasjon.",
-     "en": "ConocoPhillips is high-grading its portfolio and probably has a higher required return (+2 percentage points). Vår Energi gets 5 % lower operating costs through overlap on Heidrun, Alvheim and Grane and a larger Norwegian organisation."
+     "nb": "ConocoPhillips spisser porteføljen og har trolig høyere avkastningskrav (+2 prosentpoeng). Vår Energis egne synergianslag (lav ende) er allerede med i verdien.",
+     "en": "ConocoPhillips is high-grading its portfolio and probably has a higher required return (+2 percentage points). Vår Energi’s own synergy estimate (low end) is already in the value."
     }
+   },
+   "synergies": {
+    "basis": "postTaxNpv",
+    "lowUsdM": 700,
+    "highUsdM": 1000,
+    "note": {
+     "nb": "Vår Energi anslår operasjonelle, kommersielle og finansielle synergier på 0,7–1 mrd. dollar etter skatt (nåverdi). Vi bruker den lave enden.",
+     "en": "Vår Energi estimates operational, commercial and financial synergies of USD 0.7–1 bn after tax (net present value). We use the low end."
+    },
+    "sources": [
+     "https://www.ogj.com/general-interest/companies/news/55420939/var-energi-to-acquire-conocophillips-norway-business-including-greater-ekofisk-operatorship-in-44-billion-deal"
+    ]
    }
   },
   {
@@ -430,8 +441,8 @@
     "verdict": "full",
     "confidence": "medium",
     "text": {
-     "nb": "Fullt priset, like over grensen (1,12 ganger medianen). 24 000 dollar per flytende fat og 11,1 dollar per fat reserver. DNO fikk ikke-opererte andeler i 16 felt med 66 000 fat o.e./d og firedoblet produksjonen i Nordsjøen. Kort historikk etter avtalen gjør vurderingen foreløpig.",
-     "en": "Fully priced, just over the line (1.12 times the median). 24,000 dollars per flowing barrel and 11.1 dollars per barrel of reserves. DNO got non-operated interests in 16 fields with 66,000 boe/d and quadrupled its North Sea output. The short history since the deal makes the assessment preliminary."
+     "nb": "Fullt priset, like over grensen (1,16 ganger medianen). 24 000 dollar per flytende fat og 11,1 dollar per fat reserver. DNO fikk ikke-opererte andeler i 16 felt med 66 000 fat o.e./d og firedoblet produksjonen i Nordsjøen. Kort historikk etter avtalen gjør vurderingen foreløpig.",
+     "en": "Fully priced, just over the line (1.16 times the median). 24,000 dollars per flowing barrel and 11.1 dollars per barrel of reserves. DNO got non-operated interests in 16 fields with 66,000 boe/d and quadrupled its North Sea output. The short history since the deal makes the assessment preliminary."
     }
    }
   },
@@ -543,16 +554,27 @@
     "verdict": "fair",
     "confidence": "medium",
     "text": {
-     "nb": "Markedsmessig (1,00 ganger medianen), med 9,0 dollar per fat – billig per fat, men porteføljen er gassrik og har lang levetid (Snøhvit). Avtalen ble inngått mens gassprisene fortsatt var høye etter 2022; i ettertid har produksjonen falt raskere enn ventet, og verdien ligger under kjøpesummen i faste priser. Netto kontantbetaling var om lag 1,2 mrd. dollar etter fradrag for Neptunes egen kontantbeholdning.",
-     "en": "Market-level (1.00 times the median), at 9.0 dollars per barrel – cheap per barrel, but the portfolio is gas-rich and long-lived (Snøhvit). The deal was struck while gas prices were still high after 2022; in hindsight production has fallen faster than expected, and the value is below the purchase price in real terms. The net cash paid was about 1.2 billion dollars after deducting Neptune's own cash."
+     "nb": "Markedsmessig (0,91 ganger medianen), med 9,0 dollar per fat – billig per fat, men porteføljen er gassrik og har lang levetid (Snøhvit). Avtalen ble inngått mens gassprisene fortsatt var høye etter 2022; i ettertid har produksjonen falt raskere enn ventet, og verdien ligger under kjøpesummen i faste priser. Netto kontantbetaling var om lag 1,2 mrd. dollar etter fradrag for Neptunes egen kontantbeholdning.",
+     "en": "Market-level (0.91 times the median), at 9.0 dollars per barrel – cheap per barrel, but the portfolio is gas-rich and long-lived (Snøhvit). The deal was struck while gas prices were still high after 2022; in hindsight production has fallen faster than expected, and the value is below the purchase price in real terms. The net cash paid was about 1.2 billion dollars after deducting Neptune's own cash."
     }
    },
    "views": {
-    "synergy": 0.05,
     "note": {
-     "nb": "Overlapp på Gjøa, Fenja og Njord-området og én organisasjon: 5 % lavere driftskostnader for Vår Energi.",
-     "en": "Overlap at Gjøa, Fenja and the Njord area and one organisation: 5 % lower operating costs for Vår Energi."
+     "nb": "Vår Energis egne synergianslag (om lag 300 mill. dollar) er allerede med i verdien.",
+     "en": "Vår Energi’s own synergy estimate (about USD 300 m) is already in the value."
     }
+   },
+   "synergies": {
+    "basis": "postTaxNpv",
+    "lowUsdM": 300,
+    "note": {
+     "nb": "Vår Energi anslo synergier på om lag 300 mill. dollar over tid (utbygging og leting, bedre utnyttelse av anlegg, gassalg). Vi behandler beløpet som en nåverdi etter skatt.",
+     "en": "Vår Energi estimated synergies of about USD 300 m over time (development and exploration, better use of facilities, gas sales). We treat the amount as an after-tax present value."
+    },
+    "sources": [
+     "https://www.energy-pedia.com/news/norway/v%C3%A5r-energi-to-acquire-neptune-energys-norwegian-oil-and-gas-assets-to-accelerate-growth-and-value-creation-on-the-ncs-191898",
+     "https://www.offshore-mag.com/business-briefs/company-news/article/14295540/eni-var-energi-acquiring-neptunes-global-ep-portfolio"
+    ]
    }
   },
   {
@@ -588,9 +610,22 @@
     "verdict": "cheap",
     "confidence": "medium",
     "text": {
-     "nb": "Lav pris – et av de beste kjøpene i oversikten (0,51 ganger medianen). OKEA betalte 7 dollar per fat (7 % av Brent), fikk med seg de høye prisene i 2022–2023, og selgeren beholdt 80 % av fjerningskostnadene på Brage. Reservene har i tillegg vokst 41 % siden avtalen.",
-     "en": "Low price – one of the best buys in the overview (0.51 times the median). OKEA paid 7 dollars per barrel (7 % of Brent), captured the high prices of 2022–2023, and the seller kept 80 % of Brage decommissioning costs. Reserves have also grown 41 % since the deal."
+     "nb": "Lav pris – et av de beste kjøpene i oversikten (0,52 ganger medianen). OKEA betalte 7 dollar per fat (7 % av Brent), fikk med seg de høye prisene i 2022–2023, og selgeren beholdt 80 % av fjerningskostnadene på Brage. Reservene har i tillegg vokst 41 % siden avtalen.",
+     "en": "Low price – one of the best buys in the overview (0.52 times the median). OKEA paid 7 dollars per barrel (7 % of Brent), captured the high prices of 2022–2023, and the seller kept 80 % of Brage decommissioning costs. Reserves have also grown 41 % since the deal."
     }
+   },
+   "synergies": {
+    "basis": "preTaxAnnual",
+    "lowUsdM": 4,
+    "highUsdM": 7,
+    "years": 10,
+    "note": {
+     "nb": "OKEA anslo synergier på 4–7 mill. dollar i året på selskapets opererte felt. Vi bruker den lave enden, 4 mill. i året i ti år, etter 78 % skatt.",
+     "en": "OKEA estimated synergies of USD 4–7 m a year across its operated fields. We use the low end, 4 m a year for ten years, after 78 % tax."
+    },
+    "sources": [
+     "https://news.cision.com/okea/r/okea-acquires-a-material-portfolio-of-assets-from-wintershall-dea,c3572028"
+    ]
    }
   },
   {
@@ -627,15 +662,14 @@
     "verdict": "expensive",
     "confidence": "medium",
     "text": {
-     "nb": "Høy pris (1,53 ganger medianen). 20,7 dollar per fat reserver (29 % av Brent) og over 80 000 dollar per flytende fat. Lundin var et høykvalitetsselskap med lave kostnader og lave utslipp – Johan Sverdrup koster under 2 dollar per fat å drive – og verdien er høyere enn tidligere beregnet når driftskostnadene er feltspesifikke. Aker BP overtok også ubrukte skattefradrag verdt om lag 0,8 mrd. dollar, mest fra Johan Sverdrup-utbyggingen, men det veier lite mot en pris på 13,9 mrd. dollar – andre avtaler fikk relativt mer slike fradrag med seg. Avtalen ble i stor grad betalt med Aker BP-aksjer; i dollar var de verdt nesten det samme ved gjennomføringen som ved kunngjøringen.",
-     "en": "High price (1.53 times the median). 20.7 dollars per barrel of reserves (29 % of Brent) and over 80,000 dollars per flowing barrel. Lundin was a high-quality company with low costs and low emissions – Johan Sverdrup costs under 2 dollars per barrel to run – and the value is higher than previously calculated now that operating costs are field-specific. Aker BP also took over unused tax deductions worth about 0.8 billion dollars, mostly from the Johan Sverdrup development, but that weighs little against a 13.9 billion dollar price – other deals brought relatively more such deductions with them. The deal was largely paid in Aker BP shares; in dollars they were worth almost the same at completion as at announcement."
+     "nb": "Høy pris (1,56 ganger medianen). 20,7 dollar per fat reserver (29 % av Brent) og over 80 000 dollar per flytende fat. Lundin var et høykvalitetsselskap med lave kostnader og lave utslipp – Johan Sverdrup koster under 2 dollar per fat å drive – og verdien er høyere enn tidligere beregnet når driftskostnadene er feltspesifikke. Aker BP overtok også ubrukte skattefradrag verdt om lag 0,8 mrd. dollar, mest fra Johan Sverdrup-utbyggingen, men det veier lite mot en pris på 13,9 mrd. dollar – andre avtaler fikk relativt mer slike fradrag med seg. Avtalen ble i stor grad betalt med Aker BP-aksjer; i dollar var de verdt nesten det samme ved gjennomføringen som ved kunngjøringen.",
+     "en": "High price (1.56 times the median). 20.7 dollars per barrel of reserves (29 % of Brent) and over 80,000 dollars per flowing barrel. Lundin was a high-quality company with low costs and low emissions – Johan Sverdrup costs under 2 dollars per barrel to run – and the value is higher than previously calculated now that operating costs are field-specific. Aker BP also took over unused tax deductions worth about 0.8 billion dollars, mostly from the Johan Sverdrup development, but that weighs little against a 13.9 billion dollar price – other deals brought relatively more such deductions with them. The deal was largely paid in Aker BP shares; in dollars they were worth almost the same at completion as at announcement."
     }
    },
    "views": {
-    "synergy": 0.08,
     "note": {
-     "nb": "Aker BP og Lundin hadde overlapp på Johan Sverdrup, Edvard Grieg og Alvheim-området og en felles organisasjon etter fusjonen: 8 % lavere driftskostnader.",
-     "en": "Aker BP and Lundin overlapped at Johan Sverdrup, Edvard Grieg and the Alvheim area, with one organisation after the merger: 8 % lower operating costs."
+     "nb": "Aker BPs anslag på 200 mill. dollar i året i driftssynergier er allerede med i verdien.",
+     "en": "Aker BP’s estimate of USD 200 m a year in operational synergies is already in the value."
     }
    },
    "priceAdjusted": {
@@ -648,6 +682,18 @@
     "sources": [
      "https://akerbp.com/borsmelding/merger-between-aker-bp-and-lundin-energys-ep-business-completed/",
      "https://www.norges-bank.no/en/topics/Statistics/exchange_rates/"
+    ]
+   },
+   "synergies": {
+    "basis": "preTaxAnnual",
+    "lowUsdM": 200,
+    "years": 10,
+    "note": {
+     "nb": "Aker BP og Lundin anslo operasjonelle synergier på inntil 200 mill. dollar i året før skatt. Vi bruker 200 mill. i ti år fra 2022, etter 78 % skatt.",
+     "en": "Aker BP and Lundin estimated operational synergies of up to USD 200 m a year before tax. We use 200 m for ten years from 2022, after 78 % tax."
+    },
+    "sources": [
+     "https://akerbp.com/borsmelding/aker-bp-acquires-lundin-energys-oil-and-gas-business/"
     ]
    }
   },
@@ -680,8 +726,8 @@
     "verdict": "cheap",
     "confidence": "low",
     "text": {
-     "nb": "Lav pris, men usikker: kjøpesummen er bare rapportert av én kilde (om lag 1,1 mrd. dollar). Med den prisen betalte Sval 8,6 dollar per fat og 21 000 dollar per flytende fat – 0,64 ganger medianen – og fikk med seg prisoppgangen i 2022 og andeler i de senere feltene Symra og Halten Øst.",
-     "en": "Low price, but uncertain: the purchase price is reported by only one source (about 1.1 billion dollars). At that price Sval paid 8.6 dollars per barrel and 21,000 dollars per flowing barrel – 0.64 times the median – and captured the 2022 price rise and stakes in the later Symra and Halten Øst fields."
+     "nb": "Lav pris, men usikker: kjøpesummen er bare rapportert av én kilde (om lag 1,1 mrd. dollar). Med den prisen betalte Sval 8,6 dollar per fat og 21 000 dollar per flytende fat – 0,67 ganger medianen – og fikk med seg prisoppgangen i 2022 og andeler i de senere feltene Symra og Halten Øst.",
+     "en": "Low price, but uncertain: the purchase price is reported by only one source (about 1.1 billion dollars). At that price Sval paid 8.6 dollars per barrel and 21,000 dollars per flowing barrel – 0.67 times the median – and captured the 2022 price rise and stakes in the later Symra and Halten Øst fields."
     }
    }
   },
@@ -714,8 +760,8 @@
     "verdict": "expensive",
     "confidence": "low",
     "text": {
-     "nb": "Høy pris, like over grensen, men usikker. 12,7 dollar per fat (30 % av Brent) i et år med svært lave priser. Porteføljen var dominert av nye felt (Dvalin) som Feltverdi verdsetter forsiktig, så forholdstallet (1,41 ganger medianen) overdriver trolig.",
-     "en": "High price, just over the line, but uncertain. 12.7 dollars per barrel (30 % of Brent) in a year of very low prices. The portfolio was dominated by new fields (Dvalin) that Feltverdi values cautiously, so the ratio (1.41 times the median) probably overstates."
+     "nb": "Høy pris, like over grensen, men usikker. 12,7 dollar per fat (30 % av Brent) i et år med svært lave priser. Porteføljen var dominert av nye felt (Dvalin) som Feltverdi verdsetter forsiktig, så forholdstallet (1,47 ganger medianen) overdriver trolig.",
+     "en": "High price, just over the line, but uncertain. 12.7 dollars per barrel (30 % of Brent) in a year of very low prices. The portfolio was dominated by new fields (Dvalin) that Feltverdi values cautiously, so the ratio (1.47 times the median) probably overstates."
     }
    }
   },
@@ -759,16 +805,15 @@
     "verdict": "fair",
     "confidence": "medium",
     "text": {
-     "nb": "Markedsmessig sammenlignet med andre avtaler (0,96 ganger medianen): 10,8 dollar per fat og 29 000 dollar per flytende fat. Breidablikk (34,4 %, et funn i 2019 som ble felt i 2021) og Vår-andelen i Halten Øst er med i verdien. I absolutt forstand har eiendelene likevel vært verdt mindre enn kjøpesummen: om lag 5,2 mrd. dollar mot 5,9 mrd. dollar i faste priser, selv med prisoppgangen i 2022 og om lag 0,7 mrd. dollar i skattefradrag som fulgte med andelene. Medregnet de nye feltene har reservene vokst 52 % siden avtalen.",
-     "en": "Market-level compared with other deals (0.96 times the median): 10.8 dollars per barrel and 29,000 dollars per flowing barrel. Breidablikk (34.4 %, a 2019 discovery that became a field in 2021) and the Vår share of Halten Øst are included in the value. In absolute terms the assets have still been worth less than the price: about 5.2 billion dollars against 5.9 billion in real terms, even with the 2022 price rise and about 0.7 billion dollars of tax deductions that came with the stakes. Including the new fields, reserves have grown 52 % since the deal."
+     "nb": "Markedsmessig sammenlignet med andre avtaler (1,00 ganger medianen): 10,8 dollar per fat og 29 000 dollar per flytende fat. Breidablikk (34,4 %, et funn i 2019 som ble felt i 2021) og Vår-andelen i Halten Øst er med i verdien. I absolutt forstand har eiendelene likevel vært verdt mindre enn kjøpesummen: om lag 5,2 mrd. dollar mot 5,9 mrd. dollar i faste priser, selv med prisoppgangen i 2022 og om lag 0,7 mrd. dollar i skattefradrag som fulgte med andelene. Medregnet de nye feltene har reservene vokst 52 % siden avtalen.",
+     "en": "Market-level compared with other deals (1.00 times the median): 10.8 dollars per barrel and 29,000 dollars per flowing barrel. Breidablikk (34.4 %, a 2019 discovery that became a field in 2021) and the Vår share of Halten Øst are included in the value. In absolute terms the assets have still been worth less than the price: about 5.2 billion dollars against 5.9 billion in real terms, even with the 2022 price rise and about 0.7 billion dollars of tax deductions that came with the stakes. Including the new fields, reserves have grown 52 % since the deal."
     }
    },
    "views": {
     "sellerRateDelta": 0.02,
-    "synergy": 0,
     "note": {
-     "nb": "ExxonMobil gikk ut av en ikke-kjerneregion og hadde trolig høyere avkastningskrav (+2 prosentpoeng). Ingen driftssynergier, fordi andelene var partneropererte.",
-     "en": "ExxonMobil was exiting a non-core region and probably had a higher required return (+2 percentage points). No opex synergies, because the stakes were partner-operated."
+     "nb": "ExxonMobil gikk ut av en ikke-kjerneregion og hadde trolig høyere avkastningskrav (+2 prosentpoeng). Standardantakelsen for synergier er allerede med i verdien.",
+     "en": "ExxonMobil was exiting a non-core region and probably had a higher required return (+2 percentage points). The standard synergy assumption is already in the value."
     }
    }
   },
@@ -903,19 +948,18 @@
    },
    "source": "https://worldoil.com/news/2018/6/20/shell-sells-draugen-gjoa-interest-in-norway/",
    "assessment": {
-    "verdict": "cheap",
+    "verdict": "fair",
     "confidence": "medium",
     "text": {
-     "nb": "Lav pris, like under grensen (0,79 ganger medianen), og i praksis et godt kjøp. Prisen på 21 dollar per fat av daværende reserver så høy ut, men Draugen-reservene har nesten tredoblet seg (2,8 ganger) gjennom levetidsforlengelse, og Shell beholdt 80 % av fjerningskostnadene etter skatt. OKEA overtok i tillegg ubrukte skattefradrag fra tidligere investeringer, verdt om lag 0,25 mrd. dollar.",
-     "en": "Low price, just under the line (0.79 times the median), and in practice a good buy. The price of 21 dollars per barrel of reserves at the time looked high, but Draugen reserves have almost tripled (2.8 times) through life extension, and Shell kept 80 % of after-tax decommissioning costs. OKEA also took over unused tax deductions from earlier investments, worth about 0.25 billion dollars."
+     "nb": "Markedsmessig, helt nede ved grensen til lav pris (0,80 ganger medianen), og i praksis et godt kjøp. Prisen på 21 dollar per fat av daværende reserver så høy ut, men Draugen-reservene har nesten tredoblet seg (2,8 ganger) gjennom levetidsforlengelse, og Shell beholdt 80 % av fjerningskostnadene etter skatt. OKEA overtok i tillegg ubrukte skattefradrag fra tidligere investeringer, verdt om lag 0,25 mrd. dollar.",
+     "en": "Market-level, right at the line to a low price (0.80 times the median), and in practice a good buy. The price of 21 dollars per barrel of reserves at the time looked high, but Draugen reserves have almost tripled (2.8 times) through life extension, and Shell kept 80 % of after-tax decommissioning costs. OKEA also took over unused tax deductions from earlier investments, worth about 0.25 billion dollars."
     }
    },
    "views": {
     "sellerRateDelta": 0.02,
-    "synergy": 0,
     "note": {
-     "nb": "Shell solgte et modent felt utenfor kjernen (+2 prosentpoeng). OKEA tok over driften av Draugen – mulige kostnadskutt er ikke lagt inn.",
-     "en": "Shell sold a mature, non-core field (+2 percentage points). OKEA took over operation of Draugen – possible cost cuts are not included."
+     "nb": "Shell solgte et modent felt utenfor kjernen (+2 prosentpoeng). OKEA tok over driften av Draugen; standardantakelsen for synergier er allerede med i verdien.",
+     "en": "Shell sold a mature, non-core field (+2 percentage points). OKEA took over operation of Draugen; the standard synergy assumption is already in the value."
     }
    }
   },
@@ -967,10 +1011,9 @@
    },
    "views": {
     "sellerRateDelta": 0.02,
-    "synergy": 0.05,
     "note": {
-     "nb": "Hess gikk ut av Norge (+2 prosentpoeng på avkastningskravet). Aker BP opererte allerede Valhall og fikk 5 % lavere driftskostnader ved å eie mer av feltet.",
-     "en": "Hess was exiting Norway (+2 percentage points on the required return). Aker BP already operated Valhall and gets 5 % lower operating costs from owning more of the field."
+     "nb": "Hess gikk ut av Norge (+2 prosentpoeng på avkastningskravet). Aker BP opererte allerede Valhall; standardantakelsen for synergier (15 % lavere driftskostnader på andelene) er allerede med i verdien.",
+     "en": "Hess was exiting Norway (+2 percentage points on the required return). Aker BP already operated Valhall; the standard synergy assumption (15 % lower operating costs on the stakes) is already in the value."
     }
    }
   },
@@ -1118,15 +1161,14 @@
     "verdict": "full",
     "confidence": "medium",
     "text": {
-     "nb": "Fullt priset (1,23 ganger medianen), målt med aksjenes verdi da avtalen ble gjennomført. Ved kunngjøringen ble BPs aksjer regnet til NOK 80, men da avtalen ble gjennomført var kursen NOK 127, så BP fikk om lag 2,3 mrd. dollar i stedet for 1,4 mrd. Kursoppgangen skyldtes delvis selve avtalen. Kjøpet skjedde på bunnen av oljeprisfallet (Brent 44 dollar), reservene i Valhall, Skarv og Ula har siden vokst 41 %, og avtalen ble grunnlaget for dagens Aker BP.",
-     "en": "Fully priced (1.23 times the median), measured with the value of the shares at completion. At announcement BP's shares were valued at NOK 80, but at completion the price was NOK 127, so BP received about 2.3 billion dollars instead of 1.4 billion. The rise in the share price was partly due to the deal itself. The purchase happened at the bottom of the oil price fall (Brent 44 dollars), reserves in Valhall, Skarv and Ula have since grown 41 %, and the deal became the foundation of today's Aker BP."
+     "nb": "Fullt priset (1,29 ganger medianen), målt med aksjenes verdi da avtalen ble gjennomført. Ved kunngjøringen ble BPs aksjer regnet til NOK 80, men da avtalen ble gjennomført var kursen NOK 127, så BP fikk om lag 2,3 mrd. dollar i stedet for 1,4 mrd. Kursoppgangen skyldtes delvis selve avtalen. Kjøpet skjedde på bunnen av oljeprisfallet (Brent 44 dollar), reservene i Valhall, Skarv og Ula har siden vokst 41 %, og avtalen ble grunnlaget for dagens Aker BP.",
+     "en": "Fully priced (1.29 times the median), measured with the value of the shares at completion. At announcement BP's shares were valued at NOK 80, but at completion the price was NOK 127, so BP received about 2.3 billion dollars instead of 1.4 billion. The rise in the share price was partly due to the deal itself. The purchase happened at the bottom of the oil price fall (Brent 44 dollars), reserves in Valhall, Skarv and Ula have since grown 41 %, and the deal became the foundation of today's Aker BP."
     }
    },
    "views": {
-    "synergy": 0.05,
     "note": {
-     "nb": "Det norske og BP Norge slo sammen organisasjonene: 5 % lavere driftskostnader. BP fikk betalt i aksjer og deler synergiene.",
-     "en": "Det norske and BP Norge combined their organisations: 5 % lower operating costs. BP was paid in shares and shares the synergies."
+     "nb": "Det norske og BP Norge slo sammen organisasjonene; standardantakelsen for synergier er allerede med i verdien. BP fikk betalt i aksjer og deler synergiene.",
+     "en": "Det norske and BP Norge combined their organisations; the standard synergy assumption is already in the value. BP was paid in shares and shares the synergies."
     }
    },
    "priceAdjusted": {

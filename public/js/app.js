@@ -1150,10 +1150,31 @@
       const o = byYear.get(year) || { year, hist: year <= state.data.lastFullYear, q: 0, rev: 0, opex: 0, capex: 0, tax: 0, fcf: 0, taxInh: 0 };
       o.tax -= items.taxPos; o.fcf += items.taxPos; o.taxPos = items.taxPos; byYear.set(year, o);
     }
+    // Buyer's synergies (after tax, real USD m per year – announced low end or the standard rule, see evaluate-deals.js)
+    for (const [y, v] of items.syn || []) {
+      const o = byYear.get(y) || { year: y, hist: y <= state.data.lastFullYear, q: 0, rev: 0, opex: 0, capex: 0, tax: 0, fcf: 0, taxInh: 0 };
+      o.fcf += v; o.syn = (o.syn || 0) + v; byYear.set(y, o);
+    }
     return { rows: [...byYear.values()].sort((x, y) => x.year - y.year), per };
   }
   // Stakes of a deal plus the company tax positions bought with it (real USD at the deal year)
-  const ddItems = (m, year) => Object.assign([...m.items], { taxPos: (m.taxPositionUsdM || 0) > 0 ? m.taxPositionUsdM : 0 });
+  const ddItems = (m, year) => Object.assign([...m.items], { taxPos: (m.taxPositionUsdM || 0) > 0 ? m.taxPositionUsdM : 0, syn: m.synergy ? m.synergy.rows : [] });
+  const ddSynPv = (rows, year, r) => rows.reduce((s, x) => s + (x.syn || 0) * Math.pow(1 + r, -(x.year - year + 0.5)), 0);
+  // Synergies card: what is assumed, how, and the source
+  function ddSynCard(d, m, synPv, V0) {
+    const s = d.synergies, rule = !s;
+    const counts = { operator: 0, partner: 0 };
+    for (const i of m.items) if (counts[i.syn] != null) counts[i.syn]++;
+    const corp = d.type === 'corporate' || d.type === 'merger';
+    return `<div class="card section-gap dd-syn">
+        <div class="card-head"><h2>${t('ddH_syn')}</h2><span class="muted">${t(rule ? 'ddSynRuleTag' : 'ddSynAnnTag')}</span></div>
+        ${intro('ddL_syn')}
+        <dl class="dd-list"><div><dt><strong>${t('ddSynPv')}</strong></dt><dd><strong>${money(synPv)}</strong> <span class="muted">(${V0 > 0 ? t('ddTaxShare', pct(synPv / V0 * 100, 0)) : '–'})</span></dd></div></dl>
+        <p class="dd-small">${rule ? esc(t('ddSynRule', counts.operator, counts.partner, corp)) : esc(s.note[state.lang])}</p>
+        ${s ? `<p class="muted dd-small">${t('ddAdjSources')}: ${s.sources.map((u, i) => `<a href="${esc(u)}" target="_blank" rel="noopener">${i + 1}</a>`).join(', ')}</p>` : ''}
+        <p class="muted dd-small">${esc(t('ddSynMethod'))}</p>
+      </div>`;
+  }
   // PV at the deal year of the deductions the buyer takes over (stakes) and of company tax positions
   function ddTaxBenefit(rows, year, r) {
     let inh = 0, pos = 0;
@@ -1280,6 +1301,7 @@
     out.push(headline != null ? t('ddP_bought', c.buyer, ddWhat(m.items), c.seller, usdStated(headline), m.year) : t('ddP_boughtNoPrice', c.buyer, ddWhat(m.items), c.seller, m.year));
     if (d.priceAdjusted) out.push(t('ddP_adj', usdStated(d.priceAdjusted.valueUsdM), t('ddAdjBasis_' + d.priceAdjusted.basis)));
     if (c.taxBenefit > 0.5) out.push(t('ddP_tax', money(c.taxBenefit)));
+    if (m.synergy) out.push(d.synergies ? t('ddP_synAnn', money(c.synPv), c.buyer) : m.synergy.rows.length ? t('ddP_synRule', money(c.synPv)) : t('ddP_synNone'));
     if (m.prodKboed >= 0.1) {
       const sh = m.prodKboed / shelfKboed(m.year - 1) * 100;
       const yrs = m.remMmboe / (m.prodKboed * 0.365);
@@ -1352,7 +1374,8 @@
   }
 
   // Each side's own valuation: buyer's required return + opex synergies vs seller's required return.
-  // Defaults: the global discount rate, no synergies, adjusted by `views` in deals.json (deltas, documented per deal).
+  // Defaults: the global discount rate, no extra synergies (the deal's synergies are already in the rows), adjusted by
+  // `views` in deals.json (deltas, documented per deal).
   function ddViewInputs(d) {
     const v = d.views || {};
     const def = { buyerRate: state.a.discount + (v.buyerRateDelta || 0), sellerRate: state.a.discount + (v.sellerRateDelta || 0), synergy: v.synergy || 0 };
@@ -1363,7 +1386,8 @@
     const { def, cur, custom } = ddViewInputs(d);
     const synRows = rows.map((x) => ({ ...x, fcf: x.fcf + cur.synergy * x.opex * (1 - 0.78) }));
     const bMax = ddPv(synRows, year, cur.buyerRate) * baseline;
-    const sMin = ddPv(rows, year, cur.sellerRate) * baseline;
+    // The seller does not get the buyer's synergies
+    const sMin = ddPv(rows.map((x) => ({ ...x, fcf: x.fcf - (x.syn || 0) })), year, cur.sellerRate) * baseline;
     const out = price == null ? null : bMax >= sMin ? (price > bMax ? 'Seller' : price < sMin ? 'Buyer' : 'Both') : 'None';
     const lo = Math.min(bMax, sMin, price ?? Infinity) * 0.85, hi = Math.max(bMax, sMin, price ?? 0) * 1.1;
     const pos = (v) => `${Math.max(0, Math.min(100, (v - lo) / (hi - lo) * 100)).toFixed(1)}%`;
@@ -1427,6 +1451,7 @@
     const base = ddPackage(items, year);
     const V0 = ddPv(base.rows, year, r);
     const tb = ddTaxBenefit(base.rows, year, r);
+    const synPv = ddSynPv(base.rows, year, r);
     const histRows = base.rows.filter((x) => x.hist);
     const vHist = ddPv(histRows, year, r);
     const thenDeck = ddDeckThen(year);
@@ -1474,6 +1499,7 @@
           ${hasPrice ? row(t('ddPaid'), money(price)) : ''}
           ${row(t('ddGot'), money(V0))}
           ${tb.total > 0.5 ? row(t('ddTaxRow') + tipBtn(t('ddT_taxRow')), `${money(tb.total)} <span class="muted">(${V0 > 0 ? pct(tb.total / V0 * 100, 0) : '–'})</span>`) : ''}
+          ${m.synergy ? row(t('ddSynRow') + tipBtn(t('ddT_synRow')), `${money(synPv)} <span class="muted">(${V0 > 0 ? pct(synPv / V0 * 100, 0) : '–'})</span>`) : ''}
           ${histSpan ? row(t('ddRealised', histSpan[0], histSpan[1]) + tipBtn(t('ddT_realised')), `${money(vHist)} <span class="muted">(${V0 > 0 ? pct(vHist / V0 * 100, 0) : '–'})</span>`) : ''}
           ${hasPrice && !m.partial ? row(t('ddVsTypRow') + tipBtn(t('ddT_vsTypRow')), signed(gainTyp), gainCls(gainTyp)) : ''}
           ${hasPrice ? row(`${t('ddGain')} <span class="muted">(${t('ddKpiModel').toLowerCase()})</span>${tipBtn(t('ddT_gain'))}`, signed(gain), gainCls(gain)) : ''}
@@ -1484,20 +1510,22 @@
         ${hasPrice ? `<p>${t('ddBuyerText', money(price), money(V0), signed(gain), (gain >= 0 ? '+' : '−') + pct(Math.abs(gain / price * 100), 0), irr == null ? t('ddIrrNone') : pctTxt(irr), pct(r * 100, 0))}</p>` : ''}
         ${d.upside ? d.upside.map((u) => `<p class="muted dd-small">${t('ddUpsideRow')}: ${esc(u.label[state.lang])}</p>`).join('') : ''}
       </div>`;
+    // Seller side: without the buyer's synergies
+    const V0s = V0 - synPv, vThenS = vThen != null ? vThen - synPv : null, realisedS = histRows.reduce((t, x) => t + x.fcf - (x.syn || 0), 0);
     const sellerCard = `<div class="card dd-side">
         <div class="card-head"><h2>${esc(t('ddSeller', seller))}</h2></div>
         ${intro('ddL_seller')}
         <dl class="dd-list">
           ${hasPrice ? row(t('ddReceived'), money(price)) : ''}
-          ${row(t('ddGaveUp'), money(V0))}
+          ${row(t('ddGaveUp'), money(V0s))}
           ${hasPrice && !m.partial ? row(t('ddVsTypRow') + tipBtn(t('ddT_vsTypRow')), signed(-gainTyp), gainCls(-gainTyp)) : ''}
-          ${hasPrice ? row(`${t('ddSellerGain')} <span class="muted">(${t('ddKpiModel').toLowerCase()})</span>`, signed(-gain), gainCls(-gain)) : ''}
-          ${vThen != null ? row(t('ddThenValue', nf(thenDeck.brent)) + tipBtn(t('ddT_then')), money(vThen)) : ''}
-          ${vThen != null && hasPrice ? row(t('ddThenGain'), signed(price - vThen), gainCls(price - vThen)) : ''}
-          ${vThen != null ? row(t('ddPriceLuck') + tipBtn(t('ddT_luck')), signed(V0 - vThen), gainCls(V0 - vThen)) : ''}
-          ${histSpan ? row(t('ddForgone', histSpan[0], histSpan[1]) + tipBtn(t('ddT_forgone')), money(realised)) : ''}
+          ${hasPrice ? row(`${t('ddSellerGain')} <span class="muted">(${t('ddKpiModel').toLowerCase()})</span>`, signed(price - V0s), gainCls(price - V0s)) : ''}
+          ${vThenS != null ? row(t('ddThenValue', nf(thenDeck.brent)) + tipBtn(t('ddT_then')), money(vThenS)) : ''}
+          ${vThenS != null && hasPrice ? row(t('ddThenGain'), signed(price - vThenS), gainCls(price - vThenS)) : ''}
+          ${vThenS != null ? row(t('ddPriceLuck') + tipBtn(t('ddT_luck')), signed(V0s - vThenS), gainCls(V0s - vThenS)) : ''}
+          ${histSpan ? row(t('ddForgone', histSpan[0], histSpan[1]) + tipBtn(t('ddT_forgone')), money(realisedS)) : ''}
         </dl>
-        ${hasPrice && vThen != null ? `<p>${t(price >= vThen ? 'ddSellerTextUp' : 'ddSellerTextDown', money(price), money(V0), money(vThen), money(Math.abs(price - vThen)))}</p>` : ''}
+        ${hasPrice && vThenS != null ? `<p>${t(price >= vThenS ? 'ddSellerTextUp' : 'ddSellerTextDown', money(price), money(V0s), money(vThenS), money(Math.abs(price - vThenS)))}</p>` : ''}
         ${d.type === 'merger' ? `<p class="muted dd-small">${t('ddPaidShares')}</p>` : ''}
       </div>`;
 
@@ -1515,7 +1543,7 @@
     // Break-even Brent for 8 % real return after tax (fixed rate, independent of the discount-rate slider); not for partial packages
     const be8 = hasPrice && !m.partial ? ddBreakevenAt(items, year, price, DD_BE_RATE) : null;
     const beCmp = thenDeck ? { brent: thenDeck.brent, then: true } : { brent: state.a.brent, then: false };
-    const plain = { list: ddPlainList(d, m, { buyer, seller, vsTyp, price, realised, histSpan, taxBenefit: tb.total, be8, beCmp }), gauge: hasPrice && !m.partial && ratio ? ddGauge(ratio / baseline, d.assessment && d.assessment.verdict) : '' };
+    const plain = { list: ddPlainList(d, m, { buyer, seller, vsTyp, price, realised, histSpan, taxBenefit: tb.total, synPv, be8, beCmp }), gauge: hasPrice && !m.partial && ratio ? ddGauge(ratio / baseline, d.assessment && d.assessment.verdict) : '' };
     el.innerHTML = ddHeader(d) + ddConclusion(d, plain) + `
       ${m.partial ? `<div class="card dd-warn">${t('ddPartial')}${m.note ? ` <span class="muted">(${esc(m.note)})</span>` : ''}</div>` : ''}
       ${kpis}
@@ -1526,6 +1554,7 @@
         <p class="muted dd-small">${t('ddAdjLine', usdStated(d.valueUsdM), usdStated(d.priceAdjusted.valueUsdM))} · ${t('ddAdjSources')}: ${d.priceAdjusted.sources.map((u, i) => `<a href="${esc(u)}" target="_blank" rel="noopener">${i + 1}</a>`).join(', ')}</p>
       </div>` : ''}
 ${ddTaxCard(d, tb, V0, year, base.per, r)}
+      ${m.synergy ? ddSynCard(d, m, synPv, V0) : ''}
       <div class="grid g-2 section-gap">${buyerCard}${sellerCard}</div>
       ${ddViewsCard(d, year, base.rows, m.partial ? null : price, baseline, buyer, seller)}
       <div class="card section-gap">

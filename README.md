@@ -72,6 +72,11 @@ The list of deals lives in `public/data/deals.json`. Each deal has a date, type,
 - price per flowing barrel and per barrel of reserves
 - the **value in hindsight**: actual cash flow after the deal plus the Feltverdi forecast, discounted at 8% real
 
+The value includes the tax deductions the buyer takes over and the **buyer's synergies**:
+- **Announced synergies** (`synergies` in deals.json, with sources): the low end of any stated range is used. Two forms are supported: `postTaxNpv`, booked at the deal date; and `preTaxAnnual`, which runs for 10 production years from the year after the deal, after 78 % tax. Examples: Vår–ConocoPhillips USD 0.7 bn, Vår–Neptune USD 300 m, Aker BP–Lundin USD 200 m a year, OKEA–Wintershall USD 4 m a year.
+- **Otherwise a standard rule** (`SYN_RULE` in the script): opex on the acquired stakes falls by 15 % in fields the buyer operates, or by 10 % where the buyer already held a share on the deal date (read from Sodir's licensee history, `BUYERS` regex per deal). Corporate deals add +3 %. The saving starts the year after the deal and is taken after 78 % tax.
+- The yearly after-tax amounts are stored in `deal-metrics.json` (`synergy.rows`) and added to the package cash flow on the deal pages. They therefore count in the value, ratio, verdict, IRR and 8 % break-even Brent, but not in the seller's side.
+
 Price divided by value is compared with the median for all complete deals, and that comparison gives the verdict:
 
 | Verdict | Price/value relative to the median |

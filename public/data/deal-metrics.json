@@ -2,7 +2,7 @@
  "generated": "2026-11-27",
  "baseYear": 2026,
  "discount": 0.08,
- "baseline": 1.18,
+ "baseline": 1.12,
  "n": 11,
  "metrics": {
   "2026-equinor-japex-swap": {
@@ -236,12 +236,22 @@
    "perFlowing": 35955,
    "perBoe": 12.26,
    "perBoePctBrent": 17.8,
-   "hindsightValue": 2394,
+   "hindsightValue": 3094,
    "taxInheritedUsdM": 53,
    "taxPositionUsdM": 0,
-   "ratio": 1.85,
+   "synergy": {
+    "basis": "announced",
+    "pvUsdM": 700,
+    "rows": [
+     [
+      2026,
+      727.46
+     ]
+    ]
+   },
+   "ratio": 1.43,
    "reserveGrowth": 1,
-   "relative": 1.57
+   "relative": 1.28
   },
   "2026-var-pandion": {
    "year": 2026,
@@ -253,7 +263,8 @@
      "slug": "nova",
      "share": 10,
      "prodKboed": 3,
-     "remMmboe": 3.2
+     "remMmboe": 3.2,
+     "syn": "none"
     }
    ],
    "prodKboed": 3,
@@ -269,6 +280,64 @@
    "hindsightValue": 36,
    "taxInheritedUsdM": 1,
    "taxPositionUsdM": 0,
+   "synergy": {
+    "basis": "rule",
+    "pvUsdM": 0,
+    "rows": [
+     [
+      2027,
+      0.03
+     ],
+     [
+      2028,
+      0.03
+     ],
+     [
+      2029,
+      0.03
+     ],
+     [
+      2030,
+      0.02
+     ],
+     [
+      2031,
+      0.02
+     ],
+     [
+      2032,
+      0.02
+     ],
+     [
+      2033,
+      0.02
+     ],
+     [
+      2034,
+      0.02
+     ],
+     [
+      2035,
+      0.02
+     ],
+     [
+      2036,
+      0.02
+     ],
+     [
+      2037,
+      0.01
+     ],
+     [
+      2038,
+      0.01
+     ],
+     [
+      2039,
+      0.01
+     ]
+    ]
+   },
    "ratio": 3.04,
    "reserveGrowth": 1,
    "relative": null
@@ -350,14 +419,16 @@
      "slug": "goliat",
      "share": 20,
      "prodKboed": 4.4,
-     "remMmboe": 12.9
+     "remMmboe": 12.9,
+     "syn": "none"
     },
     {
      "field": "Fenja",
      "slug": "fenja",
      "share": 25,
      "prodKboed": 3,
-     "remMmboe": 9.2
+     "remMmboe": 9.2,
+     "syn": "none"
     }
    ],
    "prodKboed": 7.4,
@@ -373,9 +444,14 @@
    "hindsightValue": 140,
    "taxInheritedUsdM": 3,
    "taxPositionUsdM": 0,
+   "synergy": {
+    "basis": "rule",
+    "pvUsdM": 0,
+    "rows": []
+   },
    "ratio": 2.51,
    "reserveGrowth": 1,
-   "relative": 2.13
+   "relative": 2.24
   },
   "2025-dno-sval": {
    "year": 2025,
@@ -387,140 +463,160 @@
      "slug": "martin-linge",
      "share": 19,
      "prodKboed": 9,
-     "remMmboe": 21
+     "remMmboe": 21,
+     "syn": "none"
     },
     {
      "field": "Dvalin",
      "slug": "dvalin",
      "share": 10,
      "prodKboed": 4.7,
-     "remMmboe": 18.2
+     "remMmboe": 18.2,
+     "syn": "none"
     },
     {
      "field": "Eldfisk",
      "slug": "eldfisk",
      "share": 7.604,
      "prodKboed": 3.6,
-     "remMmboe": 15
+     "remMmboe": 15,
+     "syn": "none"
     },
     {
      "field": "Nova",
      "slug": "nova",
      "share": 45,
      "prodKboed": 11.5,
-     "remMmboe": 14.2
+     "remMmboe": 14.2,
+     "syn": "none"
     },
     {
      "field": "Maria",
      "slug": "maria",
      "share": 20,
      "prodKboed": 2.6,
-     "remMmboe": 13.5
+     "remMmboe": 13.5,
+     "syn": "none"
     },
     {
      "field": "Kvitebjørn",
      "slug": "kvitebjorn",
      "share": 19,
      "prodKboed": 10.9,
-     "remMmboe": 13.4
+     "remMmboe": 13.4,
+     "syn": "none"
     },
     {
      "field": "Symra",
      "slug": "symra",
      "share": 20,
      "prodKboed": 0,
-     "remMmboe": 12.6
+     "remMmboe": 12.6,
+     "syn": "none"
     },
     {
      "field": "Ekofisk",
      "slug": "ekofisk",
      "share": 7.604,
      "prodKboed": 5.2,
-     "remMmboe": 12
+     "remMmboe": 12,
+     "syn": "none"
     },
     {
      "field": "Fenja",
      "slug": "fenja",
      "share": 17.5,
      "prodKboed": 3.5,
-     "remMmboe": 8.5
+     "remMmboe": 8.5,
+     "syn": "partner"
     },
     {
      "field": "Ivar Aasen",
      "slug": "ivar-aasen",
      "share": 12.317,
      "prodKboed": 3.2,
-     "remMmboe": 4.9
+     "remMmboe": 4.9,
+     "syn": "none"
     },
     {
      "field": "Vega",
      "slug": "vega",
      "share": 5.5,
      "prodKboed": 2.4,
-     "remMmboe": 3.1
+     "remMmboe": 3.1,
+     "syn": "none"
     },
     {
      "field": "Duva",
      "slug": "duva",
      "share": 10,
      "prodKboed": 2.5,
-     "remMmboe": 2.5
+     "remMmboe": 2.5,
+     "syn": "none"
     },
     {
      "field": "Trym",
      "slug": "trym",
      "share": 50,
      "prodKboed": 0.2,
-     "remMmboe": 1.7
+     "remMmboe": 1.7,
+     "syn": "operator"
     },
     {
      "field": "Oda",
      "slug": "oda",
      "share": 70,
      "prodKboed": 4.7,
-     "remMmboe": 1.2
+     "remMmboe": 1.2,
+     "syn": "partner"
     },
     {
      "field": "Tor",
      "slug": "tor",
      "share": 6.639,
      "prodKboed": 0.6,
-     "remMmboe": 1.2
+     "remMmboe": 1.2,
+     "syn": "none"
     },
     {
      "field": "Hanz",
      "slug": "hanz",
      "share": 15,
      "prodKboed": 1,
-     "remMmboe": 0.9
+     "remMmboe": 0.9,
+     "syn": "none"
     },
     {
      "field": "Embla",
      "slug": "embla",
      "share": 7.604,
      "prodKboed": 0.3,
-     "remMmboe": 0.3
+     "remMmboe": 0.3,
+     "syn": "none"
     },
     {
      "field": "Albuskjell",
      "slug": "albuskjell",
      "share": 7.604,
      "prodKboed": 0,
-     "remMmboe": 0
+     "remMmboe": 0,
+     "syn": "none"
     },
     {
      "field": "Edda",
      "slug": "edda",
      "share": 7.604,
      "prodKboed": 0,
-     "remMmboe": 0
+     "remMmboe": 0,
+     "syn": "none"
     },
     {
      "field": "Vest Ekofisk",
      "slug": "vest-ekofisk",
      "share": 7.604,
      "prodKboed": 0,
-     "remMmboe": 0
+     "remMmboe": 0,
+     "syn": "none"
     }
    ],
    "prodKboed": 65.9,
@@ -533,12 +629,170 @@
    "perFlowing": 24288,
    "perBoe": 11.1,
    "perBoePctBrent": 16.1,
-   "hindsightValue": 1367,
+   "hindsightValue": 1381,
    "taxInheritedUsdM": 43,
    "taxPositionUsdM": 0,
-   "ratio": 1.32,
+   "synergy": {
+    "basis": "rule",
+    "pvUsdM": 14,
+    "rows": [
+     [
+      2026,
+      2.01
+     ],
+     [
+      2027,
+      1.98
+     ],
+     [
+      2028,
+      1.9
+     ],
+     [
+      2029,
+      1.67
+     ],
+     [
+      2030,
+      1.62
+     ],
+     [
+      2031,
+      1.57
+     ],
+     [
+      2032,
+      1.54
+     ],
+     [
+      2033,
+      1.49
+     ],
+     [
+      2034,
+      1.08
+     ],
+     [
+      2035,
+      0.93
+     ],
+     [
+      2036,
+      0.92
+     ],
+     [
+      2037,
+      0.9
+     ],
+     [
+      2038,
+      0.89
+     ],
+     [
+      2039,
+      0.87
+     ],
+     [
+      2040,
+      0.8
+     ],
+     [
+      2041,
+      0.79
+     ],
+     [
+      2042,
+      0.78
+     ],
+     [
+      2043,
+      0.78
+     ],
+     [
+      2044,
+      0.77
+     ],
+     [
+      2045,
+      0.71
+     ],
+     [
+      2046,
+      0.7
+     ],
+     [
+      2047,
+      0.7
+     ],
+     [
+      2048,
+      0.63
+     ],
+     [
+      2049,
+      0.63
+     ],
+     [
+      2050,
+      0.62
+     ],
+     [
+      2051,
+      0.61
+     ],
+     [
+      2052,
+      0.37
+     ],
+     [
+      2053,
+      0.19
+     ],
+     [
+      2054,
+      0.19
+     ],
+     [
+      2055,
+      0.19
+     ],
+     [
+      2056,
+      0.17
+     ],
+     [
+      2057,
+      0.17
+     ],
+     [
+      2058,
+      0.06
+     ],
+     [
+      2059,
+      0.06
+     ],
+     [
+      2060,
+      0.02
+     ],
+     [
+      2061,
+      0.02
+     ],
+     [
+      2062,
+      0.02
+     ],
+     [
+      2063,
+      0.02
+     ]
+    ]
+   },
+   "ratio": 1.3,
    "reserveGrowth": 1.05,
-   "relative": 1.12
+   "relative": 1.16
   },
   "2024-equinor-petoro-swap": {
    "year": 2024,
@@ -722,12 +976,22 @@
    "perFlowing": 40096,
    "perBoe": 8.99,
    "perBoePctBrent": 10.9,
-   "hindsightValue": 2099,
+   "hindsightValue": 2426,
    "taxInheritedUsdM": 154,
    "taxPositionUsdM": 0,
-   "ratio": 1.18,
+   "synergy": {
+    "basis": "announced",
+    "pvUsdM": 327,
+    "rows": [
+     [
+      2023,
+      340.11
+     ]
+    ]
+   },
+   "ratio": 1.02,
    "reserveGrowth": 1.11,
-   "relative": 1
+   "relative": 0.91
   },
   "2022-okea-wintershalldea": {
    "year": 2022,
@@ -766,12 +1030,58 @@
    "perFlowing": 19215,
    "perBoe": 7.14,
    "perBoePctBrent": 7.2,
-   "hindsightValue": 224,
+   "hindsightValue": 230,
    "taxInheritedUsdM": 44,
    "taxPositionUsdM": 0,
-   "ratio": 0.6,
+   "synergy": {
+    "basis": "announced",
+    "pvUsdM": 6,
+    "rows": [
+     [
+      2023,
+      0.88
+     ],
+     [
+      2024,
+      0.88
+     ],
+     [
+      2025,
+      0.88
+     ],
+     [
+      2026,
+      0.88
+     ],
+     [
+      2027,
+      0.88
+     ],
+     [
+      2028,
+      0.88
+     ],
+     [
+      2029,
+      0.88
+     ],
+     [
+      2030,
+      0.88
+     ],
+     [
+      2031,
+      0.88
+     ],
+     [
+      2032,
+      0.88
+     ]
+    ]
+   },
+   "ratio": 0.58,
    "reserveGrowth": 1.41,
-   "relative": 0.51
+   "relative": 0.52
   },
   "2021-akerbp-lundin": {
    "year": 2021,
@@ -852,12 +1162,58 @@
    "perFlowing": 82720,
    "perBoe": 20.66,
    "perBoePctBrent": 29.3,
-   "hindsightValue": 9443,
+   "hindsightValue": 9727,
    "taxInheritedUsdM": 844,
    "taxPositionUsdM": 0,
-   "ratio": 1.8,
+   "synergy": {
+    "basis": "announced",
+    "pvUsdM": 284,
+    "rows": [
+     [
+      2022,
+      44
+     ],
+     [
+      2023,
+      44
+     ],
+     [
+      2024,
+      44
+     ],
+     [
+      2025,
+      44
+     ],
+     [
+      2026,
+      44
+     ],
+     [
+      2027,
+      44
+     ],
+     [
+      2028,
+      44
+     ],
+     [
+      2029,
+      44
+     ],
+     [
+      2030,
+      44
+     ],
+     [
+      2031,
+      44
+     ]
+    ]
+   },
+   "ratio": 1.75,
    "reserveGrowth": 1.11,
-   "relative": 1.53
+   "relative": 1.56
   },
   "2021-sval-spirit": {
    "year": 2021,
@@ -869,98 +1225,112 @@
      "slug": "kvitebjorn",
      "share": 19,
      "prodKboed": 17.3,
-     "remMmboe": 32.6
+     "remMmboe": 32.6,
+     "syn": "none"
     },
     {
      "field": "Statfjord",
      "slug": "statfjord",
      "share": 19.765,
      "prodKboed": 8.5,
-     "remMmboe": 21.6
+     "remMmboe": 21.6,
+     "syn": "none"
     },
     {
      "field": "Nova",
      "slug": "nova",
      "share": 20,
      "prodKboed": 0,
-     "remMmboe": 15.9
+     "remMmboe": 15.9,
+     "syn": "partner"
     },
     {
      "field": "Ivar Aasen",
      "slug": "ivar-aasen",
      "share": 12.317,
      "prodKboed": 7.2,
-     "remMmboe": 12.6
+     "remMmboe": 12.6,
+     "syn": "none"
     },
     {
      "field": "Maria",
      "slug": "maria",
      "share": 20,
      "prodKboed": 2.9,
-     "remMmboe": 11
+     "remMmboe": 11,
+     "syn": "none"
     },
     {
      "field": "Oda",
      "slug": "oda",
      "share": 40,
      "prodKboed": 9.1,
-     "remMmboe": 9.5
+     "remMmboe": 9.5,
+     "syn": "none"
     },
     {
      "field": "Statfjord Nord",
      "slug": "statfjord-nord",
      "share": 23.125,
      "prodKboed": 2.2,
-     "remMmboe": 7.1
+     "remMmboe": 7.1,
+     "syn": "none"
     },
     {
      "field": "Vega",
      "slug": "vega",
      "share": 5.5,
      "prodKboed": 2.8,
-     "remMmboe": 6.6
+     "remMmboe": 6.6,
+     "syn": "none"
     },
     {
      "field": "Statfjord Øst",
      "slug": "statfjord-ost",
      "share": 11.563,
      "prodKboed": 0.6,
-     "remMmboe": 3.3
+     "remMmboe": 3.3,
+     "syn": "none"
     },
     {
      "field": "Hanz",
      "slug": "hanz",
      "share": 15,
      "prodKboed": 0,
-     "remMmboe": 2.7
+     "remMmboe": 2.7,
+     "syn": "none"
     },
     {
      "field": "Trym",
      "slug": "trym",
      "share": 50,
      "prodKboed": 0,
-     "remMmboe": 2.6
+     "remMmboe": 2.6,
+     "syn": "none"
     },
     {
      "field": "Vale",
      "slug": "vale",
      "share": 50,
      "prodKboed": 2,
-     "remMmboe": 1.8
+     "remMmboe": 1.8,
+     "syn": "none"
     },
     {
      "field": "Sygna",
      "slug": "sygna",
      "share": 12.719,
      "prodKboed": 0.3,
-     "remMmboe": 0.6
+     "remMmboe": 0.6,
+     "syn": "none"
     },
     {
      "field": "Heimdal",
      "slug": "heimdal",
      "share": 28.798,
      "prodKboed": 0.1,
-     "remMmboe": 0
+     "remMmboe": 0,
+     "syn": "none"
     },
     {
      "field": "Halten Øst",
@@ -968,7 +1338,8 @@
      "later": true,
      "share": 11.8,
      "prodKboed": 0,
-     "remMmboe": 0
+     "remMmboe": 0,
+     "syn": "none"
     },
     {
      "field": "Symra",
@@ -976,7 +1347,8 @@
      "later": true,
      "share": 20,
      "prodKboed": 0,
-     "remMmboe": 0
+     "remMmboe": 0,
+     "syn": "none"
     }
    ],
    "prodKboed": 53,
@@ -989,12 +1361,170 @@
    "perFlowing": 20766,
    "perBoe": 8.6,
    "perBoePctBrent": 12.2,
-   "hindsightValue": 1799,
+   "hindsightValue": 1808,
    "taxInheritedUsdM": 313,
    "taxPositionUsdM": 0,
+   "synergy": {
+    "basis": "rule",
+    "pvUsdM": 9,
+    "rows": [
+     [
+      2022,
+      1.31
+     ],
+     [
+      2023,
+      1.42
+     ],
+     [
+      2024,
+      1.46
+     ],
+     [
+      2025,
+      1.56
+     ],
+     [
+      2026,
+      0.85
+     ],
+     [
+      2027,
+      0.85
+     ],
+     [
+      2028,
+      0.79
+     ],
+     [
+      2029,
+      0.71
+     ],
+     [
+      2030,
+      0.67
+     ],
+     [
+      2031,
+      0.62
+     ],
+     [
+      2032,
+      0.59
+     ],
+     [
+      2033,
+      0.56
+     ],
+     [
+      2034,
+      0.54
+     ],
+     [
+      2035,
+      0.49
+     ],
+     [
+      2036,
+      0.48
+     ],
+     [
+      2037,
+      0.47
+     ],
+     [
+      2038,
+      0.46
+     ],
+     [
+      2039,
+      0.45
+     ],
+     [
+      2040,
+      0.32
+     ],
+     [
+      2041,
+      0.32
+     ],
+     [
+      2042,
+      0.31
+     ],
+     [
+      2043,
+      0.31
+     ],
+     [
+      2044,
+      0.28
+     ],
+     [
+      2045,
+      0.22
+     ],
+     [
+      2046,
+      0.22
+     ],
+     [
+      2047,
+      0.22
+     ],
+     [
+      2048,
+      0.15
+     ],
+     [
+      2049,
+      0.15
+     ],
+     [
+      2050,
+      0.15
+     ],
+     [
+      2051,
+      0.12
+     ],
+     [
+      2052,
+      0.12
+     ],
+     [
+      2053,
+      0.06
+     ],
+     [
+      2054,
+      0.06
+     ],
+     [
+      2055,
+      0.06
+     ],
+     [
+      2056,
+      0.05
+     ],
+     [
+      2057,
+      0.05
+     ],
+     [
+      2058,
+      0.05
+     ],
+     [
+      2059,
+      0.05
+     ]
+    ]
+   },
    "ratio": 0.75,
    "reserveGrowth": 1.25,
-   "relative": 0.64
+   "relative": 0.67
   },
   "2020-sval-edison": {
    "year": 2020,
@@ -1006,14 +1536,16 @@
      "slug": "dvalin",
      "share": 10,
      "prodKboed": 0,
-     "remMmboe": 11.8
+     "remMmboe": 11.8,
+     "syn": "none"
     },
     {
      "field": "Nova",
      "slug": "nova",
      "share": 15,
      "prodKboed": 0,
-     "remMmboe": 11.8
+     "remMmboe": 11.8,
+     "syn": "partner"
     }
    ],
    "prodKboed": 0,
@@ -1026,12 +1558,190 @@
    "perFlowing": null,
    "perBoe": 12.7,
    "perBoePctBrent": 30,
-   "hindsightValue": 232,
+   "hindsightValue": 234,
    "taxInheritedUsdM": 86,
    "taxPositionUsdM": 0,
-   "ratio": 1.66,
+   "synergy": {
+    "basis": "rule",
+    "pvUsdM": 2,
+    "rows": [
+     [
+      2021,
+      0.01
+     ],
+     [
+      2022,
+      0.1
+     ],
+     [
+      2023,
+      0.27
+     ],
+     [
+      2024,
+      0.33
+     ],
+     [
+      2025,
+      0.35
+     ],
+     [
+      2026,
+      0.32
+     ],
+     [
+      2027,
+      0.28
+     ],
+     [
+      2028,
+      0.25
+     ],
+     [
+      2029,
+      0.22
+     ],
+     [
+      2030,
+      0.2
+     ],
+     [
+      2031,
+      0.18
+     ],
+     [
+      2032,
+      0.16
+     ],
+     [
+      2033,
+      0.15
+     ],
+     [
+      2034,
+      0.14
+     ],
+     [
+      2035,
+      0.14
+     ],
+     [
+      2036,
+      0.13
+     ],
+     [
+      2037,
+      0.13
+     ],
+     [
+      2038,
+      0.12
+     ],
+     [
+      2039,
+      0.12
+     ],
+     [
+      2040,
+      0.03
+     ],
+     [
+      2041,
+      0.02
+     ],
+     [
+      2042,
+      0.02
+     ],
+     [
+      2043,
+      0.02
+     ],
+     [
+      2044,
+      0.02
+     ],
+     [
+      2045,
+      0.02
+     ],
+     [
+      2046,
+      0.02
+     ],
+     [
+      2047,
+      0.02
+     ],
+     [
+      2048,
+      0.02
+     ],
+     [
+      2049,
+      0.02
+     ],
+     [
+      2050,
+      0.02
+     ],
+     [
+      2051,
+      0.02
+     ],
+     [
+      2052,
+      0.02
+     ],
+     [
+      2053,
+      0.02
+     ],
+     [
+      2054,
+      0.02
+     ],
+     [
+      2055,
+      0.02
+     ],
+     [
+      2056,
+      0.02
+     ],
+     [
+      2057,
+      0.02
+     ],
+     [
+      2058,
+      0.02
+     ],
+     [
+      2059,
+      0.02
+     ],
+     [
+      2060,
+      0.02
+     ],
+     [
+      2061,
+      0.02
+     ],
+     [
+      2062,
+      0.02
+     ],
+     [
+      2063,
+      0.02
+     ]
+    ]
+   },
+   "ratio": 1.65,
    "reserveGrowth": 1.04,
-   "relative": 1.41
+   "relative": 1.47
   },
   "2019-var-exxonmobil": {
    "year": 2019,
@@ -1043,140 +1753,160 @@
      "slug": "snorre",
      "share": 17.446,
      "prodKboed": 16,
-     "remMmboe": 100.7
+     "remMmboe": 100.7,
+     "syn": "partner"
     },
     {
      "field": "Grane",
      "slug": "grane",
      "share": 28.316,
      "prodKboed": 27.4,
-     "remMmboe": 53.4
+     "remMmboe": 53.4,
+     "syn": "none"
     },
     {
      "field": "Ormen Lange",
      "slug": "ormen-lange",
      "share": 6.336,
      "prodKboed": 18,
-     "remMmboe": 41.4
+     "remMmboe": 41.4,
+     "syn": "none"
     },
     {
      "field": "Tyrihans",
      "slug": "tyrihans",
      "share": 11.787,
      "prodKboed": 10.1,
-     "remMmboe": 36.3
+     "remMmboe": 36.3,
+     "syn": "partner"
     },
     {
      "field": "Mikkel",
      "slug": "mikkel",
      "share": 33.48,
      "prodKboed": 13.9,
-     "remMmboe": 35
+     "remMmboe": 35,
+     "syn": "partner"
     },
     {
      "field": "Fram",
      "slug": "fram",
      "share": 25,
      "prodKboed": 10.1,
-     "remMmboe": 32.8
+     "remMmboe": 32.8,
+     "syn": "none"
     },
     {
      "field": "Åsgard",
      "slug": "asgard",
      "share": 7.24,
      "prodKboed": 18.8,
-     "remMmboe": 28.4
+     "remMmboe": 28.4,
+     "syn": "partner"
     },
     {
      "field": "Trestakk",
      "slug": "trestakk",
      "share": 33,
      "prodKboed": 0,
-     "remMmboe": 25.8
+     "remMmboe": 25.8,
+     "syn": "partner"
     },
     {
      "field": "Statfjord",
      "slug": "statfjord",
      "share": 21.367,
      "prodKboed": 12.1,
-     "remMmboe": 18
+     "remMmboe": 18,
+     "syn": "none"
     },
     {
      "field": "Sleipner Vest",
      "slug": "sleipner-vest",
      "share": 17.239,
      "prodKboed": 12.7,
-     "remMmboe": 15.3
+     "remMmboe": 15.3,
+     "syn": "none"
     },
     {
      "field": "Vigdis",
      "slug": "vigdis",
      "share": 16.1,
      "prodKboed": 4.4,
-     "remMmboe": 10.4
+     "remMmboe": 10.4,
+     "syn": "none"
     },
     {
      "field": "Tordis",
      "slug": "tordis",
      "share": 16.1,
      "prodKboed": 2.6,
-     "remMmboe": 5.3
+     "remMmboe": 5.3,
+     "syn": "none"
     },
     {
      "field": "Kristin",
      "slug": "kristin",
      "share": 10.876,
      "prodKboed": 3.5,
-     "remMmboe": 4.5
+     "remMmboe": 4.5,
+     "syn": "partner"
     },
     {
      "field": "Statfjord Nord",
      "slug": "statfjord-nord",
      "share": 25,
      "prodKboed": 2,
-     "remMmboe": 4.2
+     "remMmboe": 4.2,
+     "syn": "none"
     },
     {
      "field": "Svalin",
      "slug": "svalin",
      "share": 13,
      "prodKboed": 1.6,
-     "remMmboe": 3.2
+     "remMmboe": 3.2,
+     "syn": "none"
     },
     {
      "field": "Sigyn",
      "slug": "sigyn",
      "share": 40,
      "prodKboed": 1.4,
-     "remMmboe": 1.5
+     "remMmboe": 1.5,
+     "syn": "none"
     },
     {
      "field": "Sygna",
      "slug": "sygna",
      "share": 20.995,
      "prodKboed": 0.6,
-     "remMmboe": 0.9
+     "remMmboe": 0.9,
+     "syn": "none"
     },
     {
      "field": "Gungne",
      "slug": "gungne",
      "share": 13,
      "prodKboed": 0.5,
-     "remMmboe": 0.7
+     "remMmboe": 0.7,
+     "syn": "none"
     },
     {
      "field": "Sleipner Øst",
      "slug": "sleipner-ost",
      "share": 15.4,
      "prodKboed": 0.8,
-     "remMmboe": 0.4
+     "remMmboe": 0.4,
+     "syn": "none"
     },
     {
      "field": "Statfjord Øst",
      "slug": "statfjord-ost",
      "share": 20.55,
      "prodKboed": 0.7,
-     "remMmboe": 0.3
+     "remMmboe": 0.3,
+     "syn": "none"
     },
     {
      "field": "Breidablikk",
@@ -1184,7 +1914,8 @@
      "later": true,
      "share": 34.4,
      "prodKboed": 0,
-     "remMmboe": 0
+     "remMmboe": 0,
+     "syn": "none"
     },
     {
      "field": "Halten Øst",
@@ -1192,7 +1923,8 @@
      "later": true,
      "share": 14.4,
      "prodKboed": 0,
-     "remMmboe": 0
+     "remMmboe": 0,
+     "syn": "none"
     }
    ],
    "prodKboed": 157.2,
@@ -1205,12 +1937,182 @@
    "perFlowing": 28620,
    "perBoe": 10.75,
    "perBoePctBrent": 16.8,
-   "hindsightValue": 5184,
+   "hindsightValue": 5219,
    "taxInheritedUsdM": 657,
    "taxPositionUsdM": 0,
-   "ratio": 1.13,
+   "synergy": {
+    "basis": "rule",
+    "pvUsdM": 35,
+    "rows": [
+     [
+      2020,
+      3.72
+     ],
+     [
+      2021,
+      3.64
+     ],
+     [
+      2022,
+      3.58
+     ],
+     [
+      2023,
+      3.47
+     ],
+     [
+      2024,
+      3.31
+     ],
+     [
+      2025,
+      3.38
+     ],
+     [
+      2026,
+      3.29
+     ],
+     [
+      2027,
+      3.21
+     ],
+     [
+      2028,
+      3.15
+     ],
+     [
+      2029,
+      3.09
+     ],
+     [
+      2030,
+      3.03
+     ],
+     [
+      2031,
+      2.99
+     ],
+     [
+      2032,
+      2.95
+     ],
+     [
+      2033,
+      2.91
+     ],
+     [
+      2034,
+      2.88
+     ],
+     [
+      2035,
+      2.85
+     ],
+     [
+      2036,
+      2.83
+     ],
+     [
+      2037,
+      2.81
+     ],
+     [
+      2038,
+      2.79
+     ],
+     [
+      2039,
+      2.77
+     ],
+     [
+      2040,
+      2.76
+     ],
+     [
+      2041,
+      2.74
+     ],
+     [
+      2042,
+      2.73
+     ],
+     [
+      2043,
+      2.72
+     ],
+     [
+      2044,
+      2.71
+     ],
+     [
+      2045,
+      2.04
+     ],
+     [
+      2046,
+      2.03
+     ],
+     [
+      2047,
+      2.03
+     ],
+     [
+      2048,
+      2.02
+     ],
+     [
+      2049,
+      2.02
+     ],
+     [
+      2050,
+      2.01
+     ],
+     [
+      2051,
+      2.01
+     ],
+     [
+      2052,
+      1.89
+     ],
+     [
+      2053,
+      1.89
+     ],
+     [
+      2054,
+      1.89
+     ],
+     [
+      2055,
+      1.89
+     ],
+     [
+      2056,
+      1.63
+     ],
+     [
+      2057,
+      1.63
+     ],
+     [
+      2058,
+      1.51
+     ],
+     [
+      2059,
+      1.51
+     ],
+     [
+      2060,
+      1.51
+     ]
+    ]
+   },
+   "ratio": 1.12,
    "reserveGrowth": 1.52,
-   "relative": 0.96
+   "relative": 1
   },
   "2019-dno-faroe": {
    "year": 2019,
@@ -1222,91 +2124,104 @@
      "slug": "njord",
      "share": 7.5,
      "prodKboed": 0,
-     "remMmboe": 12.1
+     "remMmboe": 12.1,
+     "syn": "none"
     },
     {
      "field": "Ula",
      "slug": "ula",
      "share": 20,
      "prodKboed": 1.5,
-     "remMmboe": 9.7
+     "remMmboe": 9.7,
+     "syn": "none"
     },
     {
      "field": "Fenja",
      "slug": "fenja",
      "share": 7.5,
      "prodKboed": 0,
-     "remMmboe": 7.2
+     "remMmboe": 7.2,
+     "syn": "none"
     },
     {
      "field": "Tambar",
      "slug": "tambar",
      "share": 45,
      "prodKboed": 2.7,
-     "remMmboe": 6.1
+     "remMmboe": 6.1,
+     "syn": "none"
     },
     {
      "field": "Bauge",
      "slug": "bauge",
      "share": 7.5,
      "prodKboed": 0,
-     "remMmboe": 5.5
+     "remMmboe": 5.5,
+     "syn": "none"
     },
     {
      "field": "Oda",
      "slug": "oda",
      "share": 15,
      "prodKboed": 0,
-     "remMmboe": 5
+     "remMmboe": 5,
+     "syn": "none"
     },
     {
      "field": "Brage",
      "slug": "brage",
      "share": 14.257,
      "prodKboed": 1.3,
-     "remMmboe": 4.3
+     "remMmboe": 4.3,
+     "syn": "none"
     },
     {
      "field": "Trym",
      "slug": "trym",
      "share": 50,
      "prodKboed": 2.9,
-     "remMmboe": 3.5
+     "remMmboe": 3.5,
+     "syn": "operator"
     },
     {
      "field": "Ringhorne Øst",
      "slug": "ringhorne-ost",
      "share": 7.8,
      "prodKboed": 0.4,
-     "remMmboe": 2
+     "remMmboe": 2,
+     "syn": "none"
     },
     {
      "field": "Hyme",
      "slug": "hyme",
      "share": 7.5,
      "prodKboed": 0,
-     "remMmboe": 1.1
+     "remMmboe": 1.1,
+     "syn": "none"
     },
     {
      "field": "Tambar Øst",
      "slug": "tambar-ost",
      "share": 37.8,
      "prodKboed": 0,
-     "remMmboe": 0.2
+     "remMmboe": 0.2,
+     "syn": "none"
     },
     {
      "field": "Enoch",
      "slug": "enoch",
      "share": 1.86,
      "prodKboed": 0,
-     "remMmboe": 0
+     "remMmboe": 0,
+     "syn": "none"
     },
     {
      "field": "Oselvar",
      "slug": "oselvar",
      "share": 55,
      "prodKboed": 0.2,
-     "remMmboe": 0
+     "remMmboe": 0,
+     "syn": "none"
     },
     {
      "field": "Berling",
@@ -1314,7 +2229,8 @@
      "later": true,
      "share": 20,
      "prodKboed": 0,
-     "remMmboe": 0
+     "remMmboe": 0,
+     "syn": "none"
     },
     {
      "field": "Bestla",
@@ -1322,7 +2238,8 @@
      "later": true,
      "share": 39.279,
      "prodKboed": 0,
-     "remMmboe": 0
+     "remMmboe": 0,
+     "syn": "none"
     }
    ],
    "prodKboed": 8.9,
@@ -1335,10 +2252,192 @@
    "perFlowing": 91198,
    "perBoe": 14.4,
    "perBoePctBrent": 22.5,
-   "hindsightValue": 413,
+   "hindsightValue": 418,
    "taxInheritedUsdM": 202,
    "taxPositionUsdM": 0,
-   "ratio": 2.57,
+   "synergy": {
+    "basis": "rule",
+    "pvUsdM": 5,
+    "rows": [
+     [
+      2020,
+      0.39
+     ],
+     [
+      2021,
+      0.37
+     ],
+     [
+      2022,
+      0.46
+     ],
+     [
+      2023,
+      0.49
+     ],
+     [
+      2024,
+      0.62
+     ],
+     [
+      2025,
+      0.74
+     ],
+     [
+      2026,
+      0.69
+     ],
+     [
+      2027,
+      0.77
+     ],
+     [
+      2028,
+      0.75
+     ],
+     [
+      2029,
+      0.61
+     ],
+     [
+      2030,
+      0.5
+     ],
+     [
+      2031,
+      0.48
+     ],
+     [
+      2032,
+      0.47
+     ],
+     [
+      2033,
+      0.32
+     ],
+     [
+      2034,
+      0.31
+     ],
+     [
+      2035,
+      0.18
+     ],
+     [
+      2036,
+      0.17
+     ],
+     [
+      2037,
+      0.17
+     ],
+     [
+      2038,
+      0.16
+     ],
+     [
+      2039,
+      0.16
+     ],
+     [
+      2040,
+      0.15
+     ],
+     [
+      2041,
+      0.15
+     ],
+     [
+      2042,
+      0.15
+     ],
+     [
+      2043,
+      0.15
+     ],
+     [
+      2044,
+      0.15
+     ],
+     [
+      2045,
+      0.14
+     ],
+     [
+      2046,
+      0.13
+     ],
+     [
+      2047,
+      0.12
+     ],
+     [
+      2048,
+      0.12
+     ],
+     [
+      2049,
+      0.12
+     ],
+     [
+      2050,
+      0.12
+     ],
+     [
+      2051,
+      0.12
+     ],
+     [
+      2052,
+      0.12
+     ],
+     [
+      2053,
+      0.12
+     ],
+     [
+      2054,
+      0.1
+     ],
+     [
+      2055,
+      0.1
+     ],
+     [
+      2056,
+      0.1
+     ],
+     [
+      2057,
+      0.1
+     ],
+     [
+      2058,
+      0.09
+     ],
+     [
+      2059,
+      0.09
+     ],
+     [
+      2060,
+      0.09
+     ],
+     [
+      2061,
+      0.09
+     ],
+     [
+      2062,
+      0.09
+     ],
+     [
+      2063,
+      0.09
+     ]
+    ]
+   },
+   "ratio": 2.54,
    "reserveGrowth": 1.1,
    "relative": null
   },
@@ -1352,14 +2451,16 @@
      "slug": "gjoa",
      "share": 12,
      "prodKboed": 13.3,
-     "remMmboe": 15.1
+     "remMmboe": 15.1,
+     "syn": "none"
     },
     {
      "field": "Draugen",
      "slug": "draugen",
      "share": 44.56,
      "prodKboed": 10.9,
-     "remMmboe": 11.1
+     "remMmboe": 11.1,
+     "syn": "operator"
     }
    ],
    "prodKboed": 24.2,
@@ -1372,12 +2473,134 @@
    "perFlowing": 22963,
    "perBoe": 21.2,
    "perBoePctBrent": 29.8,
-   "hindsightValue": 790,
+   "hindsightValue": 814,
    "taxInheritedUsdM": 251,
    "taxPositionUsdM": 0,
-   "ratio": 0.93,
+   "synergy": {
+    "basis": "rule",
+    "pvUsdM": 24,
+    "rows": [
+     [
+      2019,
+      2.29
+     ],
+     [
+      2020,
+      2.28
+     ],
+     [
+      2021,
+      2.28
+     ],
+     [
+      2022,
+      2.28
+     ],
+     [
+      2023,
+      2.28
+     ],
+     [
+      2024,
+      2.29
+     ],
+     [
+      2025,
+      2.29
+     ],
+     [
+      2026,
+      2.28
+     ],
+     [
+      2027,
+      2.28
+     ],
+     [
+      2028,
+      2.28
+     ],
+     [
+      2029,
+      2.28
+     ],
+     [
+      2030,
+      2.28
+     ],
+     [
+      2031,
+      2.27
+     ],
+     [
+      2032,
+      2.27
+     ],
+     [
+      2033,
+      2.27
+     ],
+     [
+      2034,
+      2.27
+     ],
+     [
+      2035,
+      2.27
+     ],
+     [
+      2036,
+      2.26
+     ],
+     [
+      2037,
+      2.26
+     ],
+     [
+      2038,
+      2.26
+     ],
+     [
+      2039,
+      2.26
+     ],
+     [
+      2040,
+      2.26
+     ],
+     [
+      2041,
+      2.26
+     ],
+     [
+      2042,
+      2.26
+     ],
+     [
+      2043,
+      2.26
+     ],
+     [
+      2044,
+      2.25
+     ],
+     [
+      2045,
+      2.25
+     ],
+     [
+      2046,
+      2.25
+     ],
+     [
+      2047,
+      2.25
+     ]
+    ]
+   },
+   "ratio": 0.9,
    "reserveGrowth": 2.84,
-   "relative": 0.79
+   "relative": 0.8
   },
   "2017-akerbp-hess": {
    "year": 2017,
@@ -1389,14 +2612,16 @@
      "slug": "valhall",
      "share": 64.047,
      "prodKboed": 27.2,
-     "remMmboe": 152.7
+     "remMmboe": 152.7,
+     "syn": "operator"
     },
     {
      "field": "Hod",
      "slug": "hod",
      "share": 62.5,
      "prodKboed": 0.9,
-     "remMmboe": 3.4
+     "remMmboe": 3.4,
+     "syn": "operator"
     }
    ],
    "prodKboed": 28.2,
@@ -1409,10 +2634,156 @@
    "perFlowing": 71009,
    "perBoe": 12.81,
    "perBoePctBrent": 23.5,
-   "hindsightValue": 2550,
+   "hindsightValue": 2676,
    "taxInheritedUsdM": 316,
    "taxPositionUsdM": 1885,
-   "ratio": 1.06,
+   "synergy": {
+    "basis": "rule",
+    "pvUsdM": 126,
+    "rows": [
+     [
+      2018,
+      11.46
+     ],
+     [
+      2019,
+      11.47
+     ],
+     [
+      2020,
+      11.53
+     ],
+     [
+      2021,
+      11.51
+     ],
+     [
+      2022,
+      11.51
+     ],
+     [
+      2023,
+      11.53
+     ],
+     [
+      2024,
+      11.51
+     ],
+     [
+      2025,
+      11.49
+     ],
+     [
+      2026,
+      11.48
+     ],
+     [
+      2027,
+      11.47
+     ],
+     [
+      2028,
+      11.47
+     ],
+     [
+      2029,
+      11.46
+     ],
+     [
+      2030,
+      11.45
+     ],
+     [
+      2031,
+      11.44
+     ],
+     [
+      2032,
+      11.44
+     ],
+     [
+      2033,
+      11.43
+     ],
+     [
+      2034,
+      11.42
+     ],
+     [
+      2035,
+      11.42
+     ],
+     [
+      2036,
+      11.41
+     ],
+     [
+      2037,
+      11.41
+     ],
+     [
+      2038,
+      11.4
+     ],
+     [
+      2039,
+      11.4
+     ],
+     [
+      2040,
+      11.39
+     ],
+     [
+      2041,
+      11.39
+     ],
+     [
+      2042,
+      11.38
+     ],
+     [
+      2043,
+      11.38
+     ],
+     [
+      2044,
+      11.37
+     ],
+     [
+      2045,
+      11.37
+     ],
+     [
+      2046,
+      11.37
+     ],
+     [
+      2047,
+      11.36
+     ],
+     [
+      2048,
+      11.36
+     ],
+     [
+      2049,
+      1.6
+     ],
+     [
+      2050,
+      1.6
+     ],
+     [
+      2051,
+      1.6
+     ],
+     [
+      2052,
+      1.6
+     ]
+    ]
+   },
+   "ratio": 1.01,
    "reserveGrowth": 1.61,
    "relative": 0.9
   },
@@ -1426,35 +2797,40 @@
      "slug": "ormen-lange",
      "share": 14.021,
      "prodKboed": 44.2,
-     "remMmboe": 115.3
+     "remMmboe": 115.3,
+     "syn": "none"
     },
     {
      "field": "Marulk",
      "slug": "marulk",
      "share": 30,
      "prodKboed": 7,
-     "remMmboe": 5.8
+     "remMmboe": 5.8,
+     "syn": "none"
     },
     {
      "field": "Alve",
      "slug": "alve",
      "share": 15,
      "prodKboed": 1.9,
-     "remMmboe": 2.7
+     "remMmboe": 2.7,
+     "syn": "none"
     },
     {
      "field": "Gyda",
      "slug": "gyda",
      "share": 34,
      "prodKboed": 0.5,
-     "remMmboe": 0.4
+     "remMmboe": 0.4,
+     "syn": "none"
     },
     {
      "field": "Tambar Øst",
      "slug": "tambar-ost",
      "share": 5.44,
      "prodKboed": 0,
-     "remMmboe": 0
+     "remMmboe": 0,
+     "syn": "none"
     }
    ],
    "prodKboed": 53.7,
@@ -1467,9 +2843,199 @@
    "perFlowing": null,
    "perBoe": null,
    "perBoePctBrent": null,
-   "hindsightValue": 1656,
+   "hindsightValue": 1660,
    "taxInheritedUsdM": 140,
    "taxPositionUsdM": 0,
+   "synergy": {
+    "basis": "rule",
+    "pvUsdM": 4,
+    "rows": [
+     [
+      2018,
+      0.69
+     ],
+     [
+      2019,
+      0.59
+     ],
+     [
+      2020,
+      0.57
+     ],
+     [
+      2021,
+      0.46
+     ],
+     [
+      2022,
+      0.42
+     ],
+     [
+      2023,
+      0.33
+     ],
+     [
+      2024,
+      0.35
+     ],
+     [
+      2025,
+      0.34
+     ],
+     [
+      2026,
+      0.32
+     ],
+     [
+      2027,
+      0.3
+     ],
+     [
+      2028,
+      0.28
+     ],
+     [
+      2029,
+      0.26
+     ],
+     [
+      2030,
+      0.25
+     ],
+     [
+      2031,
+      0.23
+     ],
+     [
+      2032,
+      0.22
+     ],
+     [
+      2033,
+      0.21
+     ],
+     [
+      2034,
+      0.2
+     ],
+     [
+      2035,
+      0.19
+     ],
+     [
+      2036,
+      0.18
+     ],
+     [
+      2037,
+      0.17
+     ],
+     [
+      2038,
+      0.17
+     ],
+     [
+      2039,
+      0.16
+     ],
+     [
+      2040,
+      0.15
+     ],
+     [
+      2041,
+      0.15
+     ],
+     [
+      2042,
+      0.14
+     ],
+     [
+      2043,
+      0.14
+     ],
+     [
+      2044,
+      0.14
+     ],
+     [
+      2045,
+      0.13
+     ],
+     [
+      2046,
+      0.13
+     ],
+     [
+      2047,
+      0.12
+     ],
+     [
+      2048,
+      0.12
+     ],
+     [
+      2049,
+      0.11
+     ],
+     [
+      2050,
+      0.1
+     ],
+     [
+      2051,
+      0.1
+     ],
+     [
+      2052,
+      0.1
+     ],
+     [
+      2053,
+      0.1
+     ],
+     [
+      2054,
+      0.1
+     ],
+     [
+      2055,
+      0.08
+     ],
+     [
+      2056,
+      0.08
+     ],
+     [
+      2057,
+      0.08
+     ],
+     [
+      2058,
+      0.08
+     ],
+     [
+      2059,
+      0.07
+     ],
+     [
+      2060,
+      0.07
+     ],
+     [
+      2061,
+      0.07
+     ],
+     [
+      2062,
+      0.07
+     ],
+     [
+      2063,
+      0.07
+     ]
+    ]
+   },
    "ratio": null,
    "reserveGrowth": 1.37,
    "relative": null
@@ -1484,21 +3050,24 @@
      "slug": "balder",
      "share": 100,
      "prodKboed": 47.6,
-     "remMmboe": 62
+     "remMmboe": 62,
+     "syn": "none"
     },
     {
      "field": "Ringhorne Øst",
      "slug": "ringhorne-ost",
      "share": 77.38,
      "prodKboed": 7.1,
-     "remMmboe": 14.1
+     "remMmboe": 14.1,
+     "syn": "none"
     },
     {
      "field": "Jotun",
      "slug": "jotun",
      "share": 90,
      "prodKboed": 1,
-     "remMmboe": 0.1
+     "remMmboe": 0.1,
+     "syn": "none"
     }
    ],
    "prodKboed": 55.7,
@@ -1514,6 +3083,11 @@
    "hindsightValue": 1080,
    "taxInheritedUsdM": 570,
    "taxPositionUsdM": 0,
+   "synergy": {
+    "basis": "rule",
+    "pvUsdM": 0,
+    "rows": []
+   },
    "ratio": null,
    "reserveGrowth": 4.17,
    "relative": null
@@ -1528,42 +3102,48 @@
      "slug": "valhall",
      "share": 35.953,
      "prodKboed": 18.4,
-     "remMmboe": 91.9
+     "remMmboe": 91.9,
+     "syn": "none"
     },
     {
      "field": "Skarv",
      "slug": "skarv",
      "share": 23.835,
      "prodKboed": 32.6,
-     "remMmboe": 74.5
+     "remMmboe": 74.5,
+     "syn": "none"
     },
     {
      "field": "Ula",
      "slug": "ula",
      "share": 80,
      "prodKboed": 7.1,
-     "remMmboe": 51.6
+     "remMmboe": 51.6,
+     "syn": "none"
     },
     {
      "field": "Tambar",
      "slug": "tambar",
      "share": 55,
      "prodKboed": 2.5,
-     "remMmboe": 3.7
+     "remMmboe": 3.7,
+     "syn": "none"
     },
     {
      "field": "Hod",
      "slug": "hod",
      "share": 37.5,
      "prodKboed": 0.5,
-     "remMmboe": 2.8
+     "remMmboe": 2.8,
+     "syn": "none"
     },
     {
      "field": "Tambar Øst",
      "slug": "tambar-ost",
      "share": 46.2,
      "prodKboed": 0,
-     "remMmboe": 0
+     "remMmboe": 0,
+     "syn": "none"
     }
    ],
    "prodKboed": 61,
@@ -1576,12 +3156,162 @@
    "perFlowing": 37256,
    "perBoe": 10.12,
    "perBoePctBrent": 23,
-   "hindsightValue": 2167,
+   "hindsightValue": 2185,
    "taxInheritedUsdM": 593,
    "taxPositionUsdM": 0,
-   "ratio": 1.45,
+   "synergy": {
+    "basis": "rule",
+    "pvUsdM": 18,
+    "rows": [
+     [
+      2017,
+      1.88
+     ],
+     [
+      2018,
+      1.88
+     ],
+     [
+      2019,
+      1.87
+     ],
+     [
+      2020,
+      1.88
+     ],
+     [
+      2021,
+      1.88
+     ],
+     [
+      2022,
+      1.89
+     ],
+     [
+      2023,
+      1.9
+     ],
+     [
+      2024,
+      1.89
+     ],
+     [
+      2025,
+      1.89
+     ],
+     [
+      2026,
+      1.88
+     ],
+     [
+      2027,
+      1.88
+     ],
+     [
+      2028,
+      1.88
+     ],
+     [
+      2029,
+      1.41
+     ],
+     [
+      2030,
+      1.31
+     ],
+     [
+      2031,
+      1.3
+     ],
+     [
+      2032,
+      1.3
+     ],
+     [
+      2033,
+      1.3
+     ],
+     [
+      2034,
+      1.3
+     ],
+     [
+      2035,
+      1.29
+     ],
+     [
+      2036,
+      1.29
+     ],
+     [
+      2037,
+      1.29
+     ],
+     [
+      2038,
+      1.29
+     ],
+     [
+      2039,
+      1.29
+     ],
+     [
+      2040,
+      1.29
+     ],
+     [
+      2041,
+      1.29
+     ],
+     [
+      2042,
+      1.08
+     ],
+     [
+      2043,
+      1.08
+     ],
+     [
+      2044,
+      1.08
+     ],
+     [
+      2045,
+      1.08
+     ],
+     [
+      2046,
+      1.07
+     ],
+     [
+      2047,
+      1.07
+     ],
+     [
+      2048,
+      1.07
+     ],
+     [
+      2049,
+      0.16
+     ],
+     [
+      2050,
+      0.16
+     ],
+     [
+      2051,
+      0.16
+     ],
+     [
+      2052,
+      0.16
+     ]
+    ]
+   },
+   "ratio": 1.44,
    "reserveGrowth": 1.41,
-   "relative": 1.23
+   "relative": 1.29
   }
  }
 }

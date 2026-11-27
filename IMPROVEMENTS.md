@@ -53,6 +53,56 @@ Scheduled cloud agents improve Feltverdi in small, focused steps (one topic per 
 
 Ten hourly runs, one topic each, on branch `review/assumptions` (never main). Newest entry first.
 
+- **Run 5 – Volumes** (decline method, economic limit, backtests, shelf forecast vs Sodir)
+  - **Findings**
+    - *The shelf forecast follows Sodir's.* Sodir expects about 4.1 Mboe/d in 2026 and just under 3.5 Mboe/d in 2030, with a plateau until 2027. It expects liquids of about 2.0 Mb/d and gas of 123.1 bcm in 2026 ([Reuters via EnergyNow, Jan 2026](https://energynow.com/2026/01/norways-oil-and-gas-output-will-fall-towards-2030-regulator-says/), [Hellenic Shipping News](https://www.hellenicshippingnews.com/norways-oil-and-gas-output-will-fall-towards-2030-regulator-says/), [Sodir, The Shelf in 2025](https://www.sodir.no/en/whats-new/publications/reports/the-shelf/the-shelf-in-2025/production-operating-fields-and-investments/)). sodir.no is not reachable from this session; the figures come from search snippets.
+      - The model gives 4.13 / 4.21 / 3.91 / 3.25 Mboe/d in 2026 / 27 / 28 / 30, and 2.14 Mboe/d in 2035. Actual 2025 was 240.5 MSm³ o.e. (4.14 Mboe/d).
+      - In 2026 the model's liquids are 2.11 Mb/d and its gas 117.7 bcm. Gas is about 4 % below Sodir, liquids about 5 % above.
+      - Sodir's 2030 figure includes discoveries not yet approved for development, which the model leaves out, so being 6 % low in 2030 is expected. The model's implied reserve growth over all fields is ×1.32 (18.0 bn boe against Sodir's 13.6 bn).
+    - *Decline persistence backtest (new, from Sodir production data only).* I took fields producing for at least 5 years at 2010, 2015 and 2020 and projected each field's observed 5-year decline 5 years ahead. Actual production divided by that projection:
+
+      | Observed decline | From 2010 | From 2015 | From 2020 |
+      |---|---|---|---|
+      | Rising output (vs flat) | 0.81 | 0.93 | 0.93 |
+      | 0–6 % a year | 0.88 | 0.96 | 1.02 |
+      | ≥ 6 % a year | 1.18 | 1.18 | 1.21 |
+
+      - This is mean reversion: fields with slow or no decline fall somewhat faster, and fast decliners slow down. The model's two bounds push in the same directions, so the method is supported.
+      - The model's push on slow fields is stronger than history shows. For the 13 fields with an observed decline of 0–6 % that hit the ×1.6 cap, the model's 2026–30 production is 0.78 of the projection, against about 0.95 in history. Examples: Aasta Hansteen 5.2 % observed, 19.6 % used; Gullfaks Sør 2.5 → 14.9 %; Tyrihans 2.3 → 10.1 %; Skarv (output rising 1.5 %/yr) → 17.5 %. These fields have small Sodir reserves next to their current rate, so even ×1.6 forces a steep exponential. Fast decliners slowed by the reserves bound get 1.12, against about 1.19 in history, which is close.
+    - *A two-stage profile was tested, not adopted.* It keeps each field's observed decline (+1.5–2 points, at least 3–4 %) for up to five years, then fits a steeper decline so the total stays at reserves × 1.6.
+      - It moves the shelf value from 128.1 to 129.5–130.3 bn USD (+1.1–1.7 %).
+      - It gives 4.22–4.24 Mboe/d in 2026, 4.31–4.37 in 2027 and 3.30–3.34 in 2030.
+      - It fits the persistence backtest better, but it overshoots Sodir's operator-based forecast in 2026–27, where the current method fits well. The evidence points both ways, so it is left as proposal 1.
+    - *Economic limit.* Production stops when revenue (plus tariffs) − opex − 0.3 × capex ≤ 0. This is consistent across `simulate` and `fitDecline`, and decommissioning comes after the limit. No change.
+    - *Data edge cases are negligible.* Only Ærfugl Nord (0.37 MMboe in 2025, zero Sodir reserves, probably reported under Ærfugl) and Veslefrikk (shut down) produced in 2025 without reserves.
+    - *Text issues (fixed):*
+      - The decline note for the 19 capped fields with rising output said "declined only −1.5 % per year".
+      - The method page said plateau fields decline at a "normal 10/12 %" after the plateau. In the code that rate only counts the plateau years; the actual tail is fitted to reserves × 1.3. Johan Sverdrup gets one plateau year and then 16.3 % a year (1,262 MMboe of reserves against 274 MMboe/yr).
+      - The method page's backtest still showed the pre-facility-cost numbers.
+  - **Changed** (no model change)
+    - `public/js/app.js`: `declineNote` uses the new key `declNote_capLowRise` when the observed decline is negative.
+    - `public/js/i18n.js` (nb + en):
+      - the new decline note
+      - the plateau text, now describing the fitted tail, with the Johan Sverdrup example
+      - the latest backtest (1.14 / 1.06), from the 27 Nov log entry
+      - a new paragraph comparing the forecast with Sodir's
+      - 18.1 → 18.0 bn boe
+    - `README.md`: the plateau tail and the Sodir check.
+  - **Shelf value at defaults:** 128.14 → 128.14 bn USD (unchanged).
+  - **Deal verdicts:** none changed (no model change). deal-metrics still needs regenerating from runs 2–4 (factpages.sodir.no is still blocked).
+  - **Checks:**
+    - `npm test`: 19/19 pass
+    - `npm run validate:deals`: OK
+    - `npm run stamp`
+    - i18n: 564 keys in both nb and en
+    - valuation.js loads
+    - `node --check` on app.js and i18n.js
+    - Headless browser: Skarv (new note), Aasta Hansteen and the method page render with no JS errors.
+  - **Proposals for the owner**
+    1. *Two-stage decline for fields at the reserve-growth cap.* Hold the observed decline (+2 points, at least 3.5 %) for up to five years, limited to half of the field's capped total, then fit the tail so the total is unchanged. The bounds and the ×1.6 cap stay as they are. Shelf value +1.5 %, and the 2030 production moves closer to Sodir. The risk is that 2026–27 overshoot Sodir by 3–6 %. The prototype was a `simulate` change of about 10 lines. It needs your call because it changes the shape of the approved method. Re-run the original 2010/2015 backtest with it (it needs Sodir's historical reserves, which are not in this repo).
+    2. *Ramp-up plateau with small reserves.* A ramp field holds max(q0, reserves/9) for three years whatever its reserves. Tyrving (25 MMboe, 8.9 MMboe/yr) then has to fall 59 % a year to stay within reserves × 1.3. Capping the ramp plateau at about half of the target would give a smoother profile. The value effect is tiny.
+    3. *Commit the backtest script.* The 2010/2015 backtest behind the method page cannot be re-run from the repo. Committing it, together with the snapshot of Sodir's historical reserves it uses, would let later runs check changes to costs and volumes.
+
 - **Run 4 – Decommissioning** (`DECOM_FAC`, the $0.5/boe floor, timing, shelf totals vs official and company figures)
   - **Findings**
     - *No official shelf total is public.* Sodir and Norsk Petroleum give no current total for future removal costs. Public facts used:

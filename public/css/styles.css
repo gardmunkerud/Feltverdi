@@ -643,3 +643,8 @@ th .info { text-transform: none; letter-spacing: 0; }
 .g-home { grid-template-columns: 1.45fr 1fr; }
 .home-prod { height: 470px; }
 @media (max-width: 900px) { .g-home { grid-template-columns: 1fr; } .home-prod { height: 320px; } }
+/* Largest owners on the landing page: same type as the "most valuable fields" list next to it */
+.owners-card .bar-row { font-size: 15px; grid-template-columns: 170px 1fr 84px; }
+.owners-card .bar-row .name a { color: var(--text); font-weight: 600; }
+.owners-card .bar-row .pct { font-size: 15px; font-weight: 600; }
+@media (max-width: 560px) { .owners-card .bar-row { grid-template-columns: minmax(0, 130px) 1fr auto; } }

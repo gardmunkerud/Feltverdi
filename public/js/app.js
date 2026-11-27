@@ -258,7 +258,7 @@
           <ol class="rank-list">${top.map((f) => `<li><span><a href="#/felt/${f.slug}">${esc(f.name)}</a><span class="meta">${esc(tmap('area', f.area))} · ${esc(tmap('hc', f.hc))}</span></span><span class="val">${money(state.vals.get(f.slug).npv)}</span></li>`).join('')}</ol>
           <p style="margin:14px 0 0"><a href="#/rangering">${t('allRankings')}</a></p>
         </div>
-        <div class="card">
+        <div class="card owners-card">
           <div class="card-head"><h2>${t('topCompanies')}</h2></div>
           ${barsHtml(comps.map(({ c, v }) => ({ name: shortCompany(c.name), href: `#/selskap/${c.slug}`, value: v.npv, label: money(v.npv, { bare: true }) })))}
           <p style="margin:14px 0 0"><a href="#/rangering" id="all-companies">${t('allCompanies')}</a></p>

@@ -168,6 +168,7 @@ const fx = new Map(H.usdnok);
 const priceY = new Map(H.prices.map(([y, b, g]) => [y, { b, g }]));
 function hindsightValue(f, s, year) {
   const opexBoe = V.OPEX_BY_TYPE[f.hc] ?? 10;
+  const fo = V.facilityOpex(f); // field-specific (facility-based) opex when the facility profile is known
   const pRef = f.prod.find((r) => r[0] === year - 1) || f.prod.find((r) => r[0] === year);
   const qRef = pRef ? pRef[5] * BOE : 0;
   let v = 0;
@@ -176,7 +177,7 @@ function hindsightValue(f, s, year) {
     const q = p ? p[5] * BOE : 0;
     const rev = p && pr ? ((p[1] + p[4]) * BOE * (pr.b - 1) + p[3] * BOE * 0.6 * pr.b + p[2] * BOE * pr.g * 5.87) * rf : 0;
     const inv = (f.inv.find((r) => r[0] === y) || [0, 0])[1] / (fx.get(y) || 10) * rf;
-    const opex = q > 0 ? opexBoe * (0.6 * Math.max(qRef, q) + 0.4 * q) : 0;
+    const opex = q <= 0 ? 0 : fo ? fo.fixed + fo.variable * q : opexBoe * (0.6 * Math.max(qRef, q) + 0.4 * q);
     v += (rev - opex - inv) * (1 - 0.78) * s * Math.pow(1 + RATE, -(y - year + 0.5));
   }
   const fut = V.valueField(f, {}, data.lastFullYear);
@@ -236,13 +237,14 @@ for (const d of deals) {
   for (const [k, v] of later) if (!stakes.has(k)) stakes.set(k, v);
   const { prod, rem, hindsight, remNow, prodAfter, items } = evalPackage(stakes, year, new Set(later.keys()));
   if (!items.length) continue;
-  const price = spec.price ?? d.valueUsdM;
+  // Adjusted price (shares valued at completion, tax assets taken out) when public; otherwise the headline price
+  const price = spec.price ?? (d.priceAdjusted ? d.priceAdjusted.valueUsdM : d.valueUsdM);
   const realF = cpiNow / cpi.get(year);
   const b = brent.get(year) ?? brent.get(year - 1);
   const m = {
     year, ...(ROLES[d.id] || {}), partial: !!spec.partial, note: spec.note || null, items,
     prodKboed: Math.round(prod / 0.365 * 10) / 10, remMmboe: Math.round(rem), brent: b,
-    priceUsdM: price, priceReal: price != null ? Math.round(price * realF) : null,
+    priceUsdM: price, headlineUsdM: d.valueUsdM, priceBasis: d.priceAdjusted ? d.priceAdjusted.basis : spec.price != null ? 'estimate' : 'headline', priceReal: price != null ? Math.round(price * realF) : null,
     perFlowing: price != null && prod > 0 ? Math.round(price * 1e6 / (prod / 0.365 * 1000)) : null,
     perBoe: price != null && rem > 0 ? Math.round(price / rem * 100) / 100 : null,
     perBoePctBrent: price != null && rem > 0 && b ? Math.round(price / rem / b * 1000) / 10 : null,
@@ -254,7 +256,9 @@ for (const d of deals) {
 }
 // Baseline: median price/value ratio of complete packages with a disclosed price. Systematic model gaps (tax balances,
 // upside, buyers' price decks and required returns) affect all deals alike, so each deal is judged relative to this.
-const ratios = Object.values(out).filter((m) => m.ratio && !m.partial).map((m) => m.ratio).sort((a, b) => a - b);
+// Deals marked 'early' (value depends on things not yet in Sodir's reserves) do not set the norm.
+const verdictOf = (id) => (deals.find((x) => x.id === id) || {}).assessment?.verdict;
+const ratios = Object.entries(out).filter(([id, m]) => m.ratio && !m.partial && verdictOf(id) !== 'early').map(([, m]) => m.ratio).sort((a, b) => a - b);
 const baseline = ratios.length ? (ratios.length % 2 ? ratios[(ratios.length - 1) / 2] : (ratios[ratios.length / 2 - 1] + ratios[ratios.length / 2]) / 2) : 1;
 for (const m of Object.values(out)) m.relative = m.ratio && !m.partial ? Math.round(m.ratio / baseline * 100) / 100 : null;
 fs.writeFileSync(path.join(root, 'public', 'data', 'deal-metrics.json'), JSON.stringify({ generated: new Date().toISOString().slice(0, 10), baseYear: H.cpiBaseYear, discount: RATE, baseline: Math.round(baseline * 100) / 100, n: ratios.length, metrics: out }, null, 1));

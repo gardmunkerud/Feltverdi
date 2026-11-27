@@ -142,12 +142,28 @@ To update the data: run `npm run build:data` locally, then commit and push the c
 
   Plateau and new fields use reserves × 1.3. New fields and fields approved for development get a three-year plateau first.
 
-  The method was calibrated on Sodir history. Backtested from 2010 and 2015, actual production divided by the forecast was 1.26 and 1.16 with this method, against 1.45 and 1.35 when fitting to reserves alone. Setting reserve growth to ×1.0 reproduces the old method.
+  The method was calibrated on Sodir history. Backtested from 2010 and 2015, actual production divided by the forecast was 1.14 and 1.06 with this method and the facility-based costs (1.26 and 1.16 with the earlier generic costs), against 1.45 and 1.35 when fitting to reserves alone. Setting reserve growth to ×1.0 reproduces the old method.
 - **Prices:** oil is Brent − $1, NGL is 60% of Brent, gas is €/MWh × 1.72 × EURUSD.
 - **Costs:**
-  - Opex is 60% fixed and 40% variable, at default levels by field type.
+  - **Opex is field-specific.** It is calculated from each field's facilities ([scripts/facilities.js](scripts/facilities.js), using Sodir's facility register and development wells).
+    - Fixed annual cost (USD million):
+      - Condeep 60
+      - large steel platform 40
+      - small platform 14
+      - floater/FPSO 52
+      - onshore plant 100
+      - subsea template 1
+      - each open well 2.5
+    - Variable cost: $0.5 per boe, plus a $4/boe processing tariff for tie-backs without their own platform.
+    - Calibrated to the companies' reported production cost for 2025 (Aker BP 7.3, Vår Energi 11.1, OKEA ~25, DNO ~12 $/boe) and to Johan Sverdrup (below $2/boe).
+    - Fields without a facility profile use the old default by field type.
   - Capex uses the field's own investment intensity from Sodir, limited to $2–12 per boe.
-  - Decommissioning is $1 per boe of original recoverable volume.
+  - **Decommissioning is per facility.**
+    - Plugging each well that is not yet permanently plugged: $6 m on a platform, $18 m subsea.
+    - Removing each facility: large steel platform $250 m, small $80 m, floater $120 m, Condeep topside $300 m, subsea template $8 m.
+    - The minimum is $0.5 per boe of recoverable volume.
+    - The shelf total is about $48 bn.
+- **Deal prices:** an optional `priceAdjusted` in deals.json replaces the headline price in the analysis. It is used for shares valued at completion and for tax positions bought with the company. The page shows both prices, with sources.
 - **Tax (2022 rules):** 22% corporate tax plus 71.8% special tax, about 78% at the margin.
 - **Value:** net present value after tax in real terms, discounted from 2026.
 

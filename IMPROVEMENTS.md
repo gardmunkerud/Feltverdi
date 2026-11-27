@@ -4,6 +4,8 @@ A scheduled cloud agent improves Feltverdi in small steps, one change every 3 ho
 
 ## Decisions the owner has made (do not undo)
 
+- **Costs (2026-11-27):** operating costs and decommissioning come from each field's facilities (`scripts/facilities.js`; `OPEX_FAC` and `DECOM_FAC` in `valuation.js`), calibrated against reported company production costs. Do not change the calibration constants without re-running the calibration and the decline backtest.
+- **Deal baseline:** deals marked "early" are excluded from the median price/value. Adjusted prices are used where public sources give them.
 - **Look:** Apple.com-inspired light/dark theme, Inter font, key figures that shrink to fit their tiles.
 - **Language:**
   - Norwegian bokmål and English must always be updated together (`public/js/i18n.js`).
@@ -22,9 +24,12 @@ A scheduled cloud agent improves Feltverdi in small steps, one change every 3 ho
 ## Backlog: known weaknesses and ideas (pick one, keep it small)
 
 ### Financial analysis
-- **Deal prices:** the deal price is the headline value at announcement. Use completion prices or price adjustments where they are public, and mark which one is used.
-- **Opex:** the model uses a generic $/boe by hydrocarbon type (60 % fixed). Consider field-specific levels for the largest old fields (Ekofisk, Heidrun, Statfjord, Oseberg) where public figures exist, with sources.
-- **Decommissioning:** a flat $1/boe of original volumes is too low for large old platforms. Consider a size-based floor, with the method documented.
+- **Deal prices:** adjusted prices (`priceAdjusted`) exist for Aker BP–Lundin, Det norske–BP and Aker BP–Hess. Others still use the headline price; add more only with public sources.
+- **Opex:** facility-based and calibrated since 2026-11-27. Possible refinements:
+  - separate gas transport tariffs (Gassled)
+  - tariff income for host fields, which is not modelled
+  - onshore plants that Sodir does not link to a field (Hammerfest LNG, Nyhamna)
+- **Decommissioning:** per facility and well since 2026-11-27. Unit costs are rounded industry levels; refine them if Sodir or the operators publish newer figures. Timing is still one year, two years after shut-down.
 - **Tax:**
   - The model uses a flat 78 % from 2022.
   - The temporary 2020–22 package and the uplift before 2022 are not modelled in the historical values.
@@ -45,6 +50,14 @@ A scheduled cloud agent improves Feltverdi in small steps, one change every 3 ho
 - Company names: Sodir legal names such as "Equinor Energy AS" against brand names in deals ("Equinor").
 
 ## Log (newest first)
+
+- 2026-11-27 – Financial analysis (with the owner):
+  - facility-based operating costs and decommissioning
+  - adjusted deal prices (Lundin, Det norske–BP, Hess)
+  - the deal baseline excludes early deals (now 1.45)
+  - deal verdicts and texts rewritten
+
+  Shelf value went from 107 to 116 bn USD. The backtest (actual/forecast) is now 1.14 from 2010 and 1.06 from 2015, against 1.26 and 1.16 before.
 
 - 2026-11-27 – Assumptions/wording: the method page (nb + en) now explains what NGL is and that the 60 %-of-Brent price is a simplified rule of thumb.
 - 2026-11-27 – Wording: the deal scenario intro (nb + en) now explains that "Prices in year X" is a flat price from the deal year, not the forward curve then.

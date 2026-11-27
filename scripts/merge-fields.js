@@ -24,6 +24,14 @@ const sumVol = (vols) => {
   if (vols.every((v) => !v)) return null;
   return Object.fromEntries(keys.map((k) => [k, r3(vols.reduce((s, v) => s + (v ? v[k] : 0), 0))]));
 };
+// Facility profiles of the parts added together; the merged field is a tie-back only if every part is one
+function mergeFac(list) {
+  const ps = list.filter(Boolean);
+  if (!ps.length) return null;
+  const own = {}, wells = { platform: 0, subsea: 0 };
+  for (const p of ps) { for (const k in p.own) own[k] = (own[k] || 0) + p.own[k]; wells.platform += p.wells.platform; wells.subsea += p.wells.subsea; }
+  return { own, wells, tieback: ps.every((p) => p.tieback), host: ps.every((p) => p.tieback) ? ps[0].host : null };
+}
 const STATUS_ORDER = ['Producing', 'Approved for production', 'Shut down'];
 
 // fields: the list built from Sodir (names in title case); `upper` maps a field to its Sodir name.
@@ -51,6 +59,7 @@ function applyMerges(fields, upper = (f) => f.name.toUpperCase()) {
       owners: [...owners].map(([c, s]) => [c, r3(s)]).sort((a, b) => b[1] - a[1]),
       statusText: m.statusText,
       outlook: { plateau: null },
+      fac: mergeFac(parts.map((f) => f.fac)),
       parts: parts.map((f) => ({ name: f.name, url: f.url, share: r3(wt(parts.indexOf(f)) * 100) })),
     };
     out = out.filter((f) => !parts.includes(f)).concat(merged);

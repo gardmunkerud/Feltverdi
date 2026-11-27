@@ -580,3 +580,4 @@ th .info { text-transform: none; letter-spacing: 0; }
   .mnav a.active { color: var(--accent); }
   .foot { padding-bottom: 90px; }
 }
+.fac-basis { font-size: 13.5px; line-height: 1.5; margin: 14px 0 0; }

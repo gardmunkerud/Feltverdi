@@ -1,9 +1,9 @@
 {
- "generated": "2026-11-26",
+ "generated": "2026-11-27",
  "baseYear": 2026,
  "discount": 0.08,
- "baseline": 1.39,
- "n": 12,
+ "baseline": 1.45,
+ "n": 11,
  "metrics": {
   "2026-equinor-japex-swap": {
    "year": 2026,
@@ -28,7 +28,7 @@
      ],
      "prodKboed": 1.8,
      "remMmboe": 5.2,
-     "hindsightValue": 30
+     "hindsightValue": 21
     },
     {
      "from": "JAPEX",
@@ -49,7 +49,7 @@
      ],
      "prodKboed": 0.1,
      "remMmboe": 1.5,
-     "hindsightValue": 15
+     "hindsightValue": 17
     }
    ],
    "brent": 69.04,
@@ -228,14 +228,16 @@
    "remMmboe": 361,
    "brent": 69.04,
    "priceUsdM": 4425,
+   "headlineUsdM": 4425,
+   "priceBasis": "headline",
    "priceReal": 4425,
    "perFlowing": 35955,
    "perBoe": 12.26,
    "perBoePctBrent": 17.8,
-   "hindsightValue": 2514,
-   "ratio": 1.76,
+   "hindsightValue": 2147,
+   "ratio": 2.06,
    "reserveGrowth": 1,
-   "relative": 1.27
+   "relative": 1.42
   },
   "2026-var-pandion": {
    "year": 2026,
@@ -254,12 +256,14 @@
    "remMmboe": 3,
    "brent": 69.04,
    "priceUsdM": 110,
+   "headlineUsdM": 110,
+   "priceBasis": "headline",
    "priceReal": 110,
    "perFlowing": 37090,
    "perBoe": 34.43,
    "perBoePctBrent": 49.9,
-   "hindsightValue": 25,
-   "ratio": 4.31,
+   "hindsightValue": 31,
+   "ratio": 3.51,
    "reserveGrowth": 1,
    "relative": null
   },
@@ -283,7 +287,7 @@
      ],
      "prodKboed": 1.5,
      "remMmboe": 1.2,
-     "hindsightValue": 9
+     "hindsightValue": 8
     },
     {
      "from": "DNO",
@@ -304,7 +308,7 @@
      ],
      "prodKboed": 1.5,
      "remMmboe": 1.6,
-     "hindsightValue": 13
+     "hindsightValue": 16
     }
    ],
    "brent": 69.04,
@@ -352,14 +356,16 @@
    "remMmboe": 22,
    "brent": 69.04,
    "priceUsdM": 350,
+   "headlineUsdM": 350,
+   "priceBasis": "headline",
    "priceReal": 350,
    "perFlowing": 47315,
    "perBoe": 15.85,
    "perBoePctBrent": 23,
-   "hindsightValue": 141,
-   "ratio": 2.49,
+   "hindsightValue": 124,
+   "ratio": 2.83,
    "reserveGrowth": 1,
-   "relative": 1.79
+   "relative": 1.95
   },
   "2025-dno-sval": {
    "year": 2025,
@@ -511,14 +517,16 @@
    "remMmboe": 144,
    "brent": 69.04,
    "priceUsdM": 1600,
+   "headlineUsdM": 1600,
+   "priceBasis": "headline",
    "priceReal": 1802,
    "perFlowing": 24288,
    "perBoe": 11.1,
    "perBoePctBrent": 16.1,
-   "hindsightValue": 1258,
-   "ratio": 1.43,
+   "hindsightValue": 1245,
+   "ratio": 1.45,
    "reserveGrowth": 1.05,
-   "relative": 1.03
+   "relative": 1
   },
   "2024-equinor-petoro-swap": {
    "year": 2024,
@@ -543,7 +551,7 @@
      ],
      "prodKboed": 16.1,
      "remMmboe": 77.3,
-     "hindsightValue": 407
+     "hindsightValue": 376
     },
     {
      "from": "Equinor",
@@ -571,7 +579,7 @@
      ],
      "prodKboed": 16.5,
      "remMmboe": 60.6,
-     "hindsightValue": 579
+     "hindsightValue": 644
     }
    ],
    "brent": 80.7,
@@ -694,14 +702,16 @@
    "remMmboe": 253,
    "brent": 82.62,
    "priceUsdM": 2275,
+   "headlineUsdM": 2275,
+   "priceBasis": "headline",
    "priceReal": 2482,
    "perFlowing": 40096,
    "perBoe": 8.99,
    "perBoePctBrent": 10.9,
-   "hindsightValue": 1834,
-   "ratio": 1.35,
+   "hindsightValue": 1879,
+   "ratio": 1.32,
    "reserveGrowth": 1.11,
-   "relative": 0.97
+   "relative": 0.91
   },
   "2022-okea-wintershalldea": {
    "year": 2022,
@@ -734,14 +744,16 @@
    "remMmboe": 16,
    "brent": 99.82,
    "priceUsdM": 117.5,
+   "headlineUsdM": 117.5,
+   "priceBasis": "headline",
    "priceReal": 133,
    "perFlowing": 19215,
    "perBoe": 7.14,
    "perBoePctBrent": 7.2,
-   "hindsightValue": 191,
-   "ratio": 0.7,
+   "hindsightValue": 159,
+   "ratio": 0.84,
    "reserveGrowth": 1.41,
-   "relative": 0.5
+   "relative": 0.58
   },
   "2021-akerbp-lundin": {
    "year": 2021,
@@ -815,15 +827,17 @@
    "prodKboed": 167.8,
    "remMmboe": 672,
    "brent": 70.44,
-   "priceUsdM": 13900,
-   "priceReal": 17051,
-   "perFlowing": 82839,
-   "perBoe": 20.69,
-   "perBoePctBrent": 29.4,
-   "hindsightValue": 7272,
-   "ratio": 2.34,
+   "priceUsdM": 13880,
+   "headlineUsdM": 13900,
+   "priceBasis": "shares-at-completion",
+   "priceReal": 17027,
+   "perFlowing": 82720,
+   "perBoe": 20.66,
+   "perBoePctBrent": 29.3,
+   "hindsightValue": 8449,
+   "ratio": 2.02,
    "reserveGrowth": 1.11,
-   "relative": 1.68
+   "relative": 1.39
   },
   "2021-sval-spirit": {
    "year": 2021,
@@ -949,14 +963,16 @@
    "remMmboe": 128,
    "brent": 70.44,
    "priceUsdM": 1100,
+   "headlineUsdM": null,
+   "priceBasis": "estimate",
    "priceReal": 1349,
    "perFlowing": 20766,
    "perBoe": 8.6,
    "perBoePctBrent": 12.2,
-   "hindsightValue": 1441,
-   "ratio": 0.94,
+   "hindsightValue": 1404,
+   "ratio": 0.96,
    "reserveGrowth": 1.25,
-   "relative": 0.68
+   "relative": 0.66
   },
   "2020-sval-edison": {
    "year": 2020,
@@ -982,14 +998,16 @@
    "remMmboe": 24,
    "brent": 42.3,
    "priceUsdM": 300,
+   "headlineUsdM": 300,
+   "priceBasis": "headline",
    "priceReal": 385,
    "perFlowing": null,
    "perBoe": 12.7,
    "perBoePctBrent": 30,
-   "hindsightValue": 117,
-   "ratio": 3.28,
+   "hindsightValue": 128,
+   "ratio": 3.01,
    "reserveGrowth": 1.04,
-   "relative": 2.36
+   "relative": 2.08
   },
   "2019-var-exxonmobil": {
    "year": 2019,
@@ -1157,14 +1175,16 @@
    "remMmboe": 418,
    "brent": 64.03,
    "priceUsdM": 4500,
+   "headlineUsdM": 4500,
+   "priceBasis": "headline",
    "priceReal": 5851,
    "perFlowing": 28620,
    "perBoe": 10.75,
    "perBoePctBrent": 16.8,
-   "hindsightValue": 4383,
-   "ratio": 1.34,
+   "hindsightValue": 4393,
+   "ratio": 1.33,
    "reserveGrowth": 1.52,
-   "relative": 0.96
+   "relative": 0.92
   },
   "2019-dno-faroe": {
    "year": 2019,
@@ -1283,12 +1303,14 @@
    "remMmboe": 57,
    "brent": 64.03,
    "priceUsdM": 816,
+   "headlineUsdM": 816,
+   "priceBasis": "headline",
    "priceReal": 1061,
    "perFlowing": 91198,
    "perBoe": 14.4,
    "perBoePctBrent": 22.5,
-   "hindsightValue": 236,
-   "ratio": 4.49,
+   "hindsightValue": 201,
+   "ratio": 5.28,
    "reserveGrowth": 1.1,
    "relative": null
   },
@@ -1316,14 +1338,16 @@
    "remMmboe": 26,
    "brent": 71.07,
    "priceUsdM": 556,
+   "headlineUsdM": 556,
+   "priceBasis": "headline",
    "priceReal": 736,
    "perFlowing": 22963,
    "perBoe": 21.2,
    "perBoePctBrent": 29.8,
-   "hindsightValue": 554,
-   "ratio": 1.33,
+   "hindsightValue": 524,
+   "ratio": 1.4,
    "reserveGrowth": 2.84,
-   "relative": 0.96
+   "relative": 0.97
   },
   "2017-akerbp-hess": {
    "year": 2017,
@@ -1348,55 +1372,17 @@
    "prodKboed": 28.2,
    "remMmboe": 156,
    "brent": 54.39,
-   "priceUsdM": 2000,
-   "priceReal": 2712,
-   "perFlowing": 71009,
-   "perBoe": 12.81,
-   "perBoePctBrent": 23.5,
-   "hindsightValue": 834,
-   "ratio": 3.25,
+   "priceUsdM": 610,
+   "headlineUsdM": 2000,
+   "priceBasis": "tax-assets",
+   "priceReal": 827,
+   "perFlowing": 21658,
+   "perBoe": 3.91,
+   "perBoePctBrent": 7.2,
+   "hindsightValue": 446,
+   "ratio": 1.85,
    "reserveGrowth": 1.61,
-   "relative": 2.34
-  },
-  "2017-point-exxonmobil": {
-   "year": 2017,
-   "partial": false,
-   "note": null,
-   "items": [
-    {
-     "field": "Balder",
-     "slug": "balder",
-     "share": 100,
-     "prodKboed": 47.6,
-     "remMmboe": 62
-    },
-    {
-     "field": "Ringhorne Øst",
-     "slug": "ringhorne-ost",
-     "share": 77.38,
-     "prodKboed": 7.1,
-     "remMmboe": 14.1
-    },
-    {
-     "field": "Jotun",
-     "slug": "jotun",
-     "share": 90,
-     "prodKboed": 1,
-     "remMmboe": 0.1
-    }
-   ],
-   "prodKboed": 55.7,
-   "remMmboe": 76,
-   "brent": 54.39,
-   "priceUsdM": null,
-   "priceReal": null,
-   "perFlowing": null,
-   "perBoe": null,
-   "perBoePctBrent": null,
-   "hindsightValue": 664,
-   "ratio": null,
-   "reserveGrowth": 4.17,
-   "relative": null
+   "relative": 1.28
   },
   "2017-ineos-dong": {
    "year": 2017,
@@ -1443,13 +1429,57 @@
    "remMmboe": 124,
    "brent": 54.39,
    "priceUsdM": null,
+   "headlineUsdM": null,
+   "priceBasis": "headline",
    "priceReal": null,
    "perFlowing": null,
    "perBoe": null,
    "perBoePctBrent": null,
-   "hindsightValue": 1425,
+   "hindsightValue": 1503,
    "ratio": null,
    "reserveGrowth": 1.37,
+   "relative": null
+  },
+  "2017-point-exxonmobil": {
+   "year": 2017,
+   "partial": false,
+   "note": null,
+   "items": [
+    {
+     "field": "Balder",
+     "slug": "balder",
+     "share": 100,
+     "prodKboed": 47.6,
+     "remMmboe": 62
+    },
+    {
+     "field": "Ringhorne Øst",
+     "slug": "ringhorne-ost",
+     "share": 77.38,
+     "prodKboed": 7.1,
+     "remMmboe": 14.1
+    },
+    {
+     "field": "Jotun",
+     "slug": "jotun",
+     "share": 90,
+     "prodKboed": 1,
+     "remMmboe": 0.1
+    }
+   ],
+   "prodKboed": 55.7,
+   "remMmboe": 76,
+   "brent": 54.39,
+   "priceUsdM": null,
+   "headlineUsdM": null,
+   "priceBasis": "headline",
+   "priceReal": null,
+   "perFlowing": null,
+   "perBoe": null,
+   "perBoePctBrent": null,
+   "hindsightValue": 309,
+   "ratio": null,
+   "reserveGrowth": 4.17,
    "relative": null
   },
   "2016-aker-bp-merger": {
@@ -1503,15 +1533,17 @@
    "prodKboed": 61,
    "remMmboe": 225,
    "brent": 44.05,
-   "priceUsdM": 1440,
-   "priceReal": 1994,
-   "perFlowing": 23603,
-   "perBoe": 6.41,
-   "perBoePctBrent": 14.6,
-   "hindsightValue": 1748,
-   "ratio": 1.14,
+   "priceUsdM": 2273,
+   "headlineUsdM": 1440,
+   "priceBasis": "shares-at-completion",
+   "priceReal": 3148,
+   "perFlowing": 37256,
+   "perBoe": 10.12,
+   "perBoePctBrent": 23,
+   "hindsightValue": 1638,
+   "ratio": 1.92,
    "reserveGrowth": 1.41,
-   "relative": 0.82
+   "relative": 1.32
   }
  }
 }

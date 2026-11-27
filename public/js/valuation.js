@@ -35,8 +35,41 @@
     reserveGrowth: 1.6, // cap on implied growth of Sodir's remaining reserves (1.0 = use Sodir's reserves as they are)
   };
 
-  // Default opex (USD/boe at the starting rate) by hydrocarbon type
+  // Fallback opex (USD/boe at the starting rate) by hydrocarbon type – used only for fields without a facility profile
   const OPEX_BY_TYPE = { OIL: 12, 'OIL/GAS': 11, 'OIL/CONDENSATE': 11, GAS: 7, 'GAS/CONDENSATE': 8 };
+
+  // Field-specific operating cost from the field's facilities (Sodir facility register and development wells).
+  // Annual fixed cost (USD million per year) per facility in service, plus a cost per open well, plus a variable cost per boe;
+  // tie-backs (no surface facility of their own) pay a processing tariff per boe to the host instead of running a platform.
+  // Calibrated (2026-11-27) so that companies' share-weighted 2025 unit costs match their reported production cost:
+  // Aker BP 7.3, Vår Energi 11.1, OKEA ~25, DNO North Sea ~12 USD/boe, and Johan Sverdrup < 2 USD/boe (Equinor).
+  const OPEX_FAC = {
+    gbs: 60, steelLarge: 40, steelSmall: 14, floater: 52, onshore: 100, template: 1, // USD million per year per facility
+    perWell: 2.5,    // USD million per year per open well (integrity, intervention)
+    variable: 0.5,   // USD per boe (chemicals, energy, CO2 tax share)
+    tieback: 4,      // USD per boe processing tariff paid to the host
+  };
+  // Decommissioning from the same profile (USD million, real): plugging each open well + removing each facility.
+  // Plugging: Sodir gives "just under NOK 50 million to several hundred million" per well; UK averages are about
+  // £3 million per platform well and £15 million per subsea production well. Removal costs are rounded industry
+  // levels; concrete gravity-based substructures (Condeep) are normally left in place, so only the topside is counted.
+  const DECOM_FAC = { gbs: 300, steelLarge: 250, steelSmall: 80, floater: 120, onshore: 0, template: 8, wellPlatform: 6, wellSubsea: 18 };
+
+  function facilityOpex(field) {
+    const p = field.fac;
+    if (!p) return null;
+    const o = p.own, F = OPEX_FAC;
+    const fixed = F.gbs * o.gbs + F.steelLarge * o.steelLarge + F.steelSmall * o.steelSmall + F.floater * o.floater + F.onshore * (o.onshore || 0)
+      + F.template * o.template + F.perWell * (p.wells.platform + p.wells.subsea);
+    return { fixed, variable: F.variable + (p.tieback ? F.tieback : 0) };
+  }
+  function facilityDecom(field) {
+    const p = field.fac;
+    if (!p) return null;
+    const o = p.own, D = DECOM_FAC;
+    return D.gbs * o.gbs + D.steelLarge * o.steelLarge + D.steelSmall * o.steelSmall + D.floater * o.floater + D.onshore * (o.onshore || 0)
+      + D.template * o.template + D.wellPlatform * p.wells.platform + D.wellSubsea * p.wells.subsea;
+  }
 
   function mix(field) {
     const r = field.rem || { oil: 0, gas: 0, ngl: 0, cond: 0, oe: 0 };
@@ -108,15 +141,29 @@
       if (ov.plateauYears <= 0) { kind = 'decline'; plateauYears = 0; remBoe = remSodir; }
       else { if (kind === 'decline') { plateau = q0; kind = 'plateau'; plateauSource = 'user'; } plateauYears = Math.round(ov.plateauYears); }
     }
-    const opexBoe = ov.opexBoe ?? OPEX_BY_TYPE[field.hc] ?? 10;
     const capexBoe = ov.capexBoe ?? capexIntensity(field, a, lastFullYear);
     const refRate = kind === 'decline' ? q0 : plateau;
-    return { remBoe, remSodir, recBoe, q0, kind, startIndex, plateau, plateauYears, plateauSource, opexBoe, capexBoe, refRate, devCapex: kind === 'new' ? 6 * remSodir : 0, decomPerBoe: ov.decomPerBoe };
+    // Opex: from the field's facilities when known (and not overridden by the user), otherwise by hydrocarbon type.
+    const fo = ov.opexBoe == null ? facilityOpex(field) : null;
+    let fixedOpex, varOpex, opexBoe, opexBasis;
+    if (fo && refRate > 0) {
+      fixedOpex = fo.fixed; varOpex = fo.variable; opexBasis = 'facilities';
+      opexBoe = (fixedOpex + varOpex * refRate) / refRate;
+    } else {
+      opexBoe = ov.opexBoe ?? OPEX_BY_TYPE[field.hc] ?? 10;
+      fixedOpex = 0.6 * opexBoe * refRate; varOpex = 0.4 * opexBoe; opexBasis = ov.opexBoe != null ? 'user' : 'type';
+    }
+    // Decommissioning: user's $/boe, else from facilities (at least $0.5/boe of recoverable volume, for wells and
+    // facilities still to be installed), else the default $/boe.
+    const fd = facilityDecom(field);
+    const decomTotal = ov.decomPerBoe != null ? ov.decomPerBoe * recBoe : fd != null ? Math.max(fd, 0.5 * recBoe) : null;
+    return { remBoe, remSodir, recBoe, q0, kind, startIndex, plateau, plateauYears, plateauSource, opexBoe, fixedOpex, varOpex, opexBasis, capexBoe, refRate,
+      devCapex: kind === 'new' ? 6 * remSodir : 0, decomPerBoe: ov.decomPerBoe, decomTotal, decomBasis: ov.decomPerBoe != null ? 'user' : fd != null ? 'facilities' : 'perBoe' };
   }
 
   function simulate(field, a, s, d, record) {
     const price = realisedPrice(field, a);
-    const fixed = 0.6 * s.opexBoe * s.refRate, varc = 0.4 * s.opexBoe;
+    const fixed = s.fixedOpex, varc = s.varOpex;
     const horizon = 45;
     const years = [];
     let q = 0, cum = 0, npv = 0, taxPv = 0, last = -1, dep = [];
@@ -145,7 +192,7 @@
       npv += fcf * df; taxPv += tax * df; cum += q; last = i;
       if (record) years.push({ year: y, q, rev, opex, capex, tax, fcf, df, pv: fcf * df });
     }
-    const decom = (s.decomPerBoe ?? a.decomPerBoe) * s.recBoe;
+    const decom = s.decomTotal ?? (s.decomPerBoe ?? a.decomPerBoe) * s.recBoe;
     const decomYear = last + 2;
     const decomDf = Math.pow(1 + a.discount, -(decomYear + 0.5));
     const decomPv = decom * (1 - MARGINAL) * decomDf;
@@ -202,6 +249,7 @@
     const s = setup(field, a, lastFullYear, ov, mid);
     const price = realisedPrice(field, a);
     const base = { field: field.slug, kind: s.kind, price, mix: mix(field), remBoe: s.remSodir, q0: s.q0, opexBoe: s.opexBoe, capexBoe: s.capexBoe,
+      fixedOpex: s.fixedOpex, varOpex: s.varOpex, opexBasis: s.opexBasis, decomTotal: s.decomTotal ?? (s.decomPerBoe ?? a.decomPerBoe) * s.recBoe, decomBasis: s.decomBasis,
       plateauYears: s.plateauYears, plateauRate: s.plateau, plateauSource: s.plateauSource,
       plateauEnd: s.plateauYears ? a.startYear + s.startIndex + s.plateauYears - 1 : null };
     if (s.kind === 'none') return { ...base, npv: 0, taxPv: 0, grossValue: 0, decline: 0, endYear: null, cum: 0, years: [], impliedGrowth: 0 };
@@ -266,6 +314,8 @@
     const opexBoe = ov.opexBoe ?? OPEX_BY_TYPE[field.hc] ?? 10;
     const top = field.prod.map((r) => r[5] * BOE_PER_SM3).sort((x, y) => y - x).slice(0, 3);
     const peak = top.length ? top.reduce((s, x) => s + x, 0) / top.length : 0;
+    const fo = ov.opexBoe == null ? facilityOpex(field) : null;
+    const histOpex = (q) => (q <= 0 ? 0 : fo ? fo.fixed + fo.variable * q : 0.6 * opexBoe * peak + 0.4 * opexBoe * q);
     const rows = [];
     for (const y of histYears) {
       const p = prodY.get(y), pr = price.get(y), rf = realF(y);
@@ -273,7 +323,7 @@
       const revNom = p && pr ? (p[1] + p[4]) * BOE_PER_SM3 * (pr.b - 1) + p[3] * BOE_PER_SM3 * 0.6 * pr.b + p[2] * BOE_PER_SM3 * pr.g * MMBTU_PER_BOE_GAS : 0;
       const rev = revNom * rf;
       const capex = (invY.get(y) || 0) / (fx.get(y) || a.usdnok) * rf;
-      const opex = q > 0 ? 0.6 * opexBoe * peak + 0.4 * opexBoe * q : 0;
+      const opex = histOpex(q);
       const pre = rev - opex - capex, tax = MARGINAL * pre;
       rows.push({ year: y, hist: true, q, rev, opex, capex, pre, tax, post: pre - tax, brentReal: pr ? pr.b * rf : null });
     }
@@ -317,6 +367,7 @@
     const fx = new Map(H.usdnok), cpi = new Map(H.cpi);
     const cpiNow = cpi.get(H.cpiBaseYear);
     const opexBoe = ov.opexBoe ?? OPEX_BY_TYPE[field.hc] ?? 10;
+    const fo = ov.opexBoe == null ? facilityOpex(field) : null;
     const prodY = new Map(field.prod.map((r) => [r[0], r])), invY = new Map(field.inv);
     const pRef = prodY.get(fromYear - 1) || prodY.get(fromYear);
     const qRef = pRef ? pRef[5] * BOE_PER_SM3 : 0;
@@ -328,7 +379,7 @@
       const revNom = p && pr ? (p[1] + p[4]) * BOE_PER_SM3 * (pr.b - 1) + p[3] * BOE_PER_SM3 * 0.6 * pr.b + p[2] * BOE_PER_SM3 * pr.g * MMBTU_PER_BOE_GAS : 0;
       const rev = pr && pr.real ? revNom : revNom * rf;
       const capex = (invY.get(y) || 0) / (fx.get(y) || a.usdnok) * rf;
-      const opex = q > 0 ? opexBoe * (0.6 * Math.max(qRef, q) + 0.4 * q) : 0;
+      const opex = q <= 0 ? 0 : fo ? fo.fixed + fo.variable * q : opexBoe * (0.6 * Math.max(qRef, q) + 0.4 * q);
       const pre = rev - opex - capex, tax = MARGINAL * pre;
       rows.push({ year: y, hist: true, q, rev, opex, capex, tax, fcf: pre - tax });
     }
@@ -343,5 +394,5 @@
     return [...m.entries()].map(([name, n]) => ({ name, fields: n })).sort((a, b) => a.name.localeCompare(b.name, 'nb'));
   }
 
-  return { DEFAULTS, OPEX_BY_TYPE, BOE_PER_SM3, valueField, valueAll, valueCompany, valueHistory, stakeCashflow, MMBTU_PER_BOE_GAS, companies, realisedPrice, prices, mix };
+  return { DEFAULTS, OPEX_BY_TYPE, BOE_PER_SM3, valueField, valueAll, valueCompany, valueHistory, stakeCashflow, facilityOpex, facilityDecom, OPEX_FAC, DECOM_FAC, MMBTU_PER_BOE_GAS, companies, realisedPrice, prices, mix };
 });

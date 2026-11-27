@@ -334,6 +334,16 @@
     return { type: 'gross', pct: 100 };
   }
 
+  // "Basis: 4 large steel platforms, 13 subsea templates · 81 open wells · fixed opex USD 205 m/yr · decommissioning USD 2.2 bn"
+  function facBasisText(f, v) {
+    const p = f.fac, o = p.own;
+    const parts = ['gbs', 'steelLarge', 'steelSmall', 'floater', 'onshore', 'template'].filter((k) => o[k] > 0).map((k) => `${o[k]} ${t('fac_' + k, o[k])}`);
+    const fo = V.facilityOpex(f), fd = V.facilityDecom(f);
+    const wells = p.wells.platform + p.wells.subsea;
+    return t('facBasis', parts.join(', ') || t('facNone'), wells, p.tieback ? (p.host ? t('facTieHost', p.host) : t('facTie')) : '',
+      fo ? money(fo.fixed) : '–', fd != null ? money(Math.max(fd, 0.5 * (f.rec ? f.rec.oe * BOE : 0))) : '–');
+  }
+
   function viewField(el, slug) {
     const f = fieldBySlug(slug);
     if (!f) return viewNotFound(el);
@@ -350,6 +360,9 @@
     const shareOptions = [`<option value="gross"${sh.type === 'gross' ? ' selected' : ''}>${t('gross100')}</option>`]
       .concat(f.owners.map(([c, s]) => `<option value="owner:${esc(c)}"${sh.type === 'owner' && sh.company === c ? ' selected' : ''}>${esc(c)} – ${pct(s, 2)}</option>`))
       .concat([`<option value="custom"${sh.type === 'custom' ? ' selected' : ''}>${sh.type === 'custom' ? `${t('custom').replace(' …', '')}: ${pct(sh.pct, 2)}` : t('custom')}</option>`]).join('');
+    const recBoe = f.rec ? f.rec.oe * BOE : 0;
+    const facDec = V.facilityDecom(f);
+    const decomAutoBoe = facDec != null && recBoe > 0 ? Math.max(facDec, 0.5 * recBoe) / recBoe : V.DEFAULTS.decomPerBoe;
     el.innerHTML = explorerHead('field') + `
       <div class="title-row">
         <div>
@@ -396,12 +409,13 @@
         <div class="card">
           <div class="card-head"><h2>${t('fieldAssumptions')}</h2><button type="button" class="reset" id="ov-reset">${t('resetField')}</button></div>
           <div class="ov">
-            <div><label for="ov-opex">${t('opexBoe')}</label><input id="ov-opex" type="number" min="0" max="60" step="0.5" value="${ov.opexBoe ?? ''}" placeholder="${nf(v.opexBoe, 1)}"><div class="auto">${t('auto')}: ${nf(V.OPEX_BY_TYPE[f.hc] ?? 10, 1)}</div></div>
+            <div><label for="ov-opex">${t('opexBoe')}</label><input id="ov-opex" type="number" min="0" max="60" step="0.5" value="${ov.opexBoe ?? ''}" placeholder="${nf(v.opexBoe, 1)}"><div class="auto">${t('auto')}: ${nf(ov.opexBoe != null ? (V.facilityOpex(f) ? (V.facilityOpex(f).fixed + V.facilityOpex(f).variable * Math.max(v.q0, 0.01)) / Math.max(v.q0, 0.01) : V.OPEX_BY_TYPE[f.hc] ?? 10) : v.opexBoe, 1)}${v.opexBasis === 'facilities' ? ` (${t('basisFac')})` : ''}</div></div>
             <div><label for="ov-capex">${t('capexBoe')}</label><input id="ov-capex" type="number" min="0" max="60" step="0.5" value="${ov.capexBoe ?? ''}" placeholder="${nf(v.capexBoe, 1)}"><div class="auto">${t('auto')}: ${nf(v.capexBoe, 1)}</div></div>
             <div><label for="ov-dec">${t('declineRate')}</label><input id="ov-dec" type="number" min="0" max="60" step="0.5" value="${ov.decline != null ? nf(ov.decline * 100, 1).replace(',', '.') : ''}" placeholder="${nf(v.decline * 100, 1)}"><div class="auto">${t('autoDecl', nf(v.decline * 100, 1))}</div></div>
             <div><label for="ov-plat">${t('plateauYearsLbl')}</label><input id="ov-plat" type="number" min="0" max="30" step="1" value="${ov.plateauYears ?? ''}" placeholder="${v.plateauYears || 0}"><div class="auto">${t('auto')}: ${v.kind === 'plateau' && v.plateauSource !== 'user' ? t('plateauAuto', v.plateauYears) : '0'}</div></div>
-            <div><label for="ov-decom">${t('decomBoe')}</label><input id="ov-decom" type="number" min="0" max="10" step="0.1" value="${ov.decomPerBoe ?? ''}" placeholder="${nf(V.DEFAULTS.decomPerBoe, 1)}"><div class="auto">${t('auto')}: ${nf(V.DEFAULTS.decomPerBoe, 1)}</div></div>
+            <div><label for="ov-decom">${t('decomBoe')}</label><input id="ov-decom" type="number" min="0" max="10" step="0.1" value="${ov.decomPerBoe ?? ''}" placeholder="${nf(decomAutoBoe, 1)}"><div class="auto">${t('auto')}: ${nf(decomAutoBoe, 1)}${V.facilityDecom(f) != null ? ` (${t('basisFac')})` : ''}</div></div>
           </div>
+          ${f.fac ? `<p class="muted fac-basis">${facBasisText(f, v)} ${tipBtn(t('facTip'))}</p>` : ''}
           <details class="cf section-gap"><summary>${t('cashflowTable')}</summary>
             <div style="margin:12px 0"><button type="button" class="btn" id="csv">${t('exportCsv')}</button></div>
             <div class="tbl-wrap">${cashflowTable(v, k)}</div>
@@ -1007,7 +1021,7 @@
               ${d.fields.length ? `<div><span class="l">${t('dealsFields')}</span>${d.fields.map(fieldLink).join('')}</div>` : ''}
             </div>
             ${dealAssessment(d, DM[d.id])}
-            <div class="deal-foot"><div><span class="deal-val">${d.valueUsdM == null ? t('dealsNoValue') : `USD ${d.valueUsdM >= 1000 ? nf(d.valueUsdM / 1000, 2) + ' ' + t('bn') : nf(d.valueUsdM, Number.isInteger(d.valueUsdM) ? 0 : 1) + ' ' + t('mn')}`}</span> <span class="muted">${esc(d.valueNote[state.lang])}</span></div>
+            <div class="deal-foot"><div><span class="deal-val">${d.valueUsdM == null ? t('dealsNoValue') : `USD ${d.valueUsdM >= 1000 ? nf(d.valueUsdM / 1000, 2) + ' ' + t('bn') : nf(d.valueUsdM, Number.isInteger(d.valueUsdM) ? 0 : 1) + ' ' + t('mn')}`}</span> <span class="muted">${esc(d.valueNote[state.lang])}</span>${d.priceAdjusted ? `<span class="muted"> · ${t('dealsAdjPrice', usdStated(d.priceAdjusted.valueUsdM))}</span>` : ''}</div>
               <span class="deal-links"><a class="dd-open" href="#/deal/${d.id}">${t('ddOpen')}</a><a href="${esc(d.source)}" target="_blank" rel="noopener">${t('dealsSource')}</a></span></div>
           </article>`).join('')}
           </div></div>`).join('') : `<div class="empty">${t('dealsNoHits')}</div>`}
@@ -1134,7 +1148,9 @@
   // "In short": plain sentences generated from the numbers
   function ddPlainList(d, m, c) {
     const out = [];
-    out.push(m.priceUsdM != null ? t('ddP_bought', c.buyer, ddWhat(m.items), c.seller, usdStated(m.priceUsdM), m.year) : t('ddP_boughtNoPrice', c.buyer, ddWhat(m.items), c.seller, m.year));
+    const headline = d.valueUsdM ?? m.priceUsdM;
+    out.push(headline != null ? t('ddP_bought', c.buyer, ddWhat(m.items), c.seller, usdStated(headline), m.year) : t('ddP_boughtNoPrice', c.buyer, ddWhat(m.items), c.seller, m.year));
+    if (d.priceAdjusted) out.push(t('ddP_adj', usdStated(d.priceAdjusted.valueUsdM), t('ddAdjBasis_' + d.priceAdjusted.basis)));
     if (m.prodKboed >= 0.1) {
       const sh = m.prodKboed / shelfKboed(m.year - 1) * 100;
       const yrs = m.remMmboe / (m.prodKboed * 0.365);
@@ -1355,6 +1371,11 @@
       ${m.partial ? `<div class="card dd-warn">${t('ddPartial')}${m.note ? ` <span class="muted">(${esc(m.note)})</span>` : ''}</div>` : ''}
       ${kpis}
       <p class="muted dd-small">${t('ddLive')}</p>
+      ${d.priceAdjusted ? `<div class="card section-gap dd-adj">
+        <div class="card-head"><h2>${t('ddAdjTitle')}</h2><span class="muted">${t('ddAdjBasis_' + d.priceAdjusted.basis)}</span></div>
+        <p class="dd-intro">${esc(d.priceAdjusted.note[state.lang])}</p>
+        <p class="muted dd-small">${t('ddAdjLine', usdStated(d.valueUsdM), usdStated(d.priceAdjusted.valueUsdM))} · ${t('ddAdjSources')}: ${d.priceAdjusted.sources.map((u, i) => `<a href="${esc(u)}" target="_blank" rel="noopener">${i + 1}</a>`).join(', ')}</p>
+      </div>` : ''}
       <div class="grid g-2 section-gap">${buyerCard}${sellerCard}</div>
       ${ddViewsCard(d, year, base.rows, m.partial ? null : price, baseline, buyer, seller)}
       <div class="card section-gap">

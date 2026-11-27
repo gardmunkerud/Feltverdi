@@ -54,6 +54,64 @@ Scheduled cloud agents improve Feltverdi in small, focused steps (one topic per 
 
 Ten hourly runs, one topic each, on branch `review/assumptions` (never main). Newest entry first.
 
+- **Run 6 – Tax** (78 % marginal, `investmentDeductions()`, refunds and losses, `taxInh` in deals, checked against current rules)
+  - **Sources.** norskpetroleum.no, regjeringen.no, skatteetaten.no, lovdata and the company tax manuals cannot be fetched from this session. The figures below come from search-result text of these pages:
+    - [Skatteetaten, tax returns and assessments for petroleum companies](https://www.skatteetaten.no/en/business-and-organisation/reporting-and-industries/industries-special-regulations/oil-and-gas-exploration-and-petroleum-tax/tax-returns-and-tax-assessments-for-petroleum-companies/)
+    - [Skatteetaten, instalment tax 2026](https://www.skatteetaten.no/en/press/nyhetsrommet/press-release-instalment-tax-2026/)
+    - [PwC tax summaries, Norway](https://taxsummaries.pwc.com/norway/corporate/taxes-on-corporate-income)
+    - [Aker BP tax manual 2023](https://akerbp.com/wp-content/uploads/2023/03/aker-bp-tax-manual-2023.pdf)
+    - [Vår Energi, overview of Norwegian petroleum taxation](https://varenergi.no/wp-content/uploads/2023/10/Overview-Norwegian-petroleum-taxation-Q3-2023.pdf)
+    - [EY, 2021 proposal](https://taxnews.ey.com/news/2021-1621-norwegian-government-proposes-changes-in-petroleum-taxation)
+    - [Thommessen, proposed changes](https://www.thommessen.no/en/news/proposed-changes-to-the-norwegian-petroleum-tax-regime)
+    - [Prop. 3 LS (2026–2027), ch. 8, transitional rules](https://www.regjeringen.no/no/dokumenter/prop.-3-ls-20262027/id3178073/?ch=8)
+    - [Stortinget, Innst. 440 L (2021–2022)](https://stortinget.no/no/Saker-og-publikasjoner/Publikasjoner/Innstillinger/Stortinget/2021-2022/inns-202122-440l/?all=true)
+  - **Findings**
+    - *The rates and rules in the code match the public descriptions. No change needed:*
+      - 22 % corporate tax + 71.8 % special tax. The corporate tax is calculated first and deducted in the special-tax base, so a corporate-tax deduction is worth about 6.2 % (Aker BP's own figure) and the total is 78 %.
+      - Six-year straight-line corporate-tax depreciation, unchanged in 2022.
+      - From 2022, investments are expensed in the special-tax base with 12.4 % uplift.
+      - Investments made in 2020–21 were expensed immediately with 24 % uplift. Fields covered by the temporary package get 17.69 % uplift from 2022 until production starts.
+      - Investments before 2020 keep their remaining depreciation and uplift (2016–19 investments depreciate until 2024).
+      - The corporate-tax rate path (28 → 27 → 25 → 24 → 23 → 22 %) and the uplift path (30 % → 22 % → 21.6/21.2/20.8 %) are right. Both taxes together are 78 % in every year since 1992.
+      - Decommissioning is deductible at 78 %.
+    - *Bug: deductions were lost when a field stopped.* Any depreciation or past-investment deduction falling after the last production year was dropped. Petroleum tax is assessed per company, not per field, so the owners use these against their other shelf income. Since 2022, special-tax losses are also paid out by the state at the tax assessment, and the corporate-tax part (6.2 %) is carried forward. This is the case the backlog wrongly listed as "lost (in reality refunded)". The synthetic test case lost 54 % of a last-year investment's deduction value.
+    - *Tax timing (proposal 1, not changed).*
+      - The model pays tax in the same year as the cash flow, at mid-year.
+      - In reality, instalments fall half in the income year and half in the next. From 2025 that is ten instalments, 1 Aug–1 Dec and 1 Feb–1 Jun, which averages about half a year after mid-year.
+      - Special-tax refunds of losses are paid at the assessment the following year.
+    - *History only, no effect on forward values:*
+      - Fields whose development plan was submitted before 5 May 2013 kept the 30 % uplift. The model gives 22 % to all 2013–15 investments.
+      - Before 2002 the uplift was 5 % a year over six years, not 7.5 % over four.
+      - That uplift was used up by 2022, so only history-page values move slightly.
+  - **Changed**
+    - `public/js/valuation.js`:
+      - `simulate` counts the unused deductions after the last production year in the years they fall due, at the 2022 values (71.8 % special tax, 6.2 % corporate tax). These are the deductions from past investments (`histCit`/`histSpt`) and the six-year corporate depreciation of the last five years' capex. They are shown in the decommissioning row at the same present value.
+      - `stakeCashflow` puts the inherited part of these deductions (`taxInh`) in that row too.
+      - The header comment is updated.
+    - `public/js/i18n.js` (nb + en): the method-page tax paragraph and the deal tax simplifications (`ddTaxSimpl`) now say that unused deductions are counted.
+    - `README.md`: a new tax bullet.
+    - `IMPROVEMENTS.md`: the backlog tax simplifications (the wrong "lost" line, and a new line on tax timing).
+    - `tests/valuation.test.js`: a new test checks that a 2025 investment's full post-2025 deduction value reaches the NPV of a field with about one year left. It fails without the fix (19.0 vs 41.4).
+  - **Shelf value at defaults:** 128.14 → 128.21 bn USD (+0.06 %).
+    - 21 fields changed by more than USD 0.5 m: Statfjord +32.9 m, Gullfaks +6.5, Ekofisk +5.5, Sleipner Øst +3.0, Valhall +3.0, Brage +2.0 …
+    - Tax PV 429.41 → 429.33 bn.
+  - **Deal verdicts:** none changed.
+    - Eight deals touch affected fields: Vår–ConocoPhillips, Equinor–Petoro, OKEA–Wintershall Dea, Aker BP–Lundin, Vår–ExxonMobil, OKEA–Shell, Aker BP–Hess and the Aker BP merger.
+    - The largest effect is about USD 7 m (Statfjord in Vår–ExxonMobil) on multi-billion deal values, so less than 0.5 %.
+    - deal-metrics still needs regenerating: factpages.sodir.no is blocked, and runs 2–4 also changed the model.
+  - **Checks:**
+    - `npm test`: 20/20 pass
+    - `npm run validate:deals`: OK
+    - `npm run stamp`
+    - i18n: 564 keys in both nb and en
+    - valuation.js loads
+    - `node --check` on app.js and i18n.js
+    - `stakeCashflow` spot checks (Statfjord 2019, Valhall 2017, Brage 2022)
+  - **Proposals for the owner**
+    1. *Tax payment lag.* Discount tax (and refunds) half a year later than the cash flow, to match the instalment schedule: `df` × (1 + r)^−0.5 on the tax line only. Shelf value about +12.6 % (tax PV 429 bn × 3.8 % ≈ +16 bn, 128 → about 144 bn USD). That is over this run's ±10 % limit, and it also lifts every deal value and the typical-deal factor. Analysts and company models normally include this lag. Special-tax refunds for development-phase losses come about a year later still, which slightly lowers new developments; a full model would treat refunds separately.
+    2. *Single-asset owners.* Since 2022 the corporate-tax part of a loss (6.2 %) is only carried forward, with no refund at cessation. The model assumes every owner has other taxable income. That fits the large companies, but a small owner of one late-life field could lose that part. Its value is small; it could become a deal-level option.
+    3. *History-page detail.* Add the 2013 uplift grandfathering (development plan submitted before 5 May 2013 keeps 30 %) and the pre-2002 uplift of 5 % × 6 years. This changes only historical whole-life values, slightly.
+
 - **Run 5 – Volumes** (decline method, economic limit, backtests, shelf forecast vs Sodir)
   - **Findings**
     - *The shelf forecast follows Sodir's.* Sodir expects about 4.1 Mboe/d in 2026 and just under 3.5 Mboe/d in 2030, with a plateau until 2027. It expects liquids of about 2.0 Mb/d and gas of 123.1 bcm in 2026 ([Reuters via EnergyNow, Jan 2026](https://energynow.com/2026/01/norways-oil-and-gas-output-will-fall-towards-2030-regulator-says/), [Hellenic Shipping News](https://www.hellenicshippingnews.com/norways-oil-and-gas-output-will-fall-towards-2030-regulator-says/), [Sodir, The Shelf in 2025](https://www.sodir.no/en/whats-new/publications/reports/the-shelf/the-shelf-in-2025/production-operating-fields-and-investments/)). sodir.no is not reachable from this session; the figures come from search snippets.

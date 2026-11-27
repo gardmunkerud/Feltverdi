@@ -49,6 +49,54 @@ Scheduled cloud agents improve Feltverdi in small, focused steps (one topic per 
 - Fields where the observed decline is clamped. Is the explanation shown to the user clear?
 - Company names: Sodir legal names such as "Equinor Energy AS" against brand names in deals ("Equinor").
 
+## Overnight assumptions review (2026-11-27/28)
+
+Ten hourly runs, one topic each, on branch `review/assumptions` (never main). Newest entry first.
+
+- **Run 1 – Prices** (oil, NGL, gas conversion and tariff, USD/NOK, real terms, CPI)
+  - **Findings**
+    - *US CPI 2025 was wrong (bug).* `history.json` had 2025 = 295.1, below 2024 (313.7). BLS never published October 2025 (government shutdown) and says the 2025 average is the mean of the 11 published months ([BLS FAQ](https://www.bls.gov/cpi/additional-resources/2025-federal-government-shutdown-impact-cpi-faq.htm)). `build-data.js` read the empty FRED value as 0 and divided by 12. Correct value 295.132 × 12/11 = 321.96. Effect: every actual-year 2025 amount (lifetime values, deal cash flows) was inflated by about 9 % in real terms.
+    - *Gas energy factor slightly low.* Gassco delivered 1,295 TWh from 117.6 bn Sm³ in 2024 and 1,207 TWh from 109.1 bn Sm³ in 2023, about 11.0 kWh/Sm³ ([Gassco](https://gassco.eu/en/record-delivery-of-natural-gas-through-the-gas-transport-system-to-europe-in-2024/)). Sodir/Norsk Petroleum use 40 MJ ≈ 11.1 kWh/Sm³ as standard ([Norsk Petroleum energy calculator](https://norskpetroleum.no/en/calculator/about-energy-calculator)). 1 boe = 159 Sm³ → 1.75 MWh (was 1.72, i.e. 10.8 kWh). Check against Aker BP's realised gas price ([Q4 2025 report](https://akerbp.com/borsmelding/fourth-quarter-2025-results-and-strategy-update/)): 2025 69.4 $/boe vs World Bank Europe gas 11.96 $/MMBtu × 5.97 − 2 = 69.4 (old factor 68.2); 2024 62.9 vs 63.4 (old 62.3).
+    - *Tariff missing in history.* The forecast deducts the $2/boe Gassco tariff, but historical years (`valueHistory`, `stakeCashflow`) priced gas at the hub price. Inconsistent and slightly too high for gas fields.
+    - *USD/NOK only moved capex.* Opex and decommissioning were fixed in USD, so a weaker krone made investments cheaper but not operations. NCS operating and removal costs are mostly NOK. At NOK 9 vs 11 the shelf value moved only 123.1 → 124.0 bn USD.
+    - *Real terms.* Prices, opex, capex and discount rate are real; past-investment deductions are deflated at 2 %. But the 6-year corporate-tax depreciation of future capex was not deflated, although it is fixed in nominal NOK. Small effect.
+    - *Oil and NGL rules kept.* Aker BP's liquids (incl. NGL) 2025: 68.9 $/boe vs Brent 69.0; 2024: 80.1 vs 80.7. Equinor group liquids Q4 2025: 58.6 $/bbl vs Brent about 63 ([Equinor Q4 2025](https://equinor.com/news/equinor-fourth-quarter-and-full-year-2025-results)), lower because of Johan Sverdrup's sour crude, NGL and international barrels. Brent − 1 with NGL at 60 % lies between the two, so no change.
+    - *Defaults kept.* Brent 75, gas €35, EURUSD 1.15 and USD/NOK 10 are plausible central values. Not changed.
+  - **Changed**
+    - `public/js/valuation.js`:
+      - `MWH_PER_BOE_GAS` 1.75 and `MMBTU_PER_BOE_GAS` 5.97 (both exported)
+      - the gas tariff is deducted in historical years
+      - opex, the opex fallback by type and facility decommissioning scale by 10 / USD/NOK (`FX_COST_REF` = 10, so default results are unchanged; user overrides in $/boe are not scaled)
+      - future-capex depreciation is deflated
+    - `scripts/build-data.js`: skips missing CPI months.
+    - `public/data/history.json`: CPI 2025 = 321.962. The only value changed; verified byte-identical otherwise.
+    - `public/js/app.js`: the gas-conversion note and the deal-year deck use `V.MWH_PER_BOE_GAS` instead of a hard-coded 1.72.
+    - `public/js/i18n.js` (nb + en):
+      - gas conversion note
+      - method page: gas factor source, tariff in history, a new "Valuta/Currency" bullet, depreciation in real terms
+      - USD/NOK hint
+    - `public/js/wiki.js` (nb + en): factors and worked example.
+    - `README.md`.
+    - `tests/valuation.test.js`: the expected gas price is updated to 1.75 (a deliberate change). New tests cover NOK cost scaling, the historical tariff and a CPI sanity check.
+    - This file: removed the outdated "every 3 hours" and "+2 percentage points on the seller's required return" wording.
+  - **Shelf value at defaults:** 123.60 → 124.94 bn USD (+1.1 %).
+    - The gas factor gives +1.45 bn; deflated depreciation −0.11 bn.
+    - Sum of lifetime values 177.6 → 176.3 bn USD (CPI fix and historical tariff).
+    - Sensitivity: USD/NOK 9 / 11 now gives 121.9 / 127.5 bn (was 123.1 / 124.0).
+  - **Deal verdicts:** not recalculated. **deal-metrics needs regenerating.** `npm run build:data` fails because factpages.sodir.no is not reachable from this session, so the Sodir CSVs in `data/raw/` are missing. The CPI fix lowers every deal's 2025 actual-year amounts by about 8.5 %, and the tariff lowers gas revenue in actual years. Deals from 2025 and gas-heavy deals are most affected. `deal-metrics.json` was not hand-edited.
+  - **Checks:**
+    - `npm test`: 17/17 pass
+    - `npm run validate:deals`: OK
+    - `npm run stamp`
+    - i18n: 563 keys in both nb and en
+    - valuation.js loads
+    - `node --check` on app.js and wiki.js
+  - **Proposals for the owner**
+    1. The opex constants were calibrated to 2025 costs reported in USD, when USD/NOK averaged 10.39 (Norges Bank). Strictly, `FX_COST_REF` should be 10.39, which raises opex by about 4 % at the default 10. That changes the calibration, so it is left for you (re-run the calibration and backtest).
+    2. The historical gas tariff is a flat $2/boe real. Gassled tariffs were higher before the 2016 cut, so this is slightly generous for early years. Acceptable for now.
+    3. The CPI base year 2026 is a partial-year average (January–October). Consider fixing the base to the last full year, or note it on the history page.
+    4. The oil differential could be field-specific, for example a sour-crude discount for Johan Sverdrup and a premium for light crude. This needs public realised prices per field, which are not available. Keep Brent − 1.
+
 ## Log (newest first)
 
 - 2026-11-27 – Tax (with the owner):

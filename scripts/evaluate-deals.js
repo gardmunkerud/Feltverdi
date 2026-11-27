@@ -300,7 +300,38 @@ const verdictOf = (id) => (deals.find((x) => x.id === id) || {}).assessment?.ver
 const ratios = Object.entries(out).filter(([id, m]) => m.ratio && !m.partial && verdictOf(id) !== 'early').map(([, m]) => m.ratio).sort((a, b) => a - b);
 const baseline = ratios.length ? (ratios.length % 2 ? ratios[(ratios.length - 1) / 2] : (ratios[ratios.length / 2 - 1] + ratios[ratios.length / 2]) / 2) : 1;
 for (const m of Object.values(out)) m.relative = m.ratio && !m.partial ? Math.round(m.ratio / baseline * 100) / 100 : null;
-fs.writeFileSync(path.join(root, 'public', 'data', 'deal-metrics.json'), JSON.stringify({ generated: new Date().toISOString().slice(0, 10), baseYear: H.cpiBaseYear, discount: RATE, baseline: Math.round(baseline * 100) / 100, n: ratios.length, metrics: out }, null, 1));
+
+// Reference figures for the deal pages, at the standard assumptions: break-even Brent for 8 % real after tax and the
+// buyer's real return on the price. Each deal page compares its own (live) numbers with the median across deals, so a
+// raw model figure (the model values all deals below market) is read against what a typical deal on the shelf needs.
+const bySlug = new Map(data.fields.map((f) => [f.slug, f]));
+function pkgFcf(m, year, deck) {
+  const by = new Map();
+  for (const it of m.items) {
+    const f = bySlug.get(it.slug); if (!f) continue;
+    for (const r of V.stakeCashflow(f, H, deck || {}, data.lastFullYear, {}, year)) by.set(r.year, (by.get(r.year) || 0) + r.fcf * it.share / 100);
+  }
+  if (m.taxPositionUsdM) by.set(year, (by.get(year) || 0) + m.taxPositionUsdM);
+  for (const [y, v] of m.synergy.rows) by.set(y, (by.get(y) || 0) + v);
+  return [...by.entries()];
+}
+const pvAt = (rows, year, r) => rows.reduce((t, [y, v]) => t + v * Math.pow(1 + r, -(y - year + 0.5)), 0);
+function bisect(f, lo, hi, n = 30) { if (f(lo) * f(hi) > 0) return null; for (let k = 0; k < n; k++) { const mid = (lo + hi) / 2; if (f(lo) * f(mid) <= 0) hi = mid; else lo = mid; } return (lo + hi) / 2; }
+const refs = [];
+for (const [id, m] of Object.entries(out)) {
+  if (m.swap || m.priceReal == null || m.partial) continue;
+  const base = pkgFcf(m, m.year);
+  // highest rate at which the PV still covers the price (same convention as the deal pages)
+  let irr = null; for (let r = 1.5; r > -0.2; r -= 0.01) if (pvAt(base, m.year, r - 0.01) >= m.priceReal) { irr = bisect((x) => pvAt(base, m.year, x) - m.priceReal, r - 0.01, r); break; }
+  const fb = (b) => pvAt(pkgFcf(m, m.year, { brent: b, gasEur: V.DEFAULTS.gasEur * b / V.DEFAULTS.brent }), m.year, RATE) - m.priceReal;
+  const be = fb(10) >= 0 ? 10 : fb(300) < 0 ? 300 : bisect(fb, 10, 300, 16); // clamped to the range shown on the pages
+  m.ref = { irr: irr == null ? null : Math.round(irr * 1000) / 1000, be8: be == null ? null : Math.round(be) };
+  if (verdictOf(id) !== 'early') refs.push(m.ref);
+}
+const med = (a) => { a = a.filter((x) => x != null).sort((x, y) => x - y); return a.length ? (a.length % 2 ? a[(a.length - 1) / 2] : (a[a.length / 2 - 1] + a[a.length / 2]) / 2) : null; };
+const typical = { irr: med(refs.map((x) => x.irr)), be8: med(refs.map((x) => x.be8)), n: refs.length };
+console.log('Typical deal at standard assumptions:', typical, refs);
+fs.writeFileSync(path.join(root, 'public', 'data', 'deal-metrics.json'), JSON.stringify({ generated: new Date().toISOString().slice(0, 10), baseYear: H.cpiBaseYear, discount: RATE, baseline: Math.round(baseline * 100) / 100, n: ratios.length, typical, metrics: out }, null, 1));
 if (trace.length) console.log('Later fields:\n  ' + trace.join('\n  '));
 for (const [id, m] of Object.entries(out)) {
   if (m.swap) { console.log(`${id.padEnd(28)} swap ` + m.legs.map((l) => `${l.from}→${l.to}: ${l.items.map((i) => i.field + ' ' + i.share + '%').join(', ')} value ${l.hindsightValue} cash ${l.cash}`).join(' | ')); continue; }

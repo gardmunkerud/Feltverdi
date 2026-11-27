@@ -1317,6 +1317,8 @@
       out.push(c.be8.below != null ? t('ddP_be8Below', rate, c.be8.below, from)
         : c.be8.above != null ? t('ddP_be8Above', rate, c.be8.above, from)
         : t('ddP_be8', rate, nf(c.be8.b, 0), from, m.year > state.data.lastFullYear, nf(cmp.brent, 0), cmp.then, state.hist.cpiBaseYear));
+      const typ = state.dealMetrics.typical;
+      if (typ && typ.be8 != null && c.be8.b != null) out[out.length - 1] += ' ' + t('ddP_be8Typ', nf(typ.be8, 0), c.be8.b - typ.be8);
     }
     return out;
   }
@@ -1463,7 +1465,7 @@
     const irr = hasPrice ? ddIrr(base.rows, year, price) : null;
     const payback = hasPrice ? ddPayback(base.rows, year, r, price) : null;
     const ratio = hasPrice && V0 > 0 ? price / V0 : null;
-    const baseline = state.dealMetrics.baseline;
+    const baseline = state.dealMetrics.baseline, typ = state.dealMetrics.typical;
     const buyer = m.buyer || d.parties[0], seller = m.seller || d.parties[1] || '–';
     const pctTxt = (v) => (v == null ? '–' : v >= 1.5 ? '> 150 %' : pct(v * 100, 1));
     // scenarios
@@ -1487,7 +1489,7 @@
         <div class="kpi"><div class="l">${t('ddKpiModel')}${tipBtn(t('ddT_model'))}</div><div class="v">${money(V0)}</div><div class="s">${t('ddKpiValueSub', year, pct(r * 100, 0))}</div></div>
         <div class="kpi"><div class="l">${t('ddKpiTypical')}${tipBtn(t('ddT_typical', nf(baseline, 2)))}</div><div class="v">${money(Vtyp)}</div><div class="s">${t('ddKpiTypicalSub', nf(baseline, 2))}</div></div>
         <div class="kpi hl"><div class="l">${t('ddKpiVsTyp')}${tipBtn(t('ddT_vsTyp'))}</div><div class="v ${vsTyp == null ? '' : gainCls(-vsTyp)}">${vsTyp == null || m.partial ? '–' : `${vsTyp >= 0 ? '+' : '−'}${pct(Math.abs(vsTyp) * 100, 0)}`}</div><div class="s">${m.partial ? t('verdict_na') : ratio ? t('ddKpiVsTypSub', nf(ratio, 2), nf(baseline, 2)) : ''}</div></div>
-        <div class="kpi"><div class="l">${t('ddKpiIrr')}${tipBtn(t('ddT_irr', pct(r * 100, 0)))}</div><div class="v">${irr == null ? t('ddIrrNone') : pctTxt(irr)}</div><div class="s">${t(irr == null ? 'ddKpiIrrSubNone' : 'ddKpiIrrSub')}</div></div>
+        <div class="kpi"><div class="l">${t('ddKpiIrr')}${tipBtn(t('ddT_irr', pct(r * 100, 0)))}</div><div class="v">${irr == null ? t('ddIrrNone') : pctTxt(irr)}</div><div class="s">${t(irr == null ? 'ddKpiIrrSubNone' : 'ddKpiIrrSub')}${typ && typ.irr != null && !m.partial ? ` · ${t('ddTypicalIrr', pct(typ.irr * 100, 1))}` : ''}</div></div>
         <div class="kpi"><div class="l">${t('ddKpiPayback')}${tipBtn(t('ddT_payback'))}</div><div class="v">${payback || t('ddNotWithin')}</div><div class="s">${t('ddKpiPaybackSub')}</div></div>
       </div>` : `<div class="kpis dd-kpis"><div class="kpi hl"><div class="l">${t('ddKpiValue')}</div><div class="v">${money(V0)}</div><div class="s">${t('ddKpiValueSub', year, pct(r * 100, 0))}</div></div><div class="kpi"><div class="l">${t('ddKpiPaid')}</div><div class="v">–</div><div class="s">${t('dealsNoValue')}</div></div></div>`;
 

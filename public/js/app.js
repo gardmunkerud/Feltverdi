@@ -719,6 +719,17 @@
       byYear.set(row.year, o);
     }
     const years = [...byYear.keys()].filter((y) => y >= 1970 && y <= 2060).sort((a, b) => a - b);
+    // shelf production by product (million boe per day): Sodir history + forecast × each field's remaining-reserve mix
+    const lastY = state.data.lastFullYear, D = V.BOE_PER_SM3 / 365;
+    const prodBy = new Map();
+    const addP = (y, k, v) => { const o = prodBy.get(y) || { oil: 0, gas: 0, ngl: 0, fOil: 0, fGas: 0, fNgl: 0 }; o[k] += v; prodBy.set(y, o); };
+    for (const f of state.data.fields) {
+      for (const p of f.prod) if (p[0] <= lastY) { addP(p[0], 'oil', (p[1] + p[4]) * D); addP(p[0], 'gas', p[2] * D); addP(p[0], 'ngl', p[3] * D); }
+      const h = H.get(f.slug); if (!h) continue;
+      const m = V.mix(f);
+      for (const r of h.rows) if (!r.hist && r.year > lastY && r.q > 0) { const q = r.q / 365; addP(r.year, 'fOil', q * m.liquids); addP(r.year, 'fGas', q * m.gas); addP(r.year, 'fNgl', q * m.ngl); }
+    }
+    const pYears = [...prodBy.keys()].filter((y) => y >= 1970 && y <= 2060).sort((a, b) => a - b);
     const cpi = new Map(state.hist.cpi), cpiNow = cpi.get(base);
     const brentReal = new Map(state.hist.prices.map(([y, b]) => [y, b * cpiNow / cpi.get(y)]));
 
@@ -754,6 +765,10 @@
         <div class="kpi"><div class="l">${t('histKpiProd')}</div><div class="v">${nf(prod / 1000, 1)}</div><div class="s">${t('histKpiProdSub', pct(prodHist / prod * 100, 0))}</div></div>
       </div>
       <div class="card section-gap">
+        <div class="card-head"><h2>${t('histProdChart')}</h2><span class="muted">${t('histProdSub')}</span></div>
+        <div class="chart-box" style="height:340px"><canvas id="c-hprod"></canvas></div>
+      </div>
+      <div class="card section-gap">
         <div class="card-head"><h2>${t('histChart')}</h2><span class="muted">${t('histChartSub', state.cur)}</span></div>
         <div class="chart-box" style="height:340px"><canvas id="c-hist"></canvas></div>
       </div>
@@ -782,6 +797,29 @@
     $('#ha', el).addEventListener('change', (e) => { R.area = e.target.value; route({ keepScroll: true }); });
     $$('tr.link', el).forEach((tr) => tr.addEventListener('click', (e) => { if (!e.target.closest('a')) location.hash = tr.dataset.href; }));
     if (window.Chart) {
+      const soft = (c) => (/^#[0-9a-f]{6}$/i.test(c) ? c + '59' : c);
+      const pd = (k) => pYears.map((y) => { const v = prodBy.get(y)[k]; return v > 0.0005 ? v : null; });
+      const pBar = (label, k, c, fc) => ({ label, data: pd(k), backgroundColor: fc ? soft(c) : c, borderColor: c, borderWidth: fc ? 1 : 0, stack: 'p', barPercentage: 1, categoryPercentage: 0.9 });
+      charts.push(new Chart($('#c-hprod'), {
+        type: 'bar',
+        data: {
+          labels: pYears,
+          datasets: [
+            pBar(t('histOil'), 'oil', COLORS.oil), pBar(t('histGas'), 'gas', COLORS.gas), pBar(t('histNgl'), 'ngl', COLORS.ngl),
+            pBar(t('histOilFc'), 'fOil', COLORS.oil, true), pBar(t('histGasFc'), 'fGas', COLORS.gas, true), pBar(t('histNglFc'), 'fNgl', COLORS.ngl, true),
+          ],
+        },
+        options: {
+          maintainAspectRatio: false, interaction: { mode: 'index', intersect: false },
+          scales: { x: { stacked: true, grid: { display: false }, ticks: { maxTicksLimit: 12 } }, y: { stacked: true, ticks: { callback: (x) => nf(x, 1) } } },
+          plugins: {
+            legend: { labels: { filter: (i) => i.datasetIndex < 3 }, onClick: (e, item, lg) => { const ch = lg.chart; [item.datasetIndex, item.datasetIndex + 3].forEach((k) => ch.setDatasetVisibility(k, !ch.isDatasetVisible(k))); ch.update(); } },
+            tooltip: { callbacks: {
+            label: (c) => (c.raw == null ? null : `${c.dataset.label}: ${nf(c.raw, 2)}`),
+            footer: (items) => { const s = items.reduce((x, i) => x + (i.raw || 0), 0); return s ? `${t('histProdTotal')}: ${nf(s, 2)}` : ''; },
+          } } },
+        },
+      }));
       const conv = (v) => toCur(v) / 1000;
       charts.push(new Chart($('#c-hist'), {
         data: {

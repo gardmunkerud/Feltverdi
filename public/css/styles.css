@@ -638,3 +638,8 @@ th .info { text-transform: none; letter-spacing: 0; }
 @media (max-width: 700px) { .rank-tbl .col-status { display: none; } }
 @media (max-width: 560px) { .rank-tbl .col-hperboe { display: none; } }
 @media (max-width: 560px) { .tbl-wrap td:first-child, .tbl-wrap th:first-child { white-space: normal; min-width: 110px; } .tbl-wrap td:first-child .tag { margin-top: 2px; } }
+
+/* Landing page: production chart (left) and map (right) */
+.g-home { grid-template-columns: 1.45fr 1fr; }
+.home-prod { height: 470px; }
+@media (max-width: 900px) { .g-home { grid-template-columns: 1fr; } .home-prod { height: 320px; } }

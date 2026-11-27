@@ -241,28 +241,78 @@
         <div class="kpi"><div class="l">${t('kpiState')}</div><div class="v">${money(T.tax)}</div><div class="s">${t('kpiStateSub')}</div></div>
         <div class="kpi"><div class="l">${t('kpiReserves')}</div><div class="v">${nf(T.rem / 1000, 1)} ${state.lang === 'nb' ? 'mrd. fat' : 'bn boe'}</div><div class="s">${T.prod} ${t('kpiFields').toLowerCase()} · ${t('kpiFieldsSub', fields.length)}</div></div>
       </div>
-      <div class="grid g-map section-gap">
+      <div class="grid g-home section-gap">
+        <div class="card">
+          <div class="card-head"><h2>${t('homeProdTitle')}</h2><span class="muted">${t('homeProdSub')}</span></div>
+          <div class="chart-box home-prod"><canvas id="c-home-prod" role="img" aria-label="${esc(t('homeProdTitle'))}"></canvas></div>
+        </div>
         <div class="card">
           <div class="card-head"><h2>${t('mapTitle')}</h2><span class="muted">${t('mapSub')}</span></div>
           <div id="map" class="map" role="img" aria-label="${t('mapTitle')}"></div>
           <div class="legend"><span><i class="dot" style="background:${COLORS.oil}"></i>${t('legOil')}</span><span><i class="dot" style="background:${COLORS.gas}"></i>${t('legGas')}</span><span><i class="dot" style="background:${COLORS.mixed}"></i>${t('legMixed')}</span><span><i class="dot" style="background:${COLORS.shut}"></i>${t('legShut')}</span></div>
         </div>
+      </div>
+      <div class="grid g-2 section-gap">
         <div class="card">
           <div class="card-head"><h2>${t('topFields')}</h2></div>
           <ol class="rank-list">${top.map((f) => `<li><span><a href="#/felt/${f.slug}">${esc(f.name)}</a><span class="meta">${esc(tmap('area', f.area))} · ${esc(tmap('hc', f.hc))}</span></span><span class="val">${money(state.vals.get(f.slug).npv)}</span></li>`).join('')}</ol>
           <p style="margin:14px 0 0"><a href="#/rangering">${t('allRankings')}</a></p>
         </div>
+        <div class="card"><div class="card-head"><h2>${t('topCompanies')}</h2></div>${barsHtml(comps.map(({ c, v }) => ({ name: shortCompany(c.name), href: `#/selskap/${c.slug}`, value: v.npv, label: money(v.npv, { bare: true }) })))}</div>
       </div>
-      <div class="grid g-3 section-gap">
+      <div class="grid g-2 section-gap">
         <div class="card"><div class="card-head"><h2>${t('byArea')}</h2></div>${barsHtml(Object.entries(T.byArea).sort((a, b) => b[1] - a[1]).map(([k, v]) => ({ name: tmap('area', k), value: v })))}</div>
         <div class="card"><div class="card-head"><h2>${t('byHc')}</h2></div>${barsHtml([{ name: t('gasProd'), value: T.grossByHc.gas, color: COLORS.gas }, { name: t('oil'), value: T.grossByHc.oil, color: COLORS.oil }, { name: t('ngl'), value: T.grossByHc.ngl, color: COLORS.ngl }])}</div>
-        <div class="card"><div class="card-head"><h2>${t('topCompanies')}</h2></div>${barsHtml(comps.map(({ c, v }) => ({ name: shortCompany(c.name), href: `#/selskap/${c.slug}`, value: v.npv, label: money(v.npv, { bare: true }) })))}</div>
       </div>`;
     animateBars(el);
     const items = fields.map((f) => ({ name: f.name, sub: `${t('modeField')} · ${tmap('area', f.area)}`, href: `#/felt/${f.slug}` }))
       .concat(state.companies.map((c) => ({ name: c.name, sub: `${t('modeCompany')} · ${c.fields} ${t('nFields').toLowerCase()}`, href: `#/selskap/${c.slug}` })));
     picker($('#hero-picker', el), items, t('heroSearchPh'), (i) => { location.hash = i.href; }, 'hero-list');
     drawMap();
+    drawHomeProd();
+  }
+
+  // Whole-shelf production by product (thousand boe per day): Sodir history to the last full year, then the model's
+  // forecast for every field (live with the assumptions at the top) split by each field's remaining-reserve mix.
+  function shelfProduction() {
+    const lastY = state.data.lastFullYear, D = V.BOE_PER_SM3 / 365 * 1000;
+    const by = new Map();
+    const add = (y, k, v) => { const o = by.get(y) || { oil: 0, gas: 0, ngl: 0, fOil: 0, fGas: 0, fNgl: 0 }; o[k] += v; by.set(y, o); };
+    for (const f of state.data.fields) {
+      for (const p of f.prod) if (p[0] <= lastY) { add(p[0], 'oil', (p[1] + p[4]) * D); add(p[0], 'gas', p[2] * D); add(p[0], 'ngl', p[3] * D); }
+      const v = state.vals.get(f.slug); if (!v || !v.years) continue;
+      const m = V.mix(f);
+      for (const r of v.years) if (r.year > lastY && r.q > 0) { const q = r.q / 365 * 1000; add(r.year, 'fOil', q * m.liquids); add(r.year, 'fGas', q * m.gas); add(r.year, 'fNgl', q * m.ngl); }
+    }
+    const years = [...by.keys()].filter((y) => y >= 1971 && y <= 2060).sort((x, y) => x - y);
+    return { years, by };
+  }
+  function drawHomeProd() {
+    const cv = $('#c-home-prod');
+    if (!cv || !window.Chart) return;
+    const { years, by } = shelfProduction();
+    const soft = (c) => (/^#[0-9a-f]{6}$/i.test(c) ? c + '59' : c);
+    const pd = (k) => years.map((y) => { const v = by.get(y)[k]; return v > 0.05 ? v : null; });
+    const bar = (label, k, c, fc) => ({ label, data: pd(k), backgroundColor: fc ? soft(c) : c, borderColor: c, borderWidth: fc ? 1 : 0, stack: 'p', barPercentage: 1, categoryPercentage: 0.92 });
+    charts.push(new Chart(cv, {
+      type: 'bar',
+      data: { labels: years, datasets: [
+        bar(t('histOil'), 'oil', COLORS.oil), bar(t('histGas'), 'gas', COLORS.gas), bar(t('histNgl'), 'ngl', COLORS.ngl),
+        bar(t('histOilFc'), 'fOil', COLORS.oil, true), bar(t('histGasFc'), 'fGas', COLORS.gas, true), bar(t('histNglFc'), 'fNgl', COLORS.ngl, true),
+      ] },
+      options: {
+        maintainAspectRatio: false, interaction: { mode: 'index', intersect: false },
+        scales: { x: { stacked: true, grid: { display: false }, ticks: { maxTicksLimit: 10, maxRotation: 0 } }, y: { stacked: true, title: { display: true, text: t('homeProdAxis') }, ticks: { callback: (x) => nf(x) } } },
+        plugins: {
+          legend: { labels: { filter: (i) => i.datasetIndex < 3, boxWidth: 12 }, onClick: (e, item, lg) => { const ch = lg.chart; [item.datasetIndex, item.datasetIndex + 3].forEach((k) => ch.setDatasetVisibility(k, !ch.isDatasetVisible(k))); ch.update(); } },
+          tooltip: { callbacks: {
+            title: (items) => `${items[0].label}${+items[0].label > state.data.lastFullYear ? ' · ' + t('homeProdFc') : ''}`,
+            label: (c) => (c.raw == null ? null : `${c.dataset.label}: ${nf(c.raw, 0)}`),
+            footer: (items) => { const s = items.reduce((x, i) => x + (i.raw || 0), 0); return s ? `${t('histProdTotal')}: ${nf(s, 0)} ${t('kboed')}` : ''; },
+          } },
+        },
+      },
+    }));
   }
 
   const shortCompany = (n) => n.replace(/ (ASA|AS|AB|Norge|Norway|Skandinavia|Energy AS|EP Norge AS|E&P Norge AS)$/g, '').replace(/ (AS|ASA)$/g, '');

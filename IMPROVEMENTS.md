@@ -46,6 +46,7 @@ A scheduled cloud agent improves Feltverdi in small steps, one change every 3 ho
 
 ## Log (newest first)
 
+- 2026-11-27 – Assumptions/wording: the method page (nb + en) now explains what NGL is and that the 60 %-of-Brent price is a simplified rule of thumb.
 - 2026-11-27 – Wording: the deal scenario intro (nb + en) now explains that "Prices in year X" is a flat price from the deal year, not the forward curve then.
 - 2026-11-26 – Wording/financial analysis: the deals method text (nb + en) now says the price is the value at announcement and moves with the share price for deals paid in shares.
 - 2026-11-26 – Log started. Recent changes:

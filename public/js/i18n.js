@@ -471,7 +471,7 @@ window.FV_METHOD = {
 <p><strong>Platåfelt:</strong> Feltverdi leser Sodirs statusbeskrivelse for hvert felt. Der Sodir beskriver feltet som på platå, med stabil eller kapasitetsbegrenset produksjon (f.eks. Snøhvit og Johan Sverdrup), holdes produksjonen flat på nivået fra de siste årene (median av tre år). Det gjelder også Troll, der gassproduksjonen er begrenset av kapasitet. Antall platåår beregnes slik at platået pluss et normalt fall etterpå (10 % for gass, 12 % for olje) tilsvarer gjenværende reserver × 1,3. Du kan overstyre platå og fallrate per felt.</p>
 <h2>Priser og kostnader</h2>
 <ul>
-<li><strong>Olje og kondensat:</strong> Brent − 1 USD. <strong>NGL:</strong> 60 % av Brent. <strong>Gass:</strong> €/MWh × 1,72 MWh per fat o.e. × EURUSD.</li>
+<li><strong>Olje og kondensat:</strong> Brent − 1 USD. <strong>NGL:</strong> 60 % av Brent (NGL er propan, butan og andre væsker fra gassen; de selges normalt billigere enn olje, og 60 % er en forenklet tommelfingerregel, ikke en målt pris). <strong>Gass:</strong> €/MWh × 1,72 MWh per fat o.e. × EURUSD.</li>
 <li><strong>Drift:</strong> 60 % fast og 40 % variabelt, slik at enhetskostnaden stiger når produksjonen faller. Standardnivå etter felttype (gass 7–8, olje 11–12 USD/fat).</li>
 <li><strong>Investeringer:</strong> feltets egen investeringsintensitet de siste tre rapporterte årene (USD per fat), begrenset til 2–12 USD/fat.</li>
 <li><strong>Fjerning:</strong> 1 USD per fat av opprinnelig utvinnbart volum, to år etter nedstengning.</li>
@@ -507,7 +507,7 @@ window.FV_METHOD = {
 <p><strong>Plateau fields:</strong> Feltverdi reads Sodir's status description for each field. Where Sodir describes the field as on plateau, with stable or capacity-limited production (e.g. Snøhvit and Johan Sverdrup), production is held flat at the recent level (median of three years). This also applies to Troll, where gas production is limited by capacity. The number of plateau years is set so that the plateau plus a normal decline afterwards (10 % for gas, 12 % for oil) equals the remaining reserves × 1.3. You can override plateau and decline per field.</p>
 <h2>Prices and costs</h2>
 <ul>
-<li><strong>Oil and condensate:</strong> Brent − USD 1. <strong>NGL:</strong> 60 % of Brent. <strong>Gas:</strong> €/MWh × 1.72 MWh per boe × EURUSD.</li>
+<li><strong>Oil and condensate:</strong> Brent − USD 1. <strong>NGL:</strong> 60 % of Brent (NGL is propane, butane and other liquids separated from the gas; they usually sell below crude oil, and 60 % is a simplified rule of thumb, not a measured price). <strong>Gas:</strong> €/MWh × 1.72 MWh per boe × EURUSD.</li>
 <li><strong>Opex:</strong> 60 % fixed and 40 % variable, so unit cost rises as production falls. Default level by field type (gas 7–8, oil 11–12 USD/bbl).</li>
 <li><strong>Capex:</strong> the field's own investment intensity over the last three reported years (USD per boe), clamped to 2–12 USD/boe.</li>
 <li><strong>Decommissioning:</strong> USD 1 per boe of original recoverable volume, two years after shut-down.</li>

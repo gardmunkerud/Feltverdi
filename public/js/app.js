@@ -1487,11 +1487,10 @@
   }
 
   // Each side's own valuation: buyer's required return + opex synergies vs seller's required return.
-  // Defaults: the global discount rate, no extra synergies (the deal's synergies are already in the rows), adjusted by
-  // `views` in deals.json (deltas, documented per deal).
+  // Defaults: buyer and seller both use the discount rate from the assumptions bar (8 % unless changed), and no extra
+  // synergies (the deal's synergies are already in the rows). The user can change all three per deal.
   function ddViewInputs(d) {
-    const v = d.views || {};
-    const def = { buyerRate: state.a.discount + (v.buyerRateDelta || 0), sellerRate: state.a.discount + (v.sellerRateDelta || 0), synergy: v.synergy || 0 };
+    const def = { buyerRate: state.a.discount, sellerRate: state.a.discount, synergy: 0 };
     const own = (state.dealViews || {})[d.id] || {};
     return { def, cur: { ...def, ...own }, custom: Object.keys(own).length > 0 };
   }

@@ -95,10 +95,9 @@
     }
    },
    "views": {
-    "sellerRateDelta": 0.02,
-    "note": {
-     "nb": "ConocoPhillips spisser porteføljen og har trolig høyere avkastningskrav (+2 prosentpoeng). Vår Energis egne synergianslag (lav ende) er allerede med i verdien.",
-     "en": "ConocoPhillips is high-grading its portfolio and probably has a higher required return (+2 percentage points). Vår Energi’s own synergy estimate (low end) is already in the value."
+        "note": {
+     "nb": "ConocoPhillips spisser porteføljen. Vår Energis egne synergianslag (lav ende) er allerede med i verdien.",
+     "en": "ConocoPhillips is high-grading its portfolio. Vår Energi’s own synergy estimate (low end) is already in the value."
     }
    },
    "synergies": {
@@ -821,10 +820,9 @@
     }
    },
    "views": {
-    "sellerRateDelta": 0.02,
-    "note": {
-     "nb": "ExxonMobil gikk ut av en ikke-kjerneregion og hadde trolig høyere avkastningskrav (+2 prosentpoeng). Standardantakelsen for synergier er allerede med i verdien.",
-     "en": "ExxonMobil was exiting a non-core region and probably had a higher required return (+2 percentage points). The standard synergy assumption is already in the value."
+        "note": {
+     "nb": "ExxonMobil gikk ut av en ikke-kjerneregion. Standardantakelsen for synergier er allerede med i verdien.",
+     "en": "ExxonMobil was exiting a non-core region. The standard synergy assumption is already in the value."
     }
    }
   },
@@ -967,10 +965,9 @@
     }
    },
    "views": {
-    "sellerRateDelta": 0.02,
-    "note": {
-     "nb": "Shell solgte et modent felt utenfor kjernen (+2 prosentpoeng). OKEA tok over driften av Draugen; standardantakelsen for synergier er allerede med i verdien.",
-     "en": "Shell sold a mature, non-core field (+2 percentage points). OKEA took over operation of Draugen; the standard synergy assumption is already in the value."
+        "note": {
+     "nb": "Shell solgte et modent felt utenfor kjernen. OKEA tok over driften av Draugen; standardantakelsen for synergier er allerede med i verdien.",
+     "en": "Shell sold a mature, non-core field. OKEA took over operation of Draugen; the standard synergy assumption is already in the value."
     }
    }
   },
@@ -1021,10 +1018,9 @@
     }
    },
    "views": {
-    "sellerRateDelta": 0.02,
-    "note": {
-     "nb": "Hess gikk ut av Norge (+2 prosentpoeng på avkastningskravet). Aker BP opererte allerede Valhall; standardantakelsen for synergier (15 % lavere driftskostnader på andelene) er allerede med i verdien.",
-     "en": "Hess was exiting Norway (+2 percentage points on the required return). Aker BP already operated Valhall; the standard synergy assumption (15 % lower operating costs on the stakes) is already in the value."
+        "note": {
+     "nb": "Hess gikk ut av Norge. Aker BP opererte allerede Valhall; standardantakelsen for synergier (15 % lavere driftskostnader på andelene) er allerede med i verdien.",
+     "en": "Hess was exiting Norway. Aker BP already operated Valhall; the standard synergy assumption (15 % lower operating costs on the stakes) is already in the value."
     }
    }
   },

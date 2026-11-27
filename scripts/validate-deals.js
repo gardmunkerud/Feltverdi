@@ -65,6 +65,7 @@ function validate(dealsFile = path.join(root, 'public', 'data', 'deals.json')) {
     if (texts.some((s) => /<\s*\/?\s*(script|iframe|img|a)\b|javascript:/i.test(String(s)))) err('texts must be plain text (no HTML)');
     if (d.upside != null && !(Array.isArray(d.upside) && d.upside.every((u) => isText(u.slug) && typeof u.remAdd === 'number' && bothLangs(u.label)))) err('upside entries need slug, remAdd and label nb/en');
     if (d.views != null && !(typeof d.views === 'object' && bothLangs(d.views.note))) err('views needs a note in nb and en');
+    if (d.views != null && ['buyerRateDelta', 'sellerRateDelta', 'synergy'].some((k) => k in d.views)) err('views: buyer and seller share the default required return and extra synergies default to 0 – only a note is allowed');
     if (d.priceAdjusted != null) {
       const pa = d.priceAdjusted;
       if (!(typeof pa.valueUsdM === 'number' && pa.valueUsdM > 0)) err('priceAdjusted.valueUsdM must be a positive number');

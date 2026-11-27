@@ -181,3 +181,29 @@ test('host fields receive the processing tariff their tie-backs pay (if data pre
   const expect = tbs.reduce((t, f) => t + ((vals.get(f.slug).years.find((r) => r.year === y0) || {}).q || 0) * V.OPEX_FAC.tieback, 0);
   assert.ok(Math.abs(withTb.years.find((r) => r.year === y0).tariff - expect) < 1e-6);
 });
+
+test('Sodir expected investments from a past year are not charged to the forecast again; the unreported year is estimated', () => {
+  // Producing field: invExp "from 2025" spread over 2025 production + reserves × 1.3; 2025 not reported by Sodir yet
+  const f = field({ invExp: { mnok: 2000, year: 2025 } });
+  const prodBase = 10 * V.BOE_PER_SM3 * 1.3, q25 = 2.0 * V.BOE_PER_SM3;
+  const k = 2000 / 10 / (prodBase + q25);
+  const v = V.valueField(f, {}, LAST);
+  assert.ok(Math.abs(v.capexBoe - k) < 1e-9, `capex/boe ${v.capexBoe} vs ${k}`);
+  const inv = V.investmentsWithGap(f, V.DEFAULTS, LAST);
+  assert.ok(Math.abs(inv.find((r) => r[0] === 2025)[1] - k * q25 * 10) < 1e-6);
+  const h = V.valueHistory(f, { prices: [[2025, 70, 11]], usdnok: [[2025, 10]], cpi: [[2025, 100]], cpiBaseYear: 2025 }, {}, LAST);
+  assert.ok(h.rows.find((r) => r.year === 2025).capex > 0); // the estimate appears in the actual year
+  // Reported 2025 investments are used as they are, not replaced
+  const g = field({ invExp: { mnok: 2000, year: 2025 }, inv: [[2024, 1500], [2025, 900]] });
+  assert.strictEqual(V.investmentsWithGap(g, V.DEFAULTS, LAST).find((r) => r[0] === 2025)[1], 900);
+  // New field (approved, starts 2027): 80 % development spread over 2025–26, so 2026 carries half of it
+  const n = field({ status: 'Approved for production', prod: [], inv: [[2024, 500]], invExp: { mnok: 5000, year: 2025 } });
+  const vn = V.valueField(n, {}, LAST);
+  assert.ok(Math.abs(vn.years[0].capex - 0.4 * 5000 / 10) < 1e-6);
+  assert.ok(Math.abs(V.investmentsWithGap(n, V.DEFAULTS, LAST).find((r) => r[0] === 2025)[1] - 0.4 * 5000) < 1e-6);
+  // Field Sodir lists as producing with no production last year: started this year, development already spent
+  const p = field({ prod: [[2025, 0, 0, 0, 0, 0]], inv: [[2024, 500]], invExp: { mnok: 5000, year: 2025 } });
+  const vp = V.valueField(p, {}, LAST);
+  assert.ok(vp.years[0].q > 0);
+  assert.ok(Math.abs(V.investmentsWithGap(p, V.DEFAULTS, LAST).find((r) => r[0] === 2025)[1] - 0.8 * 5000) < 1e-6);
+});

@@ -154,10 +154,10 @@
     return out;
   }
   // All deductions from the field's reported investments (nominal NOK million), by tax year; keep(y) filters investment years
-  function deductionSchedule(field, keep = () => true) {
+  function deductionSchedule(field, keep = () => true, inv = field.inv) {
     const fp = firstProductionYear(field);
     const m = new Map();
-    for (const [y, I] of field.inv) {
+    for (const [y, I] of inv) {
       if (!I || !keep(y)) continue;
       for (const [t, c, sp] of investmentDeductions(field, y, I, fp)) { const o = m.get(t) || { cit: 0, spt: 0 }; o.cit += c; o.spt += sp; m.set(t, o); }
     }
@@ -210,6 +210,43 @@
     return Math.min(12, Math.max(2, usd / boe));
   }
 
+  // Sodir's expected investments (invExp) run from 1 January of invExp.year (e.g. "from 2025, in 2025 NOK"), while
+  // the yearly investment figures may still stop the year before (2025 not yet reported) and the forecast starts at
+  // a.startYear. The plan spreads invExp over all production from invExp.year on, so the part belonging to years
+  // already past is not charged to the forecast again, and the missing past years get an estimate instead.
+  //   Producing fields: intensity = invExp / (production since invExp.year + Sodir reserves × growth), bounded.
+  //   New fields: 80 % is development, spread evenly over the years from invExp.year to first production; the rest is
+  //   drilling and maintenance per boe produced.
+  // gap: estimated investments [[year, NOK million]] for past years Sodir has not reported yet (real ≈ nominal).
+  function capexPlan(field, a, lastFullYear, remSodir, prodBase, isNew, startIndex) {
+    const exp = field.invExp && remSodir > 0.5 ? Math.max(0, field.invExp.mnok) : null; // NOK million, real
+    const fy = field.invExp ? field.invExp.year : a.startYear;
+    const reported = new Map(field.inv);
+    const pastYears = []; for (let y = fy; y < a.startYear && y <= lastFullYear; y++) pastYears.push(y);
+    const qOf = (y) => { const p = field.prod.find((r) => r[0] === y); return p ? p[5] * BOE_PER_SM3 : 0; };
+    const qPast = pastYears.reduce((t, y) => t + qOf(y), 0);
+    const gap = [];
+    if (exp == null) { // no Sodir figure: the field's recent intensity for unreported past years with production
+      const k = capexIntensity(field, a, lastFullYear);
+      for (const y of pastYears) if (!reported.has(y) && qOf(y) > 0) gap.push([y, k * qOf(y) * a.usdnok]);
+      return { capexSodir: null, devCapex: isNew ? 6 * remSodir : 0, gap };
+    }
+    if (isNew) {
+      const nPre = Math.max(1, a.startYear + startIndex - fy), dev = 0.8 * exp;
+      let spent = 0;
+      for (const y of pastYears) { if (reported.has(y)) spent += reported.get(y); else { gap.push([y, dev / nPre]); spent += dev / nPre; } }
+      return { capexSodir: Math.min(CAPEX_MAX, Math.max(CAPEX_MIN, 0.2 * exp / a.usdnok / prodBase)), devCapex: Math.max(0, dev - spent) / a.usdnok, gap };
+    }
+    const k = Math.min(CAPEX_MAX, Math.max(CAPEX_MIN, exp / a.usdnok / (prodBase + qPast))); // USD/boe
+    for (const y of pastYears) if (!reported.has(y) && qOf(y) > 0) gap.push([y, k * qOf(y) * a.usdnok]);
+    return { capexSodir: k, devCapex: 0, gap };
+  }
+  // Reported investments plus the estimate for past years Sodir has not reported yet (nominal NOK million)
+  function investmentsWithGap(field, a, lastFullYear) {
+    const g = setup(field, a, lastFullYear, {}, 1 + (Math.max(1, a.reserveGrowth ?? 1) - 1) / 2).invGap;
+    return g.length ? [...field.inv, ...g].sort((x, y) => x[0] - y[0]) : field.inv;
+  }
+
   // Classifies how the forecast should start
   // growth: reserve-growth multiplier applied to Sodir's remaining reserves for fields without a usable decline history
   function setup(field, a, lastFullYear, ov = {}, growth = 1) {
@@ -222,7 +259,9 @@
     if (field.status === 'Shut down' || remBoe <= 0.05) kind = 'none';
     else if (field.status === 'Approved for production' || q0 <= 0 || (first && first >= lastFullYear - 1) || (field.outlook && field.outlook.plateau === 'plateau') || ov.plateauYears > 0) remBoe = remSodir * growth;
     if (kind === 'none') { /* nothing */ }
-    else if (field.status === 'Approved for production' || q0 <= 0) { kind = 'new'; startIndex = 1; plateau = remBoe / 9; plateauYears = 3; }
+    // New: approved fields start the year after the start year; fields Sodir lists as producing but without production
+    // last year started this year.
+    else if (field.status === 'Approved for production' || q0 <= 0) { kind = 'new'; startIndex = field.status === 'Producing' ? 0 : 1; plateau = remBoe / 9; plateauYears = 3; }
     else if (first && first >= lastFullYear - 1) { kind = 'ramp'; plateau = Math.max(q0, remBoe / 9); plateauYears = 3; }
     else if ((field.outlook && field.outlook.plateau === 'plateau') || ov.plateauYears > 0) {
       // Plateau: hold the typical recent rate (median of the last three years), then decline at a normal tail rate.
@@ -240,11 +279,12 @@
     // Future capex: Sodir's expected future investments for the field (operators' own plans, fixed NOK), spread over the
     // production the model expects (Sodir reserves × the middle of the reserve-growth range), so total capex ≈ Sodir's
     // figure. New fields spend 80 % before first production and 20 % as drilling/maintenance during production.
+    // The part of Sodir's figure that belongs to years already past is left out (capexPlan).
     // Without a Sodir figure: the field's recent investment intensity (or $6/boe for new fields).
-    const exp = field.invExp && remSodir > 0.5 ? Math.max(0, field.invExp.mnok) / a.usdnok : null; // USD million, real
     const prodBase = remSodir * Math.max(1, growth);
     const isNew = field.status === 'Approved for production' || q0 <= 0;
-    const capexSodir = exp != null ? Math.min(CAPEX_MAX, Math.max(CAPEX_MIN, (isNew ? 0.2 : 1) * exp / prodBase)) : null;
+    const plan = capexPlan(field, a, lastFullYear, remSodir, prodBase, isNew, startIndex);
+    const capexSodir = plan.capexSodir;
     const capexBoe = ov.capexBoe ?? capexSodir ?? capexIntensity(field, a, lastFullYear);
     const capexBasis = ov.capexBoe != null ? 'user' : capexSodir != null ? 'sodir' : 'history';
     const refRate = kind === 'decline' ? q0 : plateau;
@@ -263,13 +303,13 @@
     // Decommissioning: user's $/boe, else from facilities (at least $0.5/boe of recoverable volume, for wells and
     // facilities still to be installed), else the default $/boe.
     // Deductions from past investments still to be used from the start year (real USD; corporate and special tax base)
-    const hd = deductionSchedule(field, (y) => y < a.startYear);
+    const hd = deductionSchedule(field, (y) => y < a.startYear, plan.gap.length ? [...field.inv, ...plan.gap] : field.inv);
     const histCit = [], histSpt = [];
     for (const [t, d] of hd) if (t >= a.startYear) { const i = t - a.startYear, k = 1 / a.usdnok / Math.pow(1 + INFLATION, i); histCit[i] = (histCit[i] || 0) + d.cit * k; histSpt[i] = (histSpt[i] || 0) + d.spt * k; }
     const fd = facilityDecom(field);
     const decomTotal = ov.decomPerBoe != null ? ov.decomPerBoe * recBoe : fd != null ? Math.max(fd, 0.5 * recBoe) * fxCost : null;
     return { histCit, histSpt, tempUplift: tempPackage(field) && !first, remBoe, remSodir, recBoe, q0, kind, startIndex, plateau, plateauYears, plateauSource, opexBoe, fixedOpex, varOpex, opexBasis, capexBoe, refRate,
-      capexBasis, devCapex: kind === 'new' ? (exp != null ? 0.8 * exp : 6 * remSodir) : 0, decomPerBoe: ov.decomPerBoe, decomTotal, decomBasis: ov.decomPerBoe != null ? 'user' : fd != null ? 'facilities' : 'perBoe' };
+      capexBasis, devCapex: kind === 'new' ? plan.devCapex : 0, invGap: plan.gap, decomPerBoe: ov.decomPerBoe, decomTotal, decomBasis: ov.decomPerBoe != null ? 'user' : fd != null ? 'facilities' : 'perBoe' };
   }
 
   function simulate(field, a, s, d, record) {
@@ -431,7 +471,7 @@
     const cpiNow = cpi.get(H.cpiBaseYear);
     const realF = (y) => cpiNow / (cpi.get(y) || cpi.get(Math.min(...cpi.keys())));
     const prodY = new Map(field.prod.map((r) => [r[0], r]));
-    const invY = new Map(field.inv);
+    const inv = investmentsWithGap(field, a, lastFullYear), invY = new Map(inv);
     const histYears = [...new Set([...prodY.keys(), ...invY.keys()])].filter((y) => y <= lastFullYear).sort((x, y) => x - y);
     const fut = valueField(field, a, lastFullYear, ov);
     if (!histYears.length && !fut.years.length) return null;
@@ -440,7 +480,7 @@
     const peak = top.length ? top.reduce((s, x) => s + x, 0) / top.length : 0;
     const fo = ov.opexBoe == null ? facilityOpex(field) : null;
     const histOpex = (q) => (q <= 0 ? 0 : fo ? fo.fixed + fo.variable * q : 0.6 * opexBoe * peak + 0.4 * opexBoe * q);
-    const ded = deductionSchedule(field);
+    const ded = deductionSchedule(field, undefined, inv);
     const rows = [];
     for (const y of histYears) {
       const p = prodY.get(y), pr = price.get(y), rf = realF(y);
@@ -494,12 +534,13 @@
     const cpiNow = cpi.get(H.cpiBaseYear);
     const opexBoe = ov.opexBoe ?? OPEX_BY_TYPE[field.hc] ?? 10;
     const fo = ov.opexBoe == null ? facilityOpex(field) : null;
-    const prodY = new Map(field.prod.map((r) => [r[0], r])), invY = new Map(field.inv);
+    const inv = investmentsWithGap(field, a, lastFullYear);
+    const prodY = new Map(field.prod.map((r) => [r[0], r])), invY = new Map(inv);
     const pRef = prodY.get(fromYear - 1) || prodY.get(fromYear);
     const qRef = pRef ? pRef[5] * BOE_PER_SM3 : 0;
     // Tax: 78 % of the operating margin minus the deductions from investments (all years); taxInh = the part of the saving
     // that comes from investments made before the deal year – the deductions the buyer takes over.
-    const ded = deductionSchedule(field), dedInh = deductionSchedule(field, (y) => y < fromYear);
+    const ded = deductionSchedule(field, undefined, inv), dedInh = deductionSchedule(field, (y) => y < fromYear, inv);
     const rows = [];
     for (let y = fromYear; y <= lastFullYear; y++) {
       const p = prodY.get(y), rf = cpiNow / (cpi.get(y) || cpiNow);
@@ -525,5 +566,5 @@
     return [...m.entries()].map(([name, n]) => ({ name, fields: n })).sort((a, b) => a.name.localeCompare(b.name, 'nb'));
   }
 
-  return { DEFAULTS, MARGINAL, GAS_TARIFF, OPEX_BY_TYPE, BOE_PER_SM3, MWH_PER_BOE_GAS, valueField, valueAll, valueCompany, valueHistory, stakeCashflow, facilityOpex, tiebacksOf, TIEBACK_HOST, facilityDecom, OPEX_FAC, DECOM_FAC, MMBTU_PER_BOE_GAS, companies, realisedPrice, prices, mix, investmentDeductions, deductionSchedule, taxSaving, UPLIFT };
+  return { DEFAULTS, MARGINAL, GAS_TARIFF, OPEX_BY_TYPE, BOE_PER_SM3, MWH_PER_BOE_GAS, valueField, valueAll, valueCompany, valueHistory, stakeCashflow, facilityOpex, tiebacksOf, TIEBACK_HOST, facilityDecom, OPEX_FAC, DECOM_FAC, MMBTU_PER_BOE_GAS, companies, realisedPrice, prices, mix, investmentDeductions, deductionSchedule, taxSaving, UPLIFT, investmentsWithGap };
 });

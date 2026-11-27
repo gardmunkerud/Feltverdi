@@ -53,6 +53,48 @@ Scheduled cloud agents improve Feltverdi in small, focused steps (one topic per 
 
 Ten hourly runs, one topic each, on branch `review/assumptions` (never main). Newest entry first.
 
+- **Run 3 – Capex** (Sodir expected investments, spreading, bounds, the pre-start-up share, totals vs official forecasts)
+  - **Findings**
+    - *Sodir's expected investments were partly counted twice in time (bug).* Sodir's factpage gives the figure as future investments "from 2025, in 2025 NOK" (Johan Castberg: NOK 17,838 m; [Sodir factpage](https://factpages.sodir.no/en/field/PageView/All/32017325), [Norsk Petroleum](https://www.norskpetroleum.no/en/facts/field/johan-castberg/)). The yearly investment series stops at 2024 for 97 of 139 fields, and the forecast starts in 2026. So the 2025 part of the figure was charged to 2026 and later, and 2025 got no investment at all in lifetime values, deal cash flows and tax deductions.
+    - *New fields put all development spend into 2026.* Yggdrasil's 80 % development share (NOK 85.6 bn) all fell in 2026, although Sodir's figure starts in 2025 (NOK 46.6 bn already reported for 2023–24).
+    - *Fields that started in 2026 were delayed a year.* Symra, Ørn, Alve Nord, Eirin, Idun Nord (plus Tambar Øst and Visund Sør) are "Producing" in Sodir but had no 2025 output, so the model started them in 2027.
+    - *Totals vs official figures.* Sum of Sodir's expected investments: NOK 840 bn (from 2025). Norsk Petroleum: total investments excl. exploration NOK 243 bn in 2025, estimated 230 bn in 2026 and 212 bn in 2027; this includes pipelines, onshore plants and projects not yet approved ([Norsk Petroleum, investments and costs](https://www.norskpetroleum.no/en/economy/investments-operating-costs/), [Sodir Resource Report 2026](https://www.sodir.no/en/whats-new/publications/reports/resource-report/resource-report-2026/summary/), [SSB investment survey](https://www.ssb.no/en/energi-og-industri/industri-og-bergverksdrift/statistikk/investeringer-i-olje-og-gass-industri-bergverk-og-kraftforsyning/articles/oil-investment-estimate-for-2026-upward-adjusted)). Sodir's sites are not reachable from this session; the figures come from search snippets.
+    - Model capex is now NOK 111 bn in 2026 and 55 bn in 2027 (before: 189 and 60). That is well below the official 230 and 212 bn, because spreading per boe pushes most of each field's figure into later years, while the operators' real profiles are front-loaded. Estimated 2025 field spend is NOK 130 bn, against about 230 bn actual. See proposal 1.
+    - Bounds kept: 6 fields at the $20/boe cap (old, small remaining volumes such as Gullfaks, Valhall, Vigdis), Troll and Ormen Lange at the $1 floor. Both look plausible.
+  - **Changed**
+    - `public/js/valuation.js`:
+      - new `capexPlan()`: producing fields spread Sodir's figure over production from 2025 (2025 output + reserves × growth), so the 2025 part is not charged again
+      - new fields spread the 80 % development share evenly from 2025 to start-up (approved fields: half in 2025, half in 2026)
+      - unreported past years (2025) get that estimate in `valueHistory`, `stakeCashflow` and the tax-deduction schedule; reported years are used as they are (new `investmentsWithGap`, exported)
+      - fields Sodir lists as producing but with no production last year start in the start year
+    - `public/js/i18n.js` (nb + en): the method page capex bullet and the capex tooltip
+    - `public/js/wiki.js` (nb + en): the capex entry, which still described the old three-year intensity method
+    - `README.md`
+    - `tests/valuation.test.js`: a new test covers the spread, the 2025 estimate, that a reported 2025 figure is kept, the new-field split and the start year. No existing expected value changed.
+  - **Shelf value at defaults:** 126.35 → 128.27 bn USD (+1.5 %). Brent 60 / 90: 114.1 / 142.6 bn (was 112.2 / 140.7).
+    - Largest field changes (USD m):
+      - Yggdrasil 6843 → 7455
+      - Symra 664 → 797
+      - Ørn 598 → 701
+      - Alve Nord 419 → 502
+      - Johan Sverdrup 17285 → 17376
+  - **Deal verdicts:** **deal-metrics needs regenerating.** factpages.sodir.no is still blocked. Rough check, `stakeCashflow` at 8 % from the deal year, before vs after:
+    - every deal moves −1.9 % … +1.1 %
+    - Aker BP–Hess −1.9 %, Vår–ConocoPhillips +1.1 %, DNO–Sval +0.5 %, Aker BP–Lundin −0.1 %
+    - No verdict is expected to change.
+  - **Checks:**
+    - `npm test`: 19/19 pass
+    - `npm run validate:deals`: OK
+    - `npm run stamp`
+    - i18n: 563 keys in both nb and en
+    - valuation.js loads
+    - `node --check` on app.js and evaluate-deals.js
+    - Headless browser: front page, Yggdrasil, Symra, History, Aker BP and Deals render with no JS errors.
+  - **Proposals for the owner**
+    1. *Front-load producing fields' capex.* The model spends Sodir's figure evenly per boe, so near-term capex is about half the official forecast. If instead most of Sodir's figure were spent over the next 3–5 years, with a small per-boe sustaining rate after that, the shelf would fall by roughly 2–4 %. After tax a krone of capex costs only about 15–20 øre, so the effect is small. The per-field profiles behind Sodir's figure (RNB) are not public, so this needs your judgement on the shape.
+    2. *Reserve growth has no capex of its own.* Sodir's figure covers the reserves. The model spreads it over reserves × 1.3, so the extra volumes from reserve growth come at no extra cost in total. Real reserve growth needs new wells. A separate rate for growth volumes, for example $5–8/boe, would cut the shelf value by a few per cent. This touches the approved capex method, so it is your decision.
+    3. When Sodir publishes 2025 investments, the estimate is replaced automatically (reported years take precedence); nothing needs to be done.
+
 - **Run 2 – Opex** (facility model vs reported company production costs and the shelf total)
   - **Findings**
     - *Company unit costs match reasonably.* Model 2025 share-weighted unit opex vs reported:

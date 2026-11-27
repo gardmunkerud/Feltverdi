@@ -531,8 +531,10 @@
   // Explains how the decline rate was chosen for a field in ordinary decline
   function declineNote(v) {
     const p = (x) => (x == null ? '–' : nf(x * 100, 1));
-    const args = [p(v.decline), p(v.observedDecline), p(v.dLow), p(v.dHigh), nf(v.reserveGrowth, 1), nf(v.impliedGrowth, 2)];
-    return t('declNote_' + (v.declineBasis || 'reserves'), ...args);
+    // Production that has risen over the last five years is described as a rise, not as a negative decline
+    const rise = v.declineBasis === 'capLow' && v.observedDecline != null && v.observedDecline < 0;
+    const args = [p(v.decline), p(rise ? -v.observedDecline : v.observedDecline), p(v.dLow), p(v.dHigh), nf(v.reserveGrowth, 1), nf(v.impliedGrowth, 2)];
+    return t('declNote_' + (rise ? 'capLowRise' : v.declineBasis || 'reserves'), ...args);
   }
 
   function lifeCard(f, k) {

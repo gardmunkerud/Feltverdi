@@ -216,7 +216,7 @@
     const fields = state.data.fields;
     const valued = fields.filter((f) => state.vals.get(f.slug).kind !== 'none').length;
     const top = [...fields].sort((a, b) => state.vals.get(b.slug).npv - state.vals.get(a.slug).npv).slice(0, 10);
-    const comps = state.companies.map((c) => ({ c, v: V.valueCompany(c.name, fields, state.vals) })).sort((a, b) => b.v.npv - a.v.npv).slice(0, 8);
+    const comps = state.companies.map((c) => ({ c, v: V.valueCompany(c.name, fields, state.vals) })).sort((a, b) => b.v.npv - a.v.npv).slice(0, 10);
     el.innerHTML = `
       <section class="hero hero-grid">
         <div>
@@ -258,7 +258,11 @@
           <ol class="rank-list">${top.map((f) => `<li><span><a href="#/felt/${f.slug}">${esc(f.name)}</a><span class="meta">${esc(tmap('area', f.area))} · ${esc(tmap('hc', f.hc))}</span></span><span class="val">${money(state.vals.get(f.slug).npv)}</span></li>`).join('')}</ol>
           <p style="margin:14px 0 0"><a href="#/rangering">${t('allRankings')}</a></p>
         </div>
-        <div class="card"><div class="card-head"><h2>${t('topCompanies')}</h2></div>${barsHtml(comps.map(({ c, v }) => ({ name: shortCompany(c.name), href: `#/selskap/${c.slug}`, value: v.npv, label: money(v.npv, { bare: true }) })))}</div>
+        <div class="card">
+          <div class="card-head"><h2>${t('topCompanies')}</h2></div>
+          <ol class="rank-list">${comps.map(({ c, v }) => `<li><span><a href="#/selskap/${c.slug}">${esc(shortCompany(c.name))}</a><span class="meta">${t('ownerMeta', v.rows.length, v.operated, nf(kboed(v.q0), 0), pct(T.npv > 0 ? v.npv / T.npv * 100 : 0, 1))}</span></span><span class="val">${money(v.npv)}</span></li>`).join('')}</ol>
+          <p style="margin:14px 0 0"><a href="#/rangering" id="all-companies">${t('allCompanies')}</a></p>
+        </div>
       </div>
       <div class="grid g-2 section-gap">
         <div class="card"><div class="card-head"><h2>${t('byArea')}</h2></div>${barsHtml(Object.entries(T.byArea).sort((a, b) => b[1] - a[1]).map(([k, v]) => ({ name: tmap('area', k), value: v })))}</div>
@@ -268,6 +272,7 @@
     const items = fields.map((f) => ({ name: f.name, sub: `${t('modeField')} · ${tmap('area', f.area)}`, href: `#/felt/${f.slug}` }))
       .concat(state.companies.map((c) => ({ name: c.name, sub: `${t('modeCompany')} · ${c.fields} ${t('nFields').toLowerCase()}`, href: `#/selskap/${c.slug}` })));
     picker($('#hero-picker', el), items, t('heroSearchPh'), (i) => { location.hash = i.href; }, 'hero-list');
+    $('#all-companies', el).addEventListener('click', () => { state.rank.tab = 'companies'; state.rank.sort = 'npv'; state.rank.asc = false; });
     drawMap();
     drawHomeProd();
   }

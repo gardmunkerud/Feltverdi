@@ -643,3 +643,4 @@ th .info { text-transform: none; letter-spacing: 0; }
 .g-home { grid-template-columns: 1.45fr 1fr; }
 .home-prod { height: 470px; }
 @media (max-width: 900px) { .g-home { grid-template-columns: 1fr; } .home-prod { height: 320px; } }
+@media (max-width: 560px) { .m-hide { display: none; } }

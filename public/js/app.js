@@ -1724,7 +1724,7 @@ ${ddTaxCard(d, tb, V0, year, base.per, r)}
     else if (!page) viewHome(view);
     else viewNotFound(view);
     $$('[data-nav]').forEach((a) => a.classList.toggle('active', a.dataset.nav === nav));
-    $('.mnav-more').classList.toggle('active', ['method', 'hist', 'wiki'].includes(nav));
+    $('.mnav-more').classList.toggle('active', ['rank', 'method', 'hist'].includes(nav));
     setSheet(false);
     if (opts.keepScroll) window.scrollTo(0, y); else window.scrollTo(0, 0);
     if (focusSel) { const i = $(focusSel); if (i) { i.focus(); i.setSelectionRange(i.value.length, i.value.length); } }

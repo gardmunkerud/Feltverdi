@@ -121,7 +121,9 @@
       <input type="range" min="${x.min}" max="${x.max}" step="${x.step}" value="${state.a[x.k]}" aria-label="${t(x.label)}">
       <p class="hint">${t(x.hint)}</p>${x.note ? `<p class="hint conv">${x.note(state.a[x.k])}</p>` : ''}`;
     pop.addEventListener('click', (e) => e.stopPropagation());
-    chip.appendChild(pop);
+    // On phones the chips sit in a horizontally scrolling row, which would clip the popover – open it under the whole bar instead
+    if (window.matchMedia('(max-width: 560px)').matches) { pop.classList.add('pop-bar'); $('.assume').appendChild(pop); }
+    else chip.appendChild(pop);
     $('button', chip).setAttribute('aria-expanded', 'true');
     const range = $('input', pop);
     range.focus();
@@ -1177,18 +1179,40 @@
     }
     return null;
   }
-  function ddTaxCard(d, tb, V0, year) {
+  // Sources for the tax-benefit estimate (numbered in the method text)
+  const TAX_SOURCES = [
+    ['Norsk Petroleum – Petroleumsskatt / Petroleum tax', 'https://www.norskpetroleum.no/en/economy/petroleum-tax/'],
+    ['Regjeringen (2013) – Redusert friinntekt i petroleumsskatten', 'https://www.regjeringen.no/no/aktuelt/redusert-friinntekt-i-petroleumsskatten/id725999/'],
+    ['Regjeringen (2022) – Foreslår omlegging av petroleumsskatten', 'https://www.regjeringen.no/no/aktuelt/foreslar-omlegging-av-petroleumsskatten/id2869684/'],
+    ['Skatteetaten – Om petroleumsskattesystemet', 'https://www.skatteetaten.no/rettskilder/type/uttalelser/prinsipputtalelser/om-petroleumsskattesystemet/'],
+    ['Lovdata – Forskrift om samtykke til overdragelse etter petroleumsskatteloven § 10', 'https://lovdata.no/dokument/SF/forskrift/2009-07-01-956'],
+    ['Sodir FactPages – investeringer per felt / field investments', 'https://factpages.sodir.no/'],
+  ];
+  function ddTaxCard(d, tb, V0, year, per, r) {
     const tp = d.taxPosition;
     const row = (k, v) => `<div><dt>${k}</dt><dd>${v}</dd></div>`;
+    // Which fields the deductions come from (PV at the deal year, buyer's share)
+    const byField = (per || []).map((p) => ({ name: p.f.name, slug: p.f.slug, v: p.rows.reduce((s, x) => s + (x.taxInh || 0) * p.s * Math.pow(1 + r, -(x.year - year + 0.5)), 0) }))
+      .filter((x) => x.v > 0.5).sort((x, y) => y.v - x.v);
+    const srcs = TAX_SOURCES.concat(tp ? tp.sources.map((u) => [t('ddTaxSrcDeal'), u]) : []);
+    const ref = `<button type="button" class="ref-mark" data-ref="dd-taxref" aria-label="${esc(t('ddTaxRef'))}">[1–${srcs.length}]</button>`;
     return `<div class="card section-gap dd-tax">
         <div class="card-head"><h2>${t('ddH_tax')}</h2><span class="muted">${t('ddTaxSub', year)}</span></div>
         ${intro('ddL_tax')}
         <dl class="dd-list">
           ${row(t('ddTaxInh') + tipBtn(t('ddT_taxInh')), money(tb.inh))}
           ${tp ? row(t('ddTaxPos'), money(tb.pos)) : ''}
-          ${row(`<strong>${t('ddTaxTotal')}</strong>`, `<strong>${money(tb.total)}</strong> <span class="muted">(${V0 > 0 ? t('ddTaxShare', pct(tb.total / V0 * 100, 0)) : '–'})</span>`)}
+          ${row(`<strong>${t('ddTaxTotal')}</strong> ${ref}`, `<strong>${money(tb.total)}</strong> <span class="muted">(${V0 > 0 ? t('ddTaxShare', pct(tb.total / V0 * 100, 0)) : '–'})</span>`)}
         </dl>
-        ${tp ? `<p class="muted dd-small">${esc(tp.note[state.lang])} · ${t('ddAdjSources')}: ${tp.sources.map((u, i) => `<a href="${esc(u)}" target="_blank" rel="noopener">${i + 1}</a>`).join(', ')}</p>` : ''}
+        ${tp ? `<p class="muted dd-small">${esc(tp.note[state.lang])} [7]</p>` : ''}
+        <details class="dd-taxref" id="dd-taxref">
+          <summary>${t('ddTaxRef')}</summary>
+          ${byField.length ? `<p class="dd-small"><strong>${t('ddTaxFields')}:</strong> ${byField.slice(0, 6).map((x) => `<a href="#/felt/${x.slug}">${esc(x.name)}</a> ${money(x.v)}`).join(' · ')}${byField.length > 6 ? ' …' : ''}</p>` : ''}
+          <ol class="dd-small tax-method">${t('ddTaxMethod', year, pct(r * 100, 0)).map((s) => `<li>${esc(s)}</li>`).join('')}</ol>
+          <p class="muted dd-small">${esc(t('ddTaxSimpl'))}</p>
+          <p class="dd-small"><strong>${t('ddAdjSources')}</strong></p>
+          <ol class="dd-small tax-src">${srcs.map(([n, u]) => `<li><a href="${esc(u)}" target="_blank" rel="noopener">${esc(n)}</a></li>`).join('')}</ol>
+        </details>
       </div>`;
   }
   const ddUpsideOv = (d) => (d.upside && d.upside.length ? Object.fromEntries(d.upside.map((u) => [u.slug, { remAdd: u.remAdd }])) : null);
@@ -1467,7 +1491,7 @@
         <p class="dd-intro">${esc(d.priceAdjusted.note[state.lang])}</p>
         <p class="muted dd-small">${t('ddAdjLine', usdStated(d.valueUsdM), usdStated(d.priceAdjusted.valueUsdM))} · ${t('ddAdjSources')}: ${d.priceAdjusted.sources.map((u, i) => `<a href="${esc(u)}" target="_blank" rel="noopener">${i + 1}</a>`).join(', ')}</p>
       </div>` : ''}
-${ddTaxCard(d, tb, V0, year)}
+${ddTaxCard(d, tb, V0, year, base.per, r)}
       <div class="grid g-2 section-gap">${buyerCard}${sellerCard}</div>
       ${ddViewsCard(d, year, base.rows, m.partial ? null : price, baseline, buyer, seller)}
       <div class="card section-gap">
@@ -1498,6 +1522,7 @@ ${ddTaxCard(d, tb, V0, year)}
       </div>
       ${ddGlossaryCard()}`;
     bindDealViews(el, d);
+    $$('.ref-mark', el).forEach((b) => b.addEventListener('click', () => { const x = document.getElementById(b.dataset.ref); if (x) { x.open = true; x.scrollIntoView({ behavior: 'smooth', block: 'start' }); } }));
     if (!window.Chart) return;
     drawDealDcf($('#c-dd'), year, r, [{ label: '', rows: base.rows, color: COLORS.gas }], price, up ? up.rows : null);
     charts.push(new Chart($('#c-dd-brent'), {

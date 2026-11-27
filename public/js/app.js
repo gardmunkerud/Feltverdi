@@ -146,6 +146,18 @@
   }
   document.addEventListener('click', closePop);
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closePop(); });
+  // Phone tab bar: "Mer"/"More" opens a bottom sheet with the less-used sections
+  function setSheet(open) {
+    const s = $('#msheet'), bg = $('.msheet-bg'), b = $('.mnav-more');
+    if (!s) return;
+    s.hidden = bg.hidden = !open;
+    b.setAttribute('aria-expanded', String(open));
+    if (open) $('a', s).focus();
+  }
+  $('.mnav-more').addEventListener('click', (e) => { e.stopPropagation(); setSheet($('#msheet').hidden); });
+  $('.msheet-bg').addEventListener('click', () => setSheet(false));
+  $$('#msheet a').forEach((a) => a.addEventListener('click', () => setSheet(false)));
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') setSheet(false); });
   // Two-way toggles: a click anywhere in the box switches to the other option
   const TOGGLES = { lang: ['nb', 'en'], cur: ['NOK', 'USD'] };
   $$('[data-toggle]').forEach((box) => box.addEventListener('click', () => {
@@ -1712,6 +1724,8 @@ ${ddTaxCard(d, tb, V0, year, base.per, r)}
     else if (!page) viewHome(view);
     else viewNotFound(view);
     $$('[data-nav]').forEach((a) => a.classList.toggle('active', a.dataset.nav === nav));
+    $('.mnav-more').classList.toggle('active', ['method', 'hist', 'wiki'].includes(nav));
+    setSheet(false);
     if (opts.keepScroll) window.scrollTo(0, y); else window.scrollTo(0, 0);
     if (focusSel) { const i = $(focusSel); if (i) { i.focus(); i.setSelectionRange(i.value.length, i.value.length); } }
     fitNumbers();

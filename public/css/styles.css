@@ -586,8 +586,17 @@ th .info { text-transform: none; letter-spacing: 0; }
 .mnav { display: none; }
 @media (max-width: 900px) {
   .mnav { display: flex; position: fixed; bottom: 0; left: 0; right: 0; z-index: 1000; justify-content: space-around; background: var(--nav-bg); backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px); border-top: 1px solid var(--hairline); padding: 6px 0 calc(6px + env(safe-area-inset-bottom)); }
-  .mnav a { color: var(--muted); font-size: 12px; font-weight: 500; padding: 8px 10px; text-decoration: none; }
-  .mnav a.active { color: var(--accent); }
+  .mnav { display: grid; grid-template-columns: repeat(5, 1fr); padding: 4px 4px calc(4px + env(safe-area-inset-bottom)); }
+  .mnav a, .mnav button { appearance: none; border: 0; background: none; font: inherit; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; min-height: 52px; padding: 4px 2px; color: var(--muted); font-size: 11px; font-weight: 500; letter-spacing: -0.01em; text-decoration: none; -webkit-tap-highlight-color: transparent; }
+  .mnav svg, .msheet svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  .mnav .mnav-more svg circle { fill: currentColor; stroke: none; }
+  .mnav a.active, .mnav button.active, .mnav button[aria-expanded="true"] { color: var(--accent); }
+  .msheet-bg { position: fixed; inset: 0; z-index: 998; background: rgba(0, 0, 0, .28); }
+  .msheet { position: fixed; left: 8px; right: 8px; bottom: calc(68px + env(safe-area-inset-bottom)); z-index: 999; background: var(--surface-solid); border-radius: var(--radius); box-shadow: 0 12px 40px rgba(0, 0, 0, .22); padding: 6px; }
+  .msheet a { display: flex; align-items: center; gap: 14px; min-height: 52px; padding: 0 14px; border-radius: var(--radius-sm); color: var(--text); font-size: 17px; text-decoration: none; }
+  .msheet a:active, .msheet a.active { background: var(--surface-2); }
+  .msheet a.active { color: var(--accent); }
+  .msheet[hidden], .msheet-bg[hidden] { display: none; }
   .foot { padding-bottom: 90px; }
 }
 .fac-basis { font-size: 13.5px; line-height: 1.5; margin: 14px 0 0; }

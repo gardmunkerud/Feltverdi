@@ -1,7 +1,7 @@
 /* Feltverdi – texts in Norwegian (nb) and English (en) */
 window.FV_I18N = {
   nb: {
-    navHome: 'Oversikt', navValue: 'Verdsett', navRank: 'Rangering', navMethod: 'Metode', navHist: 'Historisk', navWiki: 'Wiki', navDeals: 'Deals',
+    navHome: 'Oversikt', navValue: 'Verdsett', navRank: 'Rangering', navMethod: 'Metode', navHist: 'Historisk', navWiki: 'Wiki', navDeals: 'Deals', navMore: 'Mer',
     tickerLabel: 'Siste deals', dealType_merger: 'Fusjon', dealType_corporate: 'Selskapskjøp', dealType_asset: 'Kjøp av andeler', dealType_swap: 'Bytte',
     dealStatus_completed: 'Gjennomført', dealStatus_pending: 'Venter på godkjenning',
     dealsEyebrow: 'Transaksjoner på norsk sokkel', dealsIntro: (n, a, b) => `${n} fusjoner, oppkjøp og bytter av eierandeler på norsk sokkel fra ${a} til ${b} – med verdi, felt og kilde for hver avtale.`,
@@ -255,7 +255,7 @@ window.FV_I18N = {
     bn: 'mrd.', mn: 'mill.', notFound: 'Fant ikke det du lette etter.',
   },
   en: {
-    navHome: 'Overview', navValue: 'Value', navRank: 'Rankings', navMethod: 'Method', navHist: 'History', navWiki: 'Wiki', navDeals: 'Deals',
+    navHome: 'Overview', navValue: 'Value', navRank: 'Rankings', navMethod: 'Method', navHist: 'History', navWiki: 'Wiki', navDeals: 'Deals', navMore: 'More',
     tickerLabel: 'Latest deals', dealType_merger: 'Merger', dealType_corporate: 'Corporate acquisition', dealType_asset: 'Asset deal', dealType_swap: 'Swap',
     dealStatus_completed: 'Completed', dealStatus_pending: 'Pending approval',
     dealsEyebrow: 'Transactions on the Norwegian shelf', dealsIntro: (n, a, b) => `${n} mergers, acquisitions and asset swaps on the Norwegian Continental Shelf from ${a} to ${b} – with value, fields and source for every deal.`,

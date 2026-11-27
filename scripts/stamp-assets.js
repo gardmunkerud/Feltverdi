@@ -15,5 +15,15 @@ html = html.replace(/(<(?:script|link)\b[^>]*?\s(?:src|href)=")(\/(?:js|css|vend
   n++;
   return `${pre}${url}?v=${hash}${post}`;
 });
+// Data version: one hash over the data files the app loads. app.js adds it as ?v= to every /data request, so a deploy
+// never mixes new code with cached old data (or deals.json with an older deal-metrics.json).
+const DATA = ['fields.json', 'coast.json', 'history.json', 'deals.json', 'deal-metrics.json'];
+const dh = crypto.createHash('sha1');
+for (const f of DATA) { const p = path.join(pub, 'data', f); if (fs.existsSync(p)) dh.update(fs.readFileSync(p)); }
+const dataVersion = dh.digest('hex').slice(0, 10);
+const meta = `<meta name="fv-data-version" content="${dataVersion}">`;
+if (/<meta name="fv-data-version" content="[a-f0-9]*">/.test(html)) html = html.replace(/<meta name="fv-data-version" content="[a-f0-9]*">/, meta);
+else html = html.replace(/(<meta charset="utf-8">)(\r?\n)/, (m, c, nl) => `${c}${nl}  ${meta}${nl}`);
+if (!html.includes(meta)) throw new Error('could not add the data version to index.html');
 fs.writeFileSync(indexPath, html);
-console.log(`Stamped ${n} asset references in public/index.html`);
+console.log(`Stamped ${n} asset references and data version ${dataVersion} in public/index.html`);

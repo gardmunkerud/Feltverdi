@@ -581,3 +581,5 @@ th .info { text-transform: none; letter-spacing: 0; }
   .foot { padding-bottom: 90px; }
 }
 .fac-basis { font-size: 13.5px; line-height: 1.5; margin: 14px 0 0; }
+
+.gauge-diff { margin-top: 6px; color: var(--text); background: var(--surface-2, rgba(127,127,127,.08)); border-radius: 8px; padding: 6px 10px; }

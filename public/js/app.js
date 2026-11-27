@@ -58,14 +58,18 @@
   const pct = (v, d = 1) => `${nf(v, d)} %`; // non-breaking space: "8 %" never splits over two lines
 
   // ---------- data ----------
+  // Data files carry the build's data version (?v=…, set in index.html by scripts/stamp-assets.js), so a browser never
+  // combines new code with cached old data, or deals.json with an older deal-metrics.json.
+  const DATA_V = (document.querySelector('meta[name="fv-data-version"]') || {}).content || '';
+  const dataUrl = (f) => `/data/${f}${DATA_V ? '?v=' + DATA_V : ''}`;
   async function load() {
-    const res = await fetch('/data/fields.json');
+    const res = await fetch(dataUrl('fields.json'));
     if (!res.ok) throw new Error('HTTP ' + res.status);
     state.data = await res.json();
-    try { const c = await fetch('/data/coast.json'); if (c.ok) state.coast = await c.json(); } catch { /* map without coastline */ }
-    try { const h = await fetch('/data/history.json'); if (h.ok) state.hist = await h.json(); } catch { /* historical page unavailable */ }
-    try { const d = await fetch('/data/deals.json'); if (d.ok) { state.deals = await d.json(); state.deals.deals.sort((a, b) => b.date.localeCompare(a.date)); } } catch { /* deals unavailable */ }
-    try { const m = await fetch('/data/deal-metrics.json'); if (m.ok) state.dealMetrics = await m.json(); } catch { /* deal metrics unavailable */ }
+    try { const c = await fetch(dataUrl('coast.json')); if (c.ok) state.coast = await c.json(); } catch { /* map without coastline */ }
+    try { const h = await fetch(dataUrl('history.json')); if (h.ok) state.hist = await h.json(); } catch { /* historical page unavailable */ }
+    try { const d = await fetch(dataUrl('deals.json')); if (d.ok) { state.deals = await d.json(); state.deals.deals.sort((a, b) => b.date.localeCompare(a.date)); } } catch { /* deals unavailable */ }
+    try { const m = await fetch(dataUrl('deal-metrics.json')); if (m.ok) state.dealMetrics = await m.json(); } catch { /* deal metrics unavailable */ }
     renderTicker();
     state.companies = V.companies(state.data.fields).map((c) => ({ ...c, slug: slugify(c.name) }));
     $('#snapshot').textContent = state.data.generated;
@@ -1240,8 +1244,14 @@
     return out;
   }
   // Price scale: cheap – usual – full – expensive, with a marker at price ÷ typical price
-  function ddGauge(rel) {
+  // Verdict band of a price/value ratio relative to the median (same thresholds as scripts/evaluate-deals.js)
+  const verdictBand = (rel) => (rel < 0.8 ? 'cheap' : rel <= 1.1 ? 'fair' : rel <= 1.4 ? 'full' : 'expensive');
+  function ddGauge(rel, verdict) {
     if (rel == null || !Number.isFinite(rel)) return '';
+    // The verdict is set with the standard assumptions; with the user's own (Brent, gas, discount rate …) the live ratio
+    // can land in another band – say so instead of showing two contradicting labels.
+    const live = verdictBand(rel);
+    const differs = ['cheap', 'fair', 'full', 'expensive'].includes(verdict) && live !== verdict;
     const stops = [[0.5, 0], [0.8, 25], [1.1, 50], [1.4, 75], [2.0, 100]];
     let pos = rel <= 0.5 ? 0 : 100;
     for (let i = 1; i < stops.length; i++) if (rel > stops[i - 1][0] && rel <= stops[i][0]) { pos = stops[i - 1][1] + (rel - stops[i - 1][0]) / (stops[i][0] - stops[i - 1][0]) * 25; break; }
@@ -1252,6 +1262,7 @@
         <div class="gauge-mark" style="left:${pos.toFixed(1)}%"><b>${nf(rel, 2)}×</b></div>
       </div>
       <p class="muted dd-small">${esc(t('ddGaugeNote', nf(rel, 2)))}</p>
+      ${differs ? `<p class="dd-small gauge-diff">${esc(t('ddGaugeDiff', t('verdict_' + live), t('verdict_' + verdict)))}</p>` : ''}
     </div>`;
   }
   function ddGlossaryCard() {
@@ -1446,7 +1457,7 @@
     </table></div>` : '';
     const multiples = hasPrice && (m.perFlowing || m.perBoe) ? `<p class="muted">${t('ddMultiples')}: ${m.perFlowing ? `USD ${nf(m.perFlowing, 0)} ${t('ddPerFlowing')}` : ''}${m.perFlowing && m.perBoe ? ' · ' : ''}${m.perBoe ? `USD ${nf(m.perBoe, 1)} ${t('ddPerBoe')} (${nf(m.perBoePctBrent, 0)} % ${t('dmOfBrent')})` : ''}</p>` : '';
 
-    const plain = { list: ddPlainList(d, m, { buyer, seller, vsTyp, price, realised, histSpan, taxBenefit: tb.total }), gauge: hasPrice && !m.partial && ratio ? ddGauge(ratio / baseline) : '' };
+    const plain = { list: ddPlainList(d, m, { buyer, seller, vsTyp, price, realised, histSpan, taxBenefit: tb.total }), gauge: hasPrice && !m.partial && ratio ? ddGauge(ratio / baseline, d.assessment && d.assessment.verdict) : '' };
     el.innerHTML = ddHeader(d) + ddConclusion(d, plain) + `
       ${m.partial ? `<div class="card dd-warn">${t('ddPartial')}${m.note ? ` <span class="muted">(${esc(m.note)})</span>` : ''}</div>` : ''}
       ${kpis}

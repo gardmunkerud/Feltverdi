@@ -216,7 +216,7 @@
     const fields = state.data.fields;
     const valued = fields.filter((f) => state.vals.get(f.slug).kind !== 'none').length;
     const top = [...fields].sort((a, b) => state.vals.get(b.slug).npv - state.vals.get(a.slug).npv).slice(0, 10);
-    const comps = state.companies.map((c) => ({ c, v: V.valueCompany(c.name, fields, state.vals) })).sort((a, b) => b.v.npv - a.v.npv).slice(0, 10);
+    const comps = state.companies.map((c) => ({ c, v: V.valueCompany(c.name, fields, state.vals) })).sort((a, b) => b.v.npv - a.v.npv).slice(0, 18);
     el.innerHTML = `
       <section class="hero hero-grid">
         <div>
@@ -260,7 +260,7 @@
         </div>
         <div class="card">
           <div class="card-head"><h2>${t('topCompanies')}</h2></div>
-          <ol class="rank-list">${comps.map(({ c, v }) => `<li><span><a href="#/selskap/${c.slug}">${esc(shortCompany(c.name))}</a><span class="meta">${t('ownerMeta', v.rows.length, v.operated, nf(kboed(v.q0), 0), pct(T.npv > 0 ? v.npv / T.npv * 100 : 0, 1))}</span></span><span class="val">${money(v.npv)}</span></li>`).join('')}</ol>
+          ${barsHtml(comps.map(({ c, v }) => ({ name: shortCompany(c.name), href: `#/selskap/${c.slug}`, value: v.npv, label: money(v.npv, { bare: true }) })))}
           <p style="margin:14px 0 0"><a href="#/rangering" id="all-companies">${t('allCompanies')}</a></p>
         </div>
       </div>

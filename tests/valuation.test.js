@@ -288,3 +288,21 @@ test('shelf data: cap holds at other exchange rates and prices, opex never rises
   const [young, mid, old] = groups.map(med);
   assert.ok(young < mid && mid < old, `median $/boe by age: <15 yrs ${young}, 15–30 ${mid}, 30+ ${old}`);
 });
+
+test('opex calibration: company unit costs match reported figures and old hubs stay within USD 30–40/boe', () => {
+  const D = require('../public/data/fields.json');
+  const m = V.valueAll(D.fields, {}, D.lastFullYear), Y = D.lastFullYear + 1, acc = {};
+  for (const f of D.fields) {
+    const r = m.get(f.slug) && m.get(f.slug).years.find((x) => x.year === Y); if (!r) continue;
+    for (const [n, s] of f.owners || []) { const o = acc[n] || (acc[n] = { o: 0, q: 0 }); o.o += r.opex * s / 100; o.q += r.q * s / 100; }
+  }
+  const unit = (n) => acc[n].o / acc[n].q;
+  for (const [n, target] of [['Aker BP ASA', 7.3], ['Vår Energi ASA', 11.1], ['Equinor Energy AS', 6.0], ['OKEA ASA', 25]]) {
+    assert.ok(Math.abs(unit(n) - target) < 0.3, `${n} ${unit(n).toFixed(2)} vs ${target}`);
+  }
+  for (const s of ['gullfaks', 'statfjord', 'norne', 'ula']) {
+    const r = m.get(s).years.find((x) => x.year === Y);
+    const boe = r.opex / r.q;
+    assert.ok(boe >= 25 && boe <= 40, `${s} ${boe.toFixed(1)} USD/boe`);
+  }
+});

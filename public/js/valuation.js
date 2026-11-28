@@ -125,13 +125,27 @@
     return out;
   }
 
+  // Operator efficiency: the facility model gives an industry-average cost; operators differ. Factors on each operated
+  // field's own costs (not the tie-back tariff), solved so the share-weighted 2026 unit cost of each company matches its
+  // reported production cost: Aker BP 7.3 USD/boe (2025), Vår Energi 11.1 (2025), Equinor 6 (Norway, average production
+  // cost per boe excl. transport, 20-F 2025), OKEA 25 (Q3 2025; Q4's 28.8 had heavy maintenance). Solved 2026-11-28
+  // together with HUB_OPEX_MAX and the NOK 5 bn cap; re-solve if any of them changes. Other operators use 1.
+  const OPEX_OPERATOR = { 'Aker BP ASA': 1.277, 'Vår Energi ASA': 1.048, 'Equinor Energy AS': 1.06, 'OKEA ASA': 1.435 };
+  // Old hubs: open-well counts include idle wells, and much of a hub's cost serves fields it processes that pay no
+  // tie-back tariff in the model (e.g. Gullfaks Sør, Statfjord's satellites, Norne's area). A field with its own surface
+  // facilities is therefore held to at most HUB_OPEX_MAX USD/boe at its latest full-year production.
+  const HUB_OPEX_MAX = 32;
+  const lastProd = (field) => { const p = field.prod && field.prod.length ? field.prod[field.prod.length - 1] : null; return p ? p[5] * BOE_PER_SM3 : 0; };
   function facilityOpex(field) {
     const p = field.fac;
     if (!p) return null;
-    const o = p.own, F = OPEX_FAC;
-    const fixed = F.gbs * o.gbs + F.steelLarge * o.steelLarge + F.steelSmall * o.steelSmall + F.floater * o.floater + F.onshore * (o.onshore || 0)
-      + F.template * o.template + F.wellPlatform * p.wells.platform + F.wellSubsea * p.wells.subsea;
-    return { fixed, variable: F.variable + (p.tieback ? F.tieback : 0) };
+    const o = p.own, F = OPEX_FAC, k = OPEX_OPERATOR[field.operator] ?? 1;
+    let fixed = k * (F.gbs * o.gbs + F.steelLarge * o.steelLarge + F.steelSmall * o.steelSmall + F.floater * o.floater + F.onshore * (o.onshore || 0)
+      + F.template * o.template + F.wellPlatform * p.wells.platform + F.wellSubsea * p.wells.subsea);
+    const varOwn = k * F.variable;
+    const hub = o.gbs + o.steelLarge + o.steelSmall + o.floater > 0, q = lastProd(field);
+    if (hub && q > 0 && (fixed + varOwn * q) / q > HUB_OPEX_MAX) fixed = Math.max(0, (HUB_OPEX_MAX - varOwn) * q);
+    return { fixed, variable: varOwn + (p.tieback ? F.tieback : 0) };
   }
   function facilityDecom(field) {
     const p = field.fac;
@@ -604,5 +618,5 @@
     return [...m.entries()].map(([name, n]) => ({ name, fields: n })).sort((a, b) => a.name.localeCompare(b.name, 'nb'));
   }
 
-  return { DEFAULTS, MARGINAL, GAS_TARIFF, OPEX_BY_TYPE, BOE_PER_SM3, MWH_PER_BOE_GAS, valueField, valueAll, valueCompany, valueHistory, stakeCashflow, facilityOpex, OPEX_CAP_NOK, tiebacksOf, TIEBACK_HOST, facilityDecom, OPEX_FAC, DECOM_FAC, MMBTU_PER_BOE_GAS, companies, realisedPrice, prices, mix, investmentDeductions, deductionSchedule, taxSaving, UPLIFT, investmentsWithGap };
+  return { DEFAULTS, MARGINAL, GAS_TARIFF, OPEX_BY_TYPE, BOE_PER_SM3, MWH_PER_BOE_GAS, valueField, valueAll, valueCompany, valueHistory, stakeCashflow, facilityOpex, OPEX_OPERATOR, HUB_OPEX_MAX, OPEX_CAP_NOK, tiebacksOf, TIEBACK_HOST, facilityDecom, OPEX_FAC, DECOM_FAC, MMBTU_PER_BOE_GAS, companies, realisedPrice, prices, mix, investmentDeductions, deductionSchedule, taxSaving, UPLIFT, investmentsWithGap };
 });

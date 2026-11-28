@@ -54,6 +54,50 @@ Scheduled cloud agents improve Feltverdi in small, focused steps (one topic per 
 
 Ten hourly runs, one topic each, on branch `review/assumptions` (never main). Newest entry first.
 
+- **Run 8 – Deal valuation I** (`evaluate-deals.js`, deal pages: median baseline, verdict bands, deal prices, 8 % break-even, IRR, payback, deal-year deck)
+  - **Sources:**
+    - Effective dates: [HitecVision, Sval–Edison Norge](https://hitecvision.com/news/sval-energi-to-acquire-edison-norge/) (1 Jan 2020, locked box); [HitecVision, Sval–Spirit](https://hitecvision.com/?p=2358) and [Energy Voice](https://www.energyvoice.com/oilandgas/norway/416454/centrica-completes-sale-of-spirits-norwegian-assets/) (1 Jan 2021); [DNO–Sval, Euronext](https://live.euronext.com/en/products/equities/company-news/2025-03-07-dno-acquire-sval-energi-transformative-transaction) (1 Jan 2025); Hess 1 Jan 2017 (deals.json).
+    - Aker BP–Lundin: [Aker BP announcement](https://akerbp.com/borsmelding/aker-bp-acquires-lundin-energys-oil-and-gas-business/) and [completion](https://akerbp.com/borsmelding/merger-between-aker-bp-and-lundin-energys-ep-business-completed/): a statutory merger, completed 30 June 2022. No earlier economic effective date was found.
+    - The Vår–ConocoPhillips effective date could not be checked (ogj.com is blocked, and search found nothing).
+  - **Findings**
+    - *The engine is consistent.* The script and the pages use the same cash flows (`stakeCashflow`), the same mid-year discounting to 1 January of the deal year, and the same treatment of the tax position (deal year, mid-year). Prices are converted to real terms with US CPI. The bands (< 0.8 / 0.8–1.1 / 1.1–1.4 / > 1.4 × median) are the same in the code and in both languages. The median excludes "early" and partial deals. The payback and IRR labels say "present value" and "real, after tax", which matches the code. The deal-year deck converts gas correctly and is used only for the actual years.
+    - *Most deals have a 1 January effective date in the deal year, which matches the model.* The exception is Aker BP–Lundin (announced 21 Dec 2021). The model counted Lundin's whole 2021 cash flow (about USD 1.5 bn after tax) as the buyer's. That money went to Lundin's shareholders and to paying down debt before the price was set. The adjusted price is also valued at completion (2022 shares) but was deflated with 2021 CPI.
+    - *Bug: annual announced synergies were in nominal money* (OKEA–Wintershall Dea, Aker BP–Lundin), while prices and the after-tax NPV synergies are converted to real terms. They were understated by 10–23 %.
+    - *Small inconsistency:* when the PV covers the price even at 150 %, the script's IRR returned null while the pages show 150 %.
+    - *Effect of earlier runs once deal-metrics is regenerated* (simulated with today's model on the items stored in deal-metrics.json, with the current median of 1.12):
+      - DNO–Sval: relative value 1.13 → **1.05**. That is the *fair* band, but the verdict is set to *full*. The main cause is the run 1 CPI fix: the 2025 price was inflated by 9 %.
+      - OKEA–Shell: 0.81 → **0.80**, right on the cheap/fair edge.
+      - All other verdicts stay inside their bands.
+  - **Changed**
+    - `scripts/evaluate-deals.js`:
+      - The new `valYear` in SPEC values Aker BP–Lundin from 2022. Value, synergy PV, price deflation, IRR and break-even all use it. Multiples still use the announcement year.
+      - Annual announced synergies are multiplied by `realF`.
+      - The IRR is capped at 150 % like on the pages.
+      - The metrics carry `valYear` when it differs from the deal year.
+    - `public/js/app.js`: the deal page discounts to `m.valYear || m.year`. "Prices in year X" stays at the announcement year. Old metrics without `valYear` behave as before.
+    - `public/js/i18n.js` (nb + en), `dealsMethod`:
+      - a new sentence explains the 1 January effective date and the merger exception
+      - the price paragraph now says that the share value at completion is used where public (Aker BP–Lundin, Det norske–BP), and that announced synergies are converted to real terms
+  - **Shelf value at defaults:** 128.21 → 128.21 bn USD (valuation.js not touched).
+  - **Deal verdicts:** none changed by this run.
+    - Aker BP–Lundin: ratio 1.75 → 1.76, relative 1.56 → 1.58, still *expensive*. Its value falls 9,731 → 8,944 m, and its price in real terms falls by about the same share.
+    - OKEA–Wintershall Dea: synergy PV +0.6 m.
+    - The median is unchanged (1.12).
+    - **deal-metrics needs regenerating:** factpages.sodir.no is still blocked (403), so `data/raw` is missing. Until then the site uses the old metrics, and the change has no visible effect.
+  - **Checks:** all passed.
+    - `npm test`: 20/20 pass
+    - `npm run validate:deals`: OK
+    - `npm run stamp`
+    - i18n: 565 keys in both nb and en
+    - valuation.js loads
+    - `node --check` on app.js, i18n.js and evaluate-deals.js
+    - Headless render of the Lundin page (with `valYear` injected; it shows "discounted to 2022"), the DNO–Sval page and the deals list: no JS errors
+  - **Proposals for the owner**
+    1. *Re-check the verdicts after regenerating.* If the new metrics confirm DNO–Sval at about 1.05× and OKEA–Shell at about 0.80×, decide whether to move DNO–Sval to *fair* and keep or move OKEA–Shell. The verdicts are rules-based, so the texts must follow.
+    2. *Verdict bands are asymmetric.* *Fair* is −20 %/+10 % around the median. In log terms *cheap* starts 2.3× further from the median than *full*. Consider 0.85–1.15 or 0.8–1.25 (symmetric in ratio terms). This is a judgement call and would change several verdicts.
+    3. *Store effective dates in deals.json* (`effectiveDate`), so the deal job records them, and use them instead of assuming 1 January. The Vår–ConocoPhillips date should be checked when sources can be reached.
+    4. *Price convention for share deals.* Only Lundin and Det norske–BP have completion-date share values. Check whether any other deal was paid partly in shares (Vår–Neptune, for example), and add `priceAdjusted` where a public completion value exists. Vår–ConocoPhillips is financed by a share issue, but the price is in cash, so it needs no change.
+
 - **Run 7 – Company mode** (sum of field shares vs reported 2P, production and market values)
   - **Sources** (search-result text; most company PDFs could not be opened directly):
     - [Aker BP annual statement of reserves 2025](https://mb.cision.com/Public/1629/4323834/9a9422edea913565.pdf): 2P 1,526 mmboe

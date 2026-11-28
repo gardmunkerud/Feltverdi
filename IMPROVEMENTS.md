@@ -54,6 +54,83 @@ Scheduled cloud agents improve Feltverdi in small, focused steps (one topic per 
 
 Ten hourly runs, one topic each, on branch `review/assumptions` (never main). Newest entry first.
 
+### Summary of the night (written by run 10)
+
+**In one sentence:** the review found and fixed about ten modelling bugs and several text errors, moved the whole-shelf value from **USD 123.6 bn to 128.2 bn (+3.7 %)** at the default assumptions, and is expected to move two deal verdicts once deal-metrics can be regenerated. That needs your decision.
+
+**What changed, run by run** (shelf value at Brent $75, gas €35/MWh, USD/NOK 10, 8 % real)
+
+| Run | Topic | Main change | Shelf value, bn USD |
+|---|---|---|---|
+| 1 | Prices | US CPI 2025 fixed (missing October month read as 0: 295.1 → 322.0); gas 1.75 MWh/boe (was 1.72); $2/boe gas tariff also in actual years; opex and decommissioning follow USD/NOK; future tax depreciation in real terms | 123.60 → 124.94 |
+| 2 | Opex | Tie-back tariffs ($4/boe) were a cost nobody earned; now income for 60 hosts (`TIEBACK_HOST`) | → 126.35 |
+| 3 | Capex | Sodir's expected investments run from 2025; the 2025 part is no longer charged to the forecast again, and 2025 gets an estimate; new-field spend spread to start-up; 2026 start-ups no longer delayed a year | → 128.27 |
+| 4 | Decommissioning | Platform-well plugging USD 8 m (was 6), checked against operators' removal provisions (model now −7 % vs booked) | → 128.14 |
+| 5 | Volumes | Text only. The shelf forecast follows Sodir's (4.13 / 3.25 Mboe/d in 2026 / 2030 vs about 4.1 / just under 3.5) | 128.14 |
+| 6 | Tax | Deductions still unused when a field stops are counted (tax is per company) | → 128.21 |
+| 7 | Company mode | Text only: what the company value includes; check against reported 2P, production and market value | 128.21 |
+| 8 | Deals I | Aker BP–Lundin valued from completion (2022); annual announced synergies in real terms; IRR cap as on the pages | 128.21 |
+| 9 | Deals II | Vår–Neptune synergies as an after-tax total over time (not an NPV); Ambitious case taxed under today's rules (uplift) | 128.21 |
+| 10 | Wrap-up | Wiki tax-depreciation entry matched the code (it said uplift was phased out) | 128.21 |
+
+- Brent 60 / 90: 109.5 / 137.7 → 114.1 / 142.5 bn USD.
+- Every model change has a test, and the test count rose from 17 to 20 (all pass). The only deliberate change to an expected value is the gas price (1.75).
+
+**Deal verdicts** – `deal-metrics.json` could not be regenerated: factpages.sodir.no was blocked all night (DNS/403), so `data/raw` is missing. Run 10 estimated each deal with today's model on the stake lists stored in deal-metrics.json, with the new CPI and the run 8/9 script changes. Bands: < 0.8 cheap, 0.8–1.1 fair, 1.1–1.4 full, > 1.4 expensive × median.
+
+| Deal | Verdict now | Price/value, stored → estimated | Relative to median, stored → estimated | Band of estimate |
+|---|---|---|---|---|
+| Vår–ConocoPhillips | full | 1.41 → 1.36 | 1.25 → 1.21 | full |
+| DNO–Sval | full | 1.28 → 1.18 | 1.13 → **1.05** | **fair** |
+| Vår–Neptune | fair | 1.02 → 1.06 | 0.90 → 0.95 | fair |
+| OKEA–Wintershall Dea | cheap | 0.58 → 0.58 | 0.51 → 0.52 | cheap |
+| Aker BP–Lundin | expensive | 1.74 → 1.76 | 1.54 → 1.57 | expensive |
+| Sval–Spirit | cheap | 0.74 → 0.74 | 0.65 → 0.66 | cheap |
+| Sval–Edison | expensive | 1.64 → 1.65 | 1.45 → 1.47 | expensive |
+| Vår–ExxonMobil | fair | 1.13 → 1.12 | 1.00 → 1.00 | fair |
+| OKEA–Shell | fair | 0.91 → 0.89 | 0.81 → **0.79** | **cheap (on the edge)** |
+| Aker BP–Hess | fair | 1.02 → 1.03 | 0.90 → 0.92 | fair |
+| Aker BP merger (Det norske–BP) | full | 1.45 → 1.46 | 1.28 → 1.30 | full |
+
+- The median (11 deals, early ones excluded) is 1.13 → about 1.12.
+- *Early* deals (Vår–Pandion, Vår–Goliat/Fenja) and the swaps are not judged.
+- The estimate does not re-run Sodir's licence history, so the stake lists are as of 2026-11-27. The typical IRR and break-even (5.8 %, $95) are not re-estimated.
+
+**Decisions for you, most important first**
+1. **Regenerate deal-metrics** (`npm run build:data && node scripts/evaluate-deals.js`) from a machine that can reach factpages.sodir.no. Then decide on **DNO–Sval** (full → fair?) and **OKEA–Shell** (fair → cheap?). The verdict texts must follow the rule-based bands. The DNO–Sval shift comes mainly from the CPI fix (run 1).
+2. **Tax payment lag** (run 6, proposal 1): paying tax about half a year after the cash flow, as the instalments do, would add about +12 % to the shelf (128 → about 144 bn). Company and deal values would rise the same way. This is the largest open item, and standard in analyst models.
+3. **Opex calibration** (run 1, proposal 1, and run 2, proposal 1): `FX_COST_REF` 10.39 (2025 average) would add about 4 % to opex; a lower per-well cost would bring the shelf opex closer to Norsk Petroleum's NOK 94 bn. Do both together, with a re-calibration and the backtest.
+4. **Capex shape** (run 3, proposals 1–2): front-load producing fields' capex, and give reserve growth its own capex. Each is −2 to −4 % on the shelf, and they go against item 2.
+5. **Volumes** (run 5, proposal 1; run 7, proposal 1): a two-stage decline for fields at the reserve-growth cap (+1.5 %), and a ramp-up for big redevelopments such as Valhall PWP. Both need the backtest. Run 5 proposal 3: commit the backtest script and its data.
+6. **Decommissioning** (run 4, proposals 1–2): the remaining removal on shut-down fields (about USD 3 bn gross, valued at zero today), and near-term removal of shut-down facilities on producing fields.
+7. **Deals** (run 8, proposals 2–3; run 9, proposals 1–5): symmetric verdict bands; `effectiveDate` in deals.json; Vår–BlueNord synergies when it leaves *early*; show the ratio with and without announced synergies.
+8. **Company mode** (run 7, proposals 2–3): group the legal entities by brand, and an optional, clearly labelled 2C layer.
+
+
+- **Run 10 – Wrap-up** (internal consistency across the night's changes; the summary above)
+  - **Checked and consistent**
+    - *Units:* gas 1.75 MWh / 5.97 MMBtu per boe in the code, app, i18n, wiki and README (no 1.72 or 5.87 left). The $2/boe gas tariff is used in the forecast and in actual years. The $4/boe tie-back tariff is a cost for the tie-back and income for the host in the same years: in the forecast both scale with USD/NOK, in actual years neither does.
+    - *Real vs nominal:* prices, costs and the discount rate are real. Deductions fixed in NOK (past investments, six-year depreciation, inherited deductions) are deflated at 2 %. Deal prices and announced synergies go to real terms with US CPI (2025 fixed, base 2026). The 2025 capex estimate is taken as real ≈ nominal (one year).
+    - *Discounting:* everything is mid-year. Field values are discounted to 1 January of the start year. Deals are discounted to 1 January of the valuation year: the deal year, or 2022 for Lundin. Decommissioning comes two years after the last production year. Deductions after shut-down are shown in the decommissioning row at the same present value, in both `valueField` and `stakeCashflow` (`taxInh`).
+    - *Texts vs code:* the method page (nb + en), README, the cost tooltips and the deal method text match the code on prices, tie-back tariffs, capex spreading, decommissioning unit costs (USD 8 m / 18 m per well), tax (12.4 % uplift, the 17.69 % package, deductions after shut-down) and synergy bases.
+    - The outdated "+2 percentage points" and "every 3 hours" wording is gone from this file (removed in run 1).
+  - **Found and fixed**
+    - The wiki entry "Avskrivning og kostnadsføring av investeringer / Depreciation and expensing of investments" said the uplift had been phased out and that "Feltverdi uses no uplift". It also put 17.69 % as the general 2022 rate and 12.4 % as a transitional rule. The code, the method page and the current rules (run 6) are the other way round: 12.4 % for all investments from 2022, and 17.69 % only for fields in the temporary package until production starts.
+      - Rewrote the key points, the body, the formula and the worked example in nb and en. Deductions are 80.7 + 6.2 ≈ 86.9 per 100 invested, 94 % of it in year 0.
+      - The general tax entry's table, formula and example now include the 12.4 % uplift (total tax 37.9, was 40.6 in the example).
+  - **Changed:** `public/js/wiki.js` (nb + en), `public/index.html` (stamp) and this file (the summary above).
+  - **Shelf value at defaults:** 128.21 → 128.21 bn USD (text only). Since main: 123.60 → 128.21 (+3.7 %).
+  - **Deal verdicts:** none changed in deals.json, which is rule-based and owned by the deal job. The estimates are in the summary table. **deal-metrics needs regenerating** (`npm run build:data` still fails with ENOTFOUND factpages.sodir.no).
+  - **Checks:**
+    - `npm test`: 20/20
+    - `npm run validate:deals`: OK
+    - `npm run stamp`
+    - i18n: 565 keys in both nb and en
+    - valuation.js loads
+    - `node --check` on wiki.js and app.js
+    - headless render of the two wiki tax entries: no JS errors
+  - **Proposal (small):** actual years use the facility opex in fixed USD whatever that year's USD/NOK was, so 2014 (NOK 6.3) and 2025 (NOK 10.4) cost the same in USD. NOK-based costs were dearer in USD when the krone was strong. Scaling actual-year opex by 10 / USD/NOK of that year (with the CPI) would make lifetime values and deal hindsight values consistent with the forecast's NOK-cost logic. It affects only history and deals, so check it with the regenerated deal-metrics.
+
 - **Run 9 – Deal valuation II** (synergies, tax positions, upside, scenarios incl. "Ambitious", buyer/seller views card)
   - **Sources** (search-result text; akerbp.com, news.cision.com, energy-pedia.com and factpages.sodir.no cannot be reached from this session):
     - Vår–ConocoPhillips: [Vår Energi release, 23 Nov 2026](https://news.cision.com/var-energi-asa/r/var-energi-to-acquire-conocophillips--norwegian-business--and-related-uk-infrastructure--strengtheni,c4427939), [Offshore Energy](https://www.offshore-energy.biz/2026/11/23/dollar44-billion-play-for-conocophillips-norwegian-oil-and-gas-assets-and-uk-infrastructure-expands-var-energis-north-sea-footprint): EV USD 4.425 bn, "USD 700 million to USD 1 billion of synergies and additional value creation potential, net present value post-tax", closing around end Q1 2027. The deals.json figures (EV 4,425, synergies 700 low end as post-tax NPV) are confirmed. No effective date was found.

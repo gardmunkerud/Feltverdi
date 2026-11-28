@@ -54,6 +54,47 @@ Scheduled cloud agents improve Feltverdi in small, focused steps (one topic per 
 
 Ten hourly runs, one topic each, on branch `review/assumptions` (never main). Newest entry first.
 
+- **Run 7 – Company mode** (sum of field shares vs reported 2P, production and market values)
+  - **Sources** (search-result text; most company PDFs could not be opened directly):
+    - [Aker BP annual statement of reserves 2025](https://mb.cision.com/Public/1629/4323834/9a9422edea913565.pdf): 2P 1,526 mmboe
+    - [Aker BP Q4 2025](https://akerbp.com/borsmelding/fourth-quarter-2025-results-and-strategy-update/): 2025 production 420.1 kboe/d, net debt USD 7,094 m
+    - [Vår Energi reserves 2025](https://news.cision.com/var-energi-asa/r/var-energi-continues-to-grow-the-reserves-and-resource-base-in-2025,c4297917): 2P 1,294 mmboe, 2C 865 mmboe
+    - [Vår Energi Q4 2025](https://mb.cision.com/Public/21086/4305025/bd1a0561bff4ea5b.pdf): 2025 production 332 kboe/d, net debt USD 5,258 m
+    - [OKEA annual reports 2025](https://live.euronext.com/en/products/equities/company-news/2026-03-27-okea-asa-publication-annual-reports-2025), [OKEA Q4 trading update](https://okea.no/2026/01/okea-fourth-quarter-2025-trading-update/): 2P 74.3 mmboe, 32.1 kboe/d
+    - [DNO North Sea](https://www.dno.no/en/operations/north-sea/), [DNO completes Sval](https://live.euronext.com/en/products/equities/company-news/2025-06-12-dno-completes-transformative-north-sea-acquisition): Norway 2P 178.8 mmboe, 81 kboe/d pro forma 2025
+    - [Harbour Energy full-year results 2025](https://www.harbourenergy.com/news-and-media/announcements-and-latest-news/full-year-results-2025/): Norway 169 kboe/d (no Norway-only 2P found)
+    - Market values: Aker BP NOK 318.40 × 632 m shares ≈ NOK 201 bn on 19 Nov 2026 ([MarketScreener](https://in.marketscreener.com/quote/stock/AKER-BP-ASA-1413082/)); Vår Energi ≈ NOK 146 bn on 29 Oct 2026 ([Investing.com](https://www.investing.com/equities/var-energi)). Snapshot dates differ from the net-debt dates; treat the enterprise values as rough.
+  - **Findings**
+    - *Volumes match.* The sum of Sodir field shares against reported 2025 figures:
+
+      | Company | Production, model / reported (kboe/d) | Remaining, Sodir / company 2P (mmboe) |
+      |---|---|---|
+      | Aker BP | 417 / 420 | 1,519 / 1,526 |
+      | Vår Energi | 322 / 332 | 1,107 / 1,294 |
+      | Harbour Norge | 167 / 169 | 412 / n.a. |
+      | OKEA | 31 / 32 | 78 / 74 |
+      | DNO Norge | 78 / 81 | 184 / 179 |
+      | Equinor Energy AS | 1,410 (≈ Equinor's reported ~1.4 Mboe/d on the NCS) | 4,401 |
+
+      Ownership in fields.json is current (generated 2026-11-27): Vår–Pandion (completed 30 Sep 2026) and DNO–Sval show up; pending deals (Vår–ConocoPhillips, Kistos–Vår Ringhorne and others) correctly do not. Vår's 2P is 17 % above Sodir: Vår books more sanctioned projects and IOR as reserves.
+    - *Value is well below market enterprise value* (EV = market value + net debt, NOK 10/USD):
+      - Aker BP: model 15.9 bn USD vs EV ≈ 27 bn (×1.7). Vår Energi: 8.9 vs ≈ 20 bn (×2.2). OKEA (0.3 bn) is about at market level.
+      - Model sensitivities (Aker BP / Vår, bn USD): tax paid half a year later 17.9 / 10.0; 6 % discount 17.4 / 9.8; Brent 85 17.8 / 10.1; gas €45 17.2 / 9.9; reserveGrowth 1.3 14.3 / 8.1. None of these alone closes the gap.
+      - The rest is what the model leaves out by design: 2C and exploration (Vår 2C is 67 % of its 2P), company tax positions, and growth the market prices in.
+      - One modelling cause stands out: *redevelopments of producing fields get no ramp-up.* Valhall (Aker BP 90 %) carries Sodir's NOK 55.9 bn of expected investments (≈ $19.8/boe, near the $20 cap) but only the observed 3.7 % decline from 14 Mboe/yr. That makes it worth $2.6/boe, the lowest among Aker BP's large fields. The PWP platform (start-up planned 2027) should lift production first.
+    - *Legal entities.* Company mode lists Sodir legal entities, so Equinor UK Limited (Statfjord 14.5 %, Utgard 38 %) is apart from Equinor Energy AS. The values are small (−51 m USD); see the existing backlog item.
+    - The company page said only "Company value", with no hint that debt, 2C and exploration are excluded. A non-expert would compare it with market value.
+  - **Changed** (text only, no model change):
+    - `public/js/app.js`: the company page shows a `model-note` under the key figures (the same style as the field page).
+    - `public/js/i18n.js` (nb + en): new key `compNote`. The method page's "Verdi"/"Value" section gets "Kontroll mot selskapene / Check against the companies" (the table above in prose) and "Why the stock market values the companies higher".
+  - **Shelf value at defaults:** 128.21 → 128.21 bn USD (no change). **Deal verdicts:** none changed. deal-metrics still needs regenerating (from runs 2–6).
+  - **Checks:** `npm test` 20/20, `npm run validate:deals` OK, `npm run stamp`, i18n 565 keys in both nb and en, valuation.js loads, `node --check` on app.js and i18n.js, and a headless render of the Aker BP company page and method page with no JS errors.
+  - **Proposals for the owner**
+    1. *Ramp-up for producing fields with large approved redevelopments.* When Sodir's expected investments are large relative to the remaining reserves (for example, capex above about $12/boe and a PDO/PUD for a new facility), treat the field like a new field: hold or raise production for the build-up years, then apply the decline. Valhall, and possibly Snorre and Grane, are candidates. This is a volumes-method change, so it needs a backtest. Aker BP's value would rise by perhaps USD 0.5–1 bn.
+    2. *Group companies.* Add an optional brand/group mapping (Equinor Energy AS + Equinor UK Limited, DNO Norge + DNO North Sea (UK/ROGB), ConocoPhillips Skandinavia + (U.K.) Holdings, TotalEnergies EP Norge + E&P UK). The effect is small, but it removes confusing negative-value UK entities from the company list. It needs a small UI decision.
+    3. *Optional 2C layer.* Company 2C volumes are public (Vår 865 mmboe). A crude, clearly labelled "discoveries" add-on at a risked $/boe would explain most of the gap to market. It is a judgement call; keep it off by default if added.
+    4. The run 6 tax-lag proposal is worth about +12 % at company level too (Aker BP 15.9 → 17.9 bn).
+
 - **Run 6 – Tax** (78 % marginal, `investmentDeductions()`, refunds and losses, `taxInh` in deals, checked against current rules)
   - **Sources.** norskpetroleum.no, regjeringen.no, skatteetaten.no, lovdata and the company tax manuals cannot be fetched from this session. The figures below come from search-result text of these pages:
     - [Skatteetaten, tax returns and assessments for petroleum companies](https://www.skatteetaten.no/en/business-and-organisation/reporting-and-industries/industries-special-regulations/oil-and-gas-exploration-and-petroleum-tax/tax-returns-and-tax-assessments-for-petroleum-companies/)

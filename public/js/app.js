@@ -693,6 +693,7 @@
         <div class="kpi"><div class="l">${t('nFields')}</div><div class="v">${r.rows.length}</div><div class="s">${t('operated', r.operated)}</div></div>
         <div class="kpi"><div class="l">${t('taxState')}</div><div class="v">${money(r.rows.reduce((s, x) => s + x.v.taxPv * x.share / 100, 0))}</div><div class="s">${t('taxSub')}</div></div>
       </div>
+      <p class="model-note">${t('compNote')}</p>
       <div class="grid g-2 section-gap">
         <div class="card"><div class="card-head"><h2>${t('topContrib')}</h2><span class="muted">${state.cur} ${t('mn')}</span></div><div class="chart-box" style="height:${Math.max(220, Math.min(12, r.rows.length) * 30 + 40)}px"><canvas id="c-comp"></canvas></div></div>
         <div class="card"><div class="card-head"><h2>${t('byArea')}</h2></div>${barsHtml(groupBy(r.rows, (x) => x.field.area, (x) => x.npv).map(([k, v]) => ({ name: tmap('area', k), value: v })))}

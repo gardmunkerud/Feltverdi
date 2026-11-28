@@ -1361,10 +1361,16 @@
       o.q += q; o.rev += q * (unitRev.get(y) ?? avgRev); o.opex += q * A.opexBoe;
       at(y - 1).capex += q * A.capexBoe;
     });
+    // Tax on the extra volumes under today's rules, like the rest of the model (see investmentDeductions in valuation.js):
+    // 78 % on income less opex; the investments are deducted at once in the special tax base (71.8 %, with the 12.4 %
+    // uplift) and over six years in the corporate tax base (22 %, worth 22 % × (1 − 71.8 %) after the special tax).
+    const dedCit = new Map();
+    for (const [y, a] of add) if (a.capex) for (let k = 0; k < 6; k++) dedCit.set(y + k, (dedCit.get(y + k) || 0) + a.capex / 6);
+    for (const y of dedCit.keys()) at(y);
     const byYear = new Map(baseRows.map((x) => [x.year, { ...x }]));
     for (const [y, a] of add) {
       const o = byYear.get(y) || { year: y, hist: false, q: 0, rev: 0, opex: 0, capex: 0, tax: 0, fcf: 0, taxInh: 0 };
-      const tax = V.MARGINAL * (a.rev - a.opex - a.capex);
+      const tax = V.MARGINAL * (a.rev - a.opex) - 0.718 * (1 + V.UPLIFT.perm) * a.capex - 0.22 * (1 - 0.718) * (dedCit.get(y) || 0);
       o.q += a.q; o.rev += a.rev; o.opex += a.opex; o.capex += a.capex; o.tax += tax; o.fcf += a.rev - a.opex - a.capex - tax;
       byYear.set(y, o);
     }
@@ -1499,7 +1505,7 @@
   }
   function ddViewsCard(d, year, rows, price, baseline, buyer, seller) {
     const { def, cur, custom } = ddViewInputs(d);
-    const synRows = rows.map((x) => ({ ...x, fcf: x.fcf + cur.synergy * x.opex * (1 - 0.78) }));
+    const synRows = rows.map((x) => ({ ...x, fcf: x.fcf + (x.year > year ? cur.synergy * x.opex * (1 - V.MARGINAL) : 0) })); // from the year after the deal, like the deal's own synergies
     const bMax = ddPv(synRows, year, cur.buyerRate) * baseline;
     // The seller does not get the buyer's synergies
     const sMin = ddPv(rows.map((x) => ({ ...x, fcf: x.fcf - (x.syn || 0) })), year, cur.sellerRate) * baseline;

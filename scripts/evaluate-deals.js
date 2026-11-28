@@ -180,7 +180,8 @@ function hindsightValue(f, s, year, synPct = 0, synRows = null) {
 }
 
 // ---- Synergies (buyer's view) ----
-// Announced synergies (deals.json `synergies`, low end of any stated range) take precedence. Otherwise a standard rule:
+// Announced synergies (deals.json `synergies`, low end of any stated range; an after-tax NPV, a pre-tax amount per year or an
+// undiscounted after-tax total) take precedence. Otherwise a standard rule:
 // opex on the acquired stakes falls by 10 % where the buyer already held a share of the field on the deal date, 15 % where
 // the buyer operates the field, plus 3 % for corporate deals (overhead) – from the year after the deal, after tax (78 %).
 const SYN_RULE = { partner: 0.10, operator: 0.15, corporate: 0.03, announcedYears: 10 };
@@ -248,6 +249,10 @@ function dealSynergy(d, year, realF, synRows, vy = year) {
   else if (a && a.basis === 'preTaxAnnual') {
     const yrs = prodYears.filter((y) => y > year).slice(0, a.years || SYN_RULE.announcedYears);
     rows = yrs.map((y) => [y, a.lowUsdM * realF * (1 - V.MARGINAL)]);
+  } else if (a && a.basis === 'postTaxTotal') {
+    // An after-tax sum "over time" (not discounted): spread evenly over `years` (default 10) from the year after the deal
+    const yrs = prodYears.filter((y) => y > year).slice(0, a.years || SYN_RULE.announcedYears);
+    rows = yrs.map((y) => [y, a.lowUsdM * realF / yrs.length]);
   } else rows = [...synRows.entries()].filter(([, v]) => v > 0.005).sort((x, y) => x[0] - y[0]);
   rows = rows.map(([y, v]) => [y, Math.round(v * 100) / 100]);
   const pv = rows.reduce((t, [y, v]) => t + v * Math.pow(1 + RATE, -(y - vy + 0.5)), 0);

@@ -73,7 +73,7 @@ The list of deals lives in `public/data/deals.json`. Each deal has a date, type,
 - the **value in hindsight**: actual cash flow after the deal plus the Feltverdi forecast, discounted at 8% real
 
 The value includes the tax deductions the buyer takes over and the **buyer's synergies**:
-- **Announced synergies** (`synergies` in deals.json, with sources): the low end of any stated range is used. Two forms are supported: `postTaxNpv`, booked at the deal date; and `preTaxAnnual`, which runs for 10 production years from the year after the deal, after 78 % tax. Examples: Vår–ConocoPhillips USD 0.7 bn, Vår–Neptune USD 300 m, Aker BP–Lundin USD 200 m a year, OKEA–Wintershall USD 4 m a year.
+- **Announced synergies** (`synergies` in deals.json, with sources): the low end of any stated range is used. Three forms are supported: `postTaxNpv`, booked at the deal date; `preTaxAnnual`, which runs for 10 production years from the year after the deal, after 78 % tax; and `postTaxTotal`, an undiscounted after-tax sum "over time", spread evenly over `years` (default 10) from the year after the deal and then discounted. Examples: Vår–ConocoPhillips USD 0.7 bn (NPV), Vår–Neptune USD 300 m (total over time), Aker BP–Lundin USD 200 m a year, OKEA–Wintershall USD 4 m a year.
 - **Otherwise a standard rule** (`SYN_RULE` in the script): opex on the acquired stakes falls by 15 % in fields the buyer operates, or by 10 % where the buyer already held a share on the deal date (read from Sodir's licensee history, `BUYERS` regex per deal). Corporate deals add +3 %. The saving starts the year after the deal and is taken after 78 % tax.
 - The yearly after-tax amounts are stored in `deal-metrics.json` (`synergy.rows`) and added to the package cash flow on the deal pages. They therefore count in the value, ratio, verdict, IRR and 8 % break-even Brent, but not in the seller's side.
 
@@ -148,7 +148,11 @@ To update the data: run `npm run build:data` locally, then commit and push the c
   Plateau and new fields use reserves × 1.3. New fields and fields approved for development get a three-year plateau first.
 
   The method was calibrated on Sodir history. Backtested from 2010 and 2015, actual production divided by the forecast was 1.14 and 1.06 with this method and the facility-based costs (1.26 and 1.16 with the earlier generic costs), against 1.45 and 1.35 when fitting to reserves alone. Setting reserve growth to ×1.0 reproduces the old method.
-- **Prices:** oil is Brent − $1, NGL is 60% of Brent, gas is €/MWh × 1.72 × EURUSD minus a USD 2/boe Gassco transport tariff (company production costs, which opex is calibrated to, exclude transport).
+
+  For plateau fields the decline after the plateau is fitted so the total is reserves × 1.3 (at least one plateau year), so it can be steep when reserves are small next to the plateau rate (Johan Sverdrup: about 16 % a year from 2027).
+
+  Shelf check (Nov 2026): the model gives 4.13 / 4.21 / 3.25 million boe/d in 2026 / 2027 / 2030, against Sodir's forecast of about 4.1 million in 2026 and just under 3.5 million in 2030. Sodir's figures include discoveries not yet approved, which the model leaves out.
+- **Prices:** oil is Brent − $1, NGL is 60% of Brent, gas is €/MWh × 1.75 × EURUSD (159 Sm³ at ~11.0 kWh, Gassco's average for delivered gas) minus a USD 2/boe Gassco transport tariff (company production costs, which opex is calibrated to, exclude transport); the tariff is deducted in historical years too. Opex and decommissioning are NOK costs, calibrated at USD/NOK 10 and scaled by 10 / USD/NOK.
 - **Costs:**
   - **Opex is field-specific.** It is calculated from each field's facilities ([scripts/facilities.js](scripts/facilities.js), using Sodir's facility register and development wells).
     - Fixed annual cost (USD million):
@@ -160,14 +164,15 @@ To update the data: run `npm run build:data` locally, then commit and push the c
       - subsea template 1
       - each open well 2.5
     - Variable cost: $0.5 per boe, plus a $4/boe processing tariff for tie-backs without their own platform.
+    - The host field receives that tariff as taxable income (`TIEBACK_HOST` in `valuation.js`, from public field descriptions), in actual years and in the forecast. It is added after the decline is set, so it can extend the host's life but does not change its decline.
     - Calibrated to the companies' reported production cost for 2025 (Aker BP 7.3, Vår Energi 11.1, OKEA ~25, DNO ~12 $/boe) and to Johan Sverdrup (below $2/boe).
     - Fields without a facility profile use the old default by field type.
-  - Capex comes from Sodir's expected future investments per field (`field_investment_expected`, the operators' own plans), spread over the production the model expects (Sodir reserves × the middle of the reserve-growth range) and bounded to $1–20 per boe. New fields spend 80 % before first production. Fields without a Sodir figure use their own recent investment intensity, limited to $2–12 per boe.
+  - Capex comes from Sodir's expected future investments per field (`field_investment_expected`, the operators' own plans), spread over the production the model expects (Sodir reserves × the middle of the reserve-growth range) and bounded to $1–20 per boe. New fields spend 80 % before first production, spread evenly over the years until start-up. Sodir's figure runs from 1 January of its year (2025), so the part that belongs to years before the forecast start is left out, and years Sodir has not reported yet get an estimate in the actual-year cash flows and the tax deductions. Fields Sodir lists as producing but without production last year are treated as starting this year. Fields without a Sodir figure use their own recent investment intensity, limited to $2–12 per boe.
   - **Decommissioning is per facility.**
-    - Plugging each well that is not yet permanently plugged: $6 m on a platform, $18 m subsea.
+    - Plugging each well that is not yet permanently plugged: $8 m on a platform, $18 m subsea.
     - Removing each facility: large steel platform $250 m, small $80 m, floater $120 m, Condeep topside $300 m, subsea template $8 m.
     - The minimum is $0.5 per boe of recoverable volume.
-    - The shelf total is about $48 bn.
+    - The total for fields in production or under development is about $55 bn, about 60 % of it well plugging. In present-value terms this is about 7 % below the licensees' booked decommissioning provisions (Petoro, Aker BP, Vår Energi, ConocoPhillips).
 - **Deal prices:** an optional `priceAdjusted` in deals.json replaces the headline price in the analysis. It is used for shares valued at completion. Tax positions bought with a company go on the value side (`taxPosition`). The page shows both prices, with sources.
 - **Tax (2022 rules):** 22% corporate tax plus 71.8% special tax with 12.4% uplift, about 78% at the margin.
   - Deductions from past investments that are not yet used are counted with the rules of the investment year (`investmentDeductions()` in valuation.js):
@@ -175,6 +180,7 @@ To update the data: run `npm run build:data` locally, then commit and push the c
     - investments in 2020–21: expensed immediately with 24% uplift
     - fields with a development plan approved 2020–23 (field `approved`, from Sodir's field status history): 17.69% uplift until production starts
   - The same deductions apply in the forecast, the history page and the deals.
+  - Deductions still unused when a field stops producing (past investments, and the corporate-tax depreciation of the last years' capex) are counted in the years they fall due, at the 2022 values (71.8 % special tax, 6.2 % corporate tax): tax is paid per company, so the owners use them against other income on the shelf. They are shown in the decommissioning year.
   - In a deal they follow the stake, so the value the buyer receives includes them (`taxInh` in `stakeCashflow()`).
   - Company tax positions bought with a company (losses carried forward) can be set as `taxPosition` in deals.json, with sources (Aker BP–Hess).
 - **Value:** net present value after tax in real terms, discounted from 2026.

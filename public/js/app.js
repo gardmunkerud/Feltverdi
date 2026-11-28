@@ -94,7 +94,7 @@
   const ASSUMPTIONS = [
     { k: 'brent', label: 'brent', min: 40, max: 130, step: 1, fmt: (v) => `$${nf(v)}`, hint: 'brentHint' },
     { k: 'gasEur', label: 'gas', min: 10, max: 100, step: 1, fmt: (v) => `€${nf(v)}/MWh`, hint: 'gasHint',
-      note: (v) => { const eurusd = V.DEFAULTS.eurusd; return t('gasConv', nf(eurusd, 2), nf(1.72 * eurusd, 2), nf(v), nf(v * 1.72 * eurusd, 1), nf(v * eurusd / 3.412, 1), nf(Math.max(0, v * 1.72 * eurusd - V.GAS_TARIFF), 1)); } },
+      note: (v) => { const eurusd = V.DEFAULTS.eurusd; return t('gasConv', nf(eurusd, 2), nf(V.MWH_PER_BOE_GAS * eurusd, 2), nf(v), nf(v * V.MWH_PER_BOE_GAS * eurusd, 1), nf(v * eurusd / 3.412, 1), nf(Math.max(0, v * V.MWH_PER_BOE_GAS * eurusd - V.GAS_TARIFF), 1)); } },
     { k: 'usdnok', label: 'usdnok', min: 7, max: 13, step: 0.1, fmt: (v) => nf(v, 1), hint: 'usdnokHint' },
     { k: 'discount', label: 'discount', min: 0.04, max: 0.14, step: 0.005, fmt: (v) => pct(v * 100, 1), hint: 'discountHint' },
     { k: 'reserveGrowth', label: 'growth', min: 1, max: 2, step: 0.1, fmt: (v) => `×${nf(v, 1)}`, hint: 'growthHint' },
@@ -531,13 +531,15 @@
   // Explains how the decline rate was chosen for a field in ordinary decline
   function declineNote(v) {
     const p = (x) => (x == null ? '–' : nf(x * 100, 1));
-    const args = [p(v.decline), p(v.observedDecline), p(v.dLow), p(v.dHigh), nf(v.reserveGrowth, 1), nf(v.impliedGrowth, 2)];
-    return t('declNote_' + (v.declineBasis || 'reserves'), ...args);
+    // Production that has risen over the last five years is described as a rise, not as a negative decline
+    const rise = v.declineBasis === 'capLow' && v.observedDecline != null && v.observedDecline < 0;
+    const args = [p(v.decline), p(rise ? -v.observedDecline : v.observedDecline), p(v.dLow), p(v.dHigh), nf(v.reserveGrowth, 1), nf(v.impliedGrowth, 2)];
+    return t('declNote_' + (rise ? 'capLowRise' : v.declineBasis || 'reserves'), ...args);
   }
 
   function lifeCard(f, k) {
     if (!state.hist) return '';
-    const h = V.valueHistory(f, state.hist, state.a, state.data.lastFullYear, state.overrides[f.slug] || {});
+    const h = V.valueHistory(f, state.hist, state.a, state.data.lastFullYear, { ...(state.overrides[f.slug] || {}), tiebacks: V.tiebacksOf(f, state.data.fields) });
     if (!h) return '';
     return `<div class="card section-gap">
       <div class="card-head"><h2>${t('lifeCard')}</h2><a href="#/historisk">${t('lifeMore')}</a></div>
@@ -691,6 +693,7 @@
         <div class="kpi"><div class="l">${t('nFields')}</div><div class="v">${r.rows.length}</div><div class="s">${t('operated', r.operated)}</div></div>
         <div class="kpi"><div class="l">${t('taxState')}</div><div class="v">${money(r.rows.reduce((s, x) => s + x.v.taxPv * x.share / 100, 0))}</div><div class="s">${t('taxSub')}</div></div>
       </div>
+      <p class="model-note">${t('compNote')}</p>
       <div class="grid g-2 section-gap">
         <div class="card"><div class="card-head"><h2>${t('topContrib')}</h2><span class="muted">${state.cur} ${t('mn')}</span></div><div class="chart-box" style="height:${Math.max(220, Math.min(12, r.rows.length) * 30 + 40)}px"><canvas id="c-comp"></canvas></div></div>
         <div class="card"><div class="card-head"><h2>${t('byArea')}</h2></div>${barsHtml(groupBy(r.rows, (x) => x.field.area, (x) => x.npv).map(([k, v]) => ({ name: tmap('area', k), value: v })))}
@@ -774,7 +777,7 @@
     const out = new Map();
     if (!state.hist) return out;
     for (const f of state.data.fields) {
-      const h = V.valueHistory(f, state.hist, state.a, state.data.lastFullYear, state.overrides[f.slug] || {});
+      const h = V.valueHistory(f, state.hist, state.a, state.data.lastFullYear, { ...(state.overrides[f.slug] || {}), tiebacks: V.tiebacksOf(f, state.data.fields) });
       if (h) out.set(f.slug, h);
     }
     return out;
@@ -1194,7 +1197,7 @@
     const pr = state.hist.prices.find((p) => p[0] === year) || state.hist.prices.find((p) => p[0] === year - 1);
     if (!pr || year > state.data.lastFullYear) return null;
     const rf = ddCpiF(pr[0]), b = pr[1] * rf, g = pr[2] * rf;
-    return { brent: b, gasEur: g * V.MMBTU_PER_BOE_GAS / (1.72 * V.DEFAULTS.eurusd), flat: { b, g } };
+    return { brent: b, gasEur: g * V.MMBTU_PER_BOE_GAS / (V.MWH_PER_BOE_GAS * V.DEFAULTS.eurusd), flat: { b, g } };
   }
   // Aggregated yearly cash flow for a package of stakes [{slug, share}] from `year`
   function ddPackage(items, year, deck, extraOv) {
@@ -1202,7 +1205,7 @@
     const byYear = new Map(), per = [];
     for (const it of items) {
       const f = fieldBySlug(it.slug); if (!f) continue;
-      const ov = { ...(state.overrides[f.slug] || {}), ...((extraOv || {})[f.slug] || {}) };
+      const ov = { ...(state.overrides[f.slug] || {}), ...((extraOv || {})[f.slug] || {}), tiebacks: V.tiebacksOf(f, state.data.fields) };
       const rows = V.stakeCashflow(f, state.hist, a, state.data.lastFullYear, ov, year, deck && deck.flat ? { flat: deck.flat } : {});
       const s = it.share / 100;
       per.push({ it, f, s, rows });
@@ -1358,10 +1361,16 @@
       o.q += q; o.rev += q * (unitRev.get(y) ?? avgRev); o.opex += q * A.opexBoe;
       at(y - 1).capex += q * A.capexBoe;
     });
+    // Tax on the extra volumes under today's rules, like the rest of the model (see investmentDeductions in valuation.js):
+    // 78 % on income less opex; the investments are deducted at once in the special tax base (71.8 %, with the 12.4 %
+    // uplift) and over six years in the corporate tax base (22 %, worth 22 % × (1 − 71.8 %) after the special tax).
+    const dedCit = new Map();
+    for (const [y, a] of add) if (a.capex) for (let k = 0; k < 6; k++) dedCit.set(y + k, (dedCit.get(y + k) || 0) + a.capex / 6);
+    for (const y of dedCit.keys()) at(y);
     const byYear = new Map(baseRows.map((x) => [x.year, { ...x }]));
     for (const [y, a] of add) {
       const o = byYear.get(y) || { year: y, hist: false, q: 0, rev: 0, opex: 0, capex: 0, tax: 0, fcf: 0, taxInh: 0 };
-      const tax = V.MARGINAL * (a.rev - a.opex - a.capex);
+      const tax = V.MARGINAL * (a.rev - a.opex) - 0.718 * (1 + V.UPLIFT.perm) * a.capex - 0.22 * (1 - 0.718) * (dedCit.get(y) || 0);
       o.q += a.q; o.rev += a.rev; o.opex += a.opex; o.capex += a.capex; o.tax += tax; o.fcf += a.rev - a.opex - a.capex - tax;
       byYear.set(y, o);
     }
@@ -1496,7 +1505,7 @@
   }
   function ddViewsCard(d, year, rows, price, baseline, buyer, seller) {
     const { def, cur, custom } = ddViewInputs(d);
-    const synRows = rows.map((x) => ({ ...x, fcf: x.fcf + cur.synergy * x.opex * (1 - 0.78) }));
+    const synRows = rows.map((x) => ({ ...x, fcf: x.fcf + (x.year > year ? cur.synergy * x.opex * (1 - V.MARGINAL) : 0) })); // from the year after the deal, like the deal's own synergies
     const bMax = ddPv(synRows, year, cur.buyerRate) * baseline;
     // The seller does not get the buyer's synergies
     const sMin = ddPv(rows.map((x) => ({ ...x, fcf: x.fcf - (x.syn || 0) })), year, cur.sellerRate) * baseline;
@@ -1556,7 +1565,9 @@
       return;
     }
     if (m.swap) { viewSwapDetail(el, d, m); return; }
-    const year = m.year, r = state.a.discount, last = state.data.lastFullYear;
+    // Value counted from (and discounted to) the economic effective date: 1 January of the deal year, or `valYear` where the
+    // business passed at completion in a later year (statutory mergers). "Prices then" stays at the announcement year.
+    const year = m.valYear || m.year, r = state.a.discount, last = state.data.lastFullYear;
     const upOv = ddUpsideOv(d);
     const price = m.priceUsdM != null ? m.priceUsdM * ddCpiF(year) : null;
     const items = ddItems(m, year);
@@ -1566,7 +1577,7 @@
     const synPv = ddSynPv(base.rows, year, r);
     const histRows = base.rows.filter((x) => x.hist);
     const vHist = ddPv(histRows, year, r);
-    const thenDeck = ddDeckThen(year);
+    const thenDeck = ddDeckThen(m.year);
     const vThen = thenDeck ? ddPv(ddPackage(items, year, thenDeck).rows, year, r) : null;
     const up = upOv ? ddPackage(items, year, null, upOv) : null;
     const vUp = up ? ddPv(up.rows, year, r) : null;
@@ -1580,7 +1591,7 @@
     const pctTxt = (v) => (v == null ? '–' : v >= 1.5 ? '> 150 %' : pct(v * 100, 1));
     // scenarios
     const decks = [['low', DD_DECKS.low, `${t('ddDeckLow')} ($${DD_DECKS.low.brent} / €${DD_DECKS.low.gasEur})`], ['base', null, `${t('ddDeckBase')} ($${nf(state.a.brent)} / €${nf(state.a.gasEur)})`], ['high', DD_DECKS.high, `${t('ddDeckHigh')} ($${DD_DECKS.high.brent} / €${DD_DECKS.high.gasEur})`]];
-    if (thenDeck) decks.push(['then', thenDeck, `${t('ddDeckThen', year)} ($${nf(thenDeck.brent)} / €${nf(thenDeck.gasEur)})`]);
+    if (thenDeck) decks.push(['then', thenDeck, `${t('ddDeckThen', m.year)} ($${nf(thenDeck.brent)} / €${nf(thenDeck.gasEur)})`]);
     const scen = decks.map(([k, deck, label]) => ({ k, label, rows: k === 'base' ? base.rows : ddPackage(items, year, deck).rows }));
     if (up) scen.push({ k: 'up', label: t('ddDeckUp'), rows: up.rows });
     const amb = d.ambitious ? ddAmbitious(d.ambitious, base, year) : null;

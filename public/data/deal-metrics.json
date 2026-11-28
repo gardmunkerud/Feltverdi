@@ -1,12 +1,12 @@
 {
- "generated": "2026-11-27",
+ "generated": "2026-11-28",
  "baseYear": 2026,
  "discount": 0.08,
- "baseline": 1.13,
+ "baseline": 1.12,
  "n": 11,
  "typical": {
-  "irr": 0.058,
-  "be8": 95,
+  "irr": 0.06,
+  "be8": 87,
   "n": 11
  },
  "metrics": {
@@ -241,8 +241,8 @@
    "perFlowing": 35955,
    "perBoe": 12.26,
    "perBoePctBrent": 17.8,
-   "hindsightValue": 3143,
-   "taxInheritedUsdM": 53,
+   "hindsightValue": 3259,
+   "taxInheritedUsdM": 63,
    "taxPositionUsdM": 0,
    "synergy": {
     "basis": "announced",
@@ -254,12 +254,12 @@
      ]
     ]
    },
-   "ratio": 1.41,
+   "ratio": 1.36,
    "reserveGrowth": 1,
-   "relative": 1.25,
+   "relative": 1.21,
    "ref": {
-    "irr": -0.007,
-    "be8": 101
+    "irr": 0.001,
+    "be8": 98
    }
   },
   "2026-var-pandion": {
@@ -286,7 +286,7 @@
    "perFlowing": 37090,
    "perBoe": 34.43,
    "perBoePctBrent": 49.9,
-   "hindsightValue": 40,
+   "hindsightValue": 41,
    "taxInheritedUsdM": 1,
    "taxPositionUsdM": 0,
    "synergy": {
@@ -347,7 +347,7 @@
      ]
     ]
    },
-   "ratio": 2.74,
+   "ratio": 2.7,
    "reserveGrowth": 1,
    "relative": null
   },
@@ -371,7 +371,7 @@
      ],
      "prodKboed": 1.5,
      "remMmboe": 1.2,
-     "hindsightValue": 8,
+     "hindsightValue": 12,
      "taxInheritedUsdM": 0
     },
     {
@@ -450,15 +450,15 @@
    "perFlowing": 47315,
    "perBoe": 15.85,
    "perBoePctBrent": 23,
-   "hindsightValue": 153,
-   "taxInheritedUsdM": 3,
+   "hindsightValue": 154,
+   "taxInheritedUsdM": 4,
    "taxPositionUsdM": 0,
    "synergy": {
     "basis": "rule",
     "pvUsdM": 0,
     "rows": []
    },
-   "ratio": 2.29,
+   "ratio": 2.27,
    "reserveGrowth": 1,
    "relative": 2.03,
    "ref": {
@@ -638,12 +638,12 @@
    "priceUsdM": 1600,
    "headlineUsdM": 1600,
    "priceBasis": "headline",
-   "priceReal": 1802,
+   "priceReal": 1652,
    "perFlowing": 24288,
    "perBoe": 11.1,
    "perBoePctBrent": 16.1,
-   "hindsightValue": 1410,
-   "taxInheritedUsdM": 43,
+   "hindsightValue": 1404,
+   "taxInheritedUsdM": 41,
    "taxPositionUsdM": 0,
    "synergy": {
     "basis": "rule",
@@ -651,7 +651,7 @@
     "rows": [
      [
       2026,
-      2.01
+      2.08
      ],
      [
       2027,
@@ -663,19 +663,19 @@
      ],
      [
       2029,
-      1.67
+      1.66
      ],
      [
       2030,
-      1.62
+      1.61
      ],
      [
       2031,
-      1.57
+      1.56
      ],
      [
       2032,
-      1.54
+      1.53
      ],
      [
       2033,
@@ -691,7 +691,7 @@
      ],
      [
       2036,
-      0.92
+      0.91
      ],
      [
       2037,
@@ -767,7 +767,7 @@
      ],
      [
       2055,
-      0.19
+      0.17
      ],
      [
       2056,
@@ -803,12 +803,12 @@
      ]
     ]
    },
-   "ratio": 1.28,
+   "ratio": 1.18,
    "reserveGrowth": 1.05,
-   "relative": 1.13,
+   "relative": 1.05,
    "ref": {
-    "irr": 0.022,
-    "be8": 95
+    "irr": 0.04,
+    "be8": 87
    }
   },
   "2024-equinor-petoro-swap": {
@@ -834,8 +834,8 @@
      ],
      "prodKboed": 16.1,
      "remMmboe": 77.3,
-     "hindsightValue": 423,
-     "taxInheritedUsdM": 13
+     "hindsightValue": 434,
+     "taxInheritedUsdM": 12
     },
     {
      "from": "Equinor",
@@ -863,7 +863,7 @@
      ],
      "prodKboed": 16.5,
      "remMmboe": 60.6,
-     "hindsightValue": 675,
+     "hindsightValue": 669,
      "taxInheritedUsdM": 11
     }
    ],
@@ -993,25 +993,61 @@
    "perFlowing": 40096,
    "perBoe": 8.99,
    "perBoePctBrent": 10.9,
-   "hindsightValue": 2425,
-   "taxInheritedUsdM": 154,
+   "hindsightValue": 2351,
+   "taxInheritedUsdM": 153,
    "taxPositionUsdM": 0,
    "synergy": {
     "basis": "announced",
-    "pvUsdM": 327,
+    "pvUsdM": 211,
     "rows": [
      [
-      2023,
-      340.11
+      2024,
+      32.73
+     ],
+     [
+      2025,
+      32.73
+     ],
+     [
+      2026,
+      32.73
+     ],
+     [
+      2027,
+      32.73
+     ],
+     [
+      2028,
+      32.73
+     ],
+     [
+      2029,
+      32.73
+     ],
+     [
+      2030,
+      32.73
+     ],
+     [
+      2031,
+      32.73
+     ],
+     [
+      2032,
+      32.73
+     ],
+     [
+      2033,
+      32.73
      ]
     ]
    },
-   "ratio": 1.02,
+   "ratio": 1.06,
    "reserveGrowth": 1.11,
-   "relative": 0.9,
+   "relative": 0.95,
    "ref": {
-    "irr": 0.076,
-    "be8": 78
+    "irr": 0.071,
+    "be8": 82
    }
   },
   "2022-okea-wintershalldea": {
@@ -1051,7 +1087,7 @@
    "perFlowing": 19215,
    "perBoe": 7.14,
    "perBoePctBrent": 7.2,
-   "hindsightValue": 228,
+   "hindsightValue": 230,
    "taxInheritedUsdM": 44,
    "taxPositionUsdM": 0,
    "synergy": {
@@ -1060,56 +1096,57 @@
     "rows": [
      [
       2023,
-      0.88
+      1
      ],
      [
       2024,
-      0.88
+      1
      ],
      [
       2025,
-      0.88
+      1
      ],
      [
       2026,
-      0.88
+      1
      ],
      [
       2027,
-      0.88
+      1
      ],
      [
       2028,
-      0.88
+      1
      ],
      [
       2029,
-      0.88
+      1
      ],
      [
       2030,
-      0.88
+      1
      ],
      [
       2031,
-      0.88
+      1
      ],
      [
       2032,
-      0.88
+      1
      ]
     ]
    },
    "ratio": 0.58,
    "reserveGrowth": 1.41,
-   "relative": 0.51,
+   "relative": 0.52,
    "ref": {
-    "irr": 0.35,
+    "irr": 0.346,
     "be8": 10
    }
   },
   "2021-akerbp-lundin": {
    "year": 2021,
+   "valYear": 2022,
    "partial": false,
    "note": null,
    "items": [
@@ -1183,65 +1220,65 @@
    "priceUsdM": 13880,
    "headlineUsdM": 13900,
    "priceBasis": "shares-at-completion",
-   "priceReal": 17027,
+   "priceReal": 15767,
    "perFlowing": 82720,
    "perBoe": 20.66,
    "perBoePctBrent": 29.3,
-   "hindsightValue": 9760,
-   "taxInheritedUsdM": 844,
+   "hindsightValue": 8945,
+   "taxInheritedUsdM": 449,
    "taxPositionUsdM": 0,
    "synergy": {
     "basis": "announced",
-    "pvUsdM": 284,
+    "pvUsdM": 349,
     "rows": [
      [
       2022,
-      44
+      49.98
      ],
      [
       2023,
-      44
+      49.98
      ],
      [
       2024,
-      44
+      49.98
      ],
      [
       2025,
-      44
+      49.98
      ],
      [
       2026,
-      44
+      49.98
      ],
      [
       2027,
-      44
+      49.98
      ],
      [
       2028,
-      44
+      49.98
      ],
      [
       2029,
-      44
+      49.98
      ],
      [
       2030,
-      44
+      49.98
      ],
      [
       2031,
-      44
+      49.98
      ]
     ]
    },
-   "ratio": 1.74,
+   "ratio": 1.76,
    "reserveGrowth": 1.11,
-   "relative": 1.54,
+   "relative": 1.57,
    "ref": {
-    "irr": -0.026,
-    "be8": 229
+    "irr": -0.032,
+    "be8": 209
    }
   },
   "2021-sval-spirit": {
@@ -1390,7 +1427,7 @@
    "perFlowing": 20766,
    "perBoe": 8.6,
    "perBoePctBrent": 12.2,
-   "hindsightValue": 1822,
+   "hindsightValue": 1831,
    "taxInheritedUsdM": 313,
    "taxPositionUsdM": 0,
    "synergy": {
@@ -1415,7 +1452,7 @@
      ],
      [
       2026,
-      0.85
+      0.92
      ],
      [
       2027,
@@ -1431,15 +1468,15 @@
      ],
      [
       2030,
-      0.67
+      0.66
      ],
      [
       2031,
-      0.62
+      0.61
      ],
      [
       2032,
-      0.59
+      0.58
      ],
      [
       2033,
@@ -1531,7 +1568,7 @@
      ],
      [
       2055,
-      0.06
+      0.05
      ],
      [
       2056,
@@ -1557,9 +1594,9 @@
    },
    "ratio": 0.74,
    "reserveGrowth": 1.25,
-   "relative": 0.65,
+   "relative": 0.66,
    "ref": {
-    "irr": 0.187,
+    "irr": 0.189,
     "be8": 21
    }
   },
@@ -1595,7 +1632,7 @@
    "perFlowing": null,
    "perBoe": 12.7,
    "perBoePctBrent": 30,
-   "hindsightValue": 235,
+   "hindsightValue": 233,
    "taxInheritedUsdM": 86,
    "taxPositionUsdM": 0,
    "synergy": {
@@ -1776,11 +1813,11 @@
      ]
     ]
    },
-   "ratio": 1.64,
+   "ratio": 1.65,
    "reserveGrowth": 1.04,
-   "relative": 1.45,
+   "relative": 1.47,
    "ref": {
-    "irr": 0.011,
+    "irr": 0.01,
     "be8": 162
    }
   },
@@ -1978,7 +2015,7 @@
    "perFlowing": 28620,
    "perBoe": 10.75,
    "perBoePctBrent": 16.8,
-   "hindsightValue": 5192,
+   "hindsightValue": 5229,
    "taxInheritedUsdM": 657,
    "taxPositionUsdM": 0,
    "synergy": {
@@ -2083,7 +2120,7 @@
      ],
      [
       2044,
-      2.05
+      2.71
      ],
      [
       2045,
@@ -2127,11 +2164,11 @@
      ],
      [
       2055,
-      1.63
+      1.89
      ],
      [
       2056,
-      1.63
+      1.89
      ],
      [
       2057,
@@ -2151,12 +2188,12 @@
      ]
     ]
    },
-   "ratio": 1.13,
+   "ratio": 1.12,
    "reserveGrowth": 1.52,
    "relative": 1,
    "ref": {
-    "irr": 0.058,
-    "be8": 98
+    "irr": 0.06,
+    "be8": 96
    }
   },
   "2019-dno-faroe": {
@@ -2297,7 +2334,7 @@
    "perFlowing": 91198,
    "perBoe": 14.4,
    "perBoePctBrent": 22.5,
-   "hindsightValue": 408,
+   "hindsightValue": 412,
    "taxInheritedUsdM": 202,
    "taxPositionUsdM": 0,
    "synergy": {
@@ -2330,7 +2367,7 @@
      ],
      [
       2026,
-      0.69
+      0.71
      ],
      [
       2027,
@@ -2346,7 +2383,7 @@
      ],
      [
       2030,
-      0.5
+      0.58
      ],
      [
       2031,
@@ -2358,7 +2395,7 @@
      ],
      [
       2033,
-      0.32
+      0.45
      ],
      [
       2034,
@@ -2374,7 +2411,7 @@
      ],
      [
       2037,
-      0.17
+      0.16
      ],
      [
       2038,
@@ -2482,7 +2519,7 @@
      ]
     ]
    },
-   "ratio": 2.6,
+   "ratio": 2.57,
    "reserveGrowth": 1.1,
    "relative": null
   },
@@ -2518,7 +2555,7 @@
    "perFlowing": 22963,
    "perBoe": 21.2,
    "perBoePctBrent": 29.8,
-   "hindsightValue": 813,
+   "hindsightValue": 827,
    "taxInheritedUsdM": 251,
    "taxPositionUsdM": 0,
    "synergy": {
@@ -2643,12 +2680,12 @@
      ]
     ]
    },
-   "ratio": 0.91,
+   "ratio": 0.89,
    "reserveGrowth": 2.84,
-   "relative": 0.81,
+   "relative": 0.79,
    "ref": {
-    "irr": 0.109,
-    "be8": 45
+    "irr": 0.114,
+    "be8": 39
    }
   },
   "2017-akerbp-hess": {
@@ -2683,7 +2720,7 @@
    "perFlowing": 71009,
    "perBoe": 12.81,
    "perBoePctBrent": 23.5,
-   "hindsightValue": 2648,
+   "hindsightValue": 2623,
    "taxInheritedUsdM": 316,
    "taxPositionUsdM": 1885,
    "synergy": {
@@ -2832,12 +2869,12 @@
      ]
     ]
    },
-   "ratio": 1.02,
+   "ratio": 1.03,
    "reserveGrowth": 1.61,
-   "relative": 0.9,
+   "relative": 0.92,
    "ref": {
-    "irr": 0.072,
-    "be8": 83
+    "irr": 0.069,
+    "be8": 87
    }
   },
   "2017-ineos-dong": {
@@ -2896,7 +2933,7 @@
    "perFlowing": null,
    "perBoe": null,
    "perBoePctBrent": null,
-   "hindsightValue": 1665,
+   "hindsightValue": 1651,
    "taxInheritedUsdM": 140,
    "taxPositionUsdM": 0,
    "synergy": {
@@ -3133,7 +3170,7 @@
    "perFlowing": null,
    "perBoe": null,
    "perBoePctBrent": null,
-   "hindsightValue": 1093,
+   "hindsightValue": 1076,
    "taxInheritedUsdM": 570,
    "taxPositionUsdM": 0,
    "synergy": {
@@ -3209,7 +3246,7 @@
    "perFlowing": 37256,
    "perBoe": 10.12,
    "perBoePctBrent": 23,
-   "hindsightValue": 2165,
+   "hindsightValue": 2161,
    "taxInheritedUsdM": 593,
    "taxPositionUsdM": 0,
    "synergy": {
@@ -3254,7 +3291,7 @@
      ],
      [
       2026,
-      1.88
+      1.89
      ],
      [
       2027,
@@ -3270,7 +3307,7 @@
      ],
      [
       2030,
-      1.31
+      1.4
      ],
      [
       2031,
@@ -3330,7 +3367,7 @@
      ],
      [
       2045,
-      1.08
+      1.07
      ],
      [
       2046,
@@ -3362,9 +3399,9 @@
      ]
     ]
    },
-   "ratio": 1.45,
+   "ratio": 1.46,
    "reserveGrowth": 1.41,
-   "relative": 1.28,
+   "relative": 1.3,
    "ref": {
     "irr": 0.023,
     "be8": 197

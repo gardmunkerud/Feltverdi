@@ -80,10 +80,10 @@ function validate(dealsFile = path.join(root, 'public', 'data', 'deals.json')) {
       if (!bothLangs(tp.note)) err('taxPosition.note needs nb and en');
       if (!Array.isArray(tp.sources) || !tp.sources.length || !tp.sources.every((u) => /^https:\/\/[^\s"<>]+$/.test(u))) err('taxPosition.sources must list https links');
     }
-    // Announced synergies (low end of any stated range): after-tax NPV or pre-tax amount per year
+    // Announced synergies (low end of any stated range): after-tax NPV, pre-tax amount per year or after-tax total over time
     if (d.synergies != null) {
       const s = d.synergies;
-      if (!['postTaxNpv', 'preTaxAnnual'].includes(s.basis)) err('synergies.basis must be postTaxNpv or preTaxAnnual');
+      if (!['postTaxNpv', 'preTaxAnnual', 'postTaxTotal'].includes(s.basis)) err('synergies.basis must be postTaxNpv, preTaxAnnual or postTaxTotal');
       if (!(typeof s.lowUsdM === 'number' && s.lowUsdM > 0)) err('synergies.lowUsdM must be a positive number');
       if (s.highUsdM != null && !(s.highUsdM >= s.lowUsdM)) err('synergies.highUsdM must be ≥ lowUsdM');
       if (!bothLangs(s.note)) err('synergies.note needs nb and en');

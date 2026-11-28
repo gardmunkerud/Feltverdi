@@ -95,7 +95,7 @@
     }
    },
    "views": {
-        "note": {
+    "note": {
      "nb": "ConocoPhillips spisser porteføljen. Vår Energis egne synergianslag (lav ende) er allerede med i verdien.",
      "en": "ConocoPhillips is high-grading its portfolio. Vår Energi’s own synergy estimate (low end) is already in the value."
     }
@@ -119,8 +119,8 @@
     "opexBoe": 8,
     "capexBoe": 12,
     "note": {
-     "nb": "Ambisiøs: feltene i porteføljen gir til sammen 1 mrd. fat o.e. mer (brutto, 100 %) enn i basis – for eksempel nye brønner, forlenget levetid og tilknytninger rundt Ekofisk. Tilleggsproduksjonen øker jevnt de første fem årene etter avtalen til 180 tusen fat o.e. per dag (brutto) og faller deretter jevnt, slik at summen blir 1 mrd. fat o.e. Vår Energi får sin eierandel. Tilleggsvolumene selges til samme pris som resten av porteføljen, med 8 dollar per fat i driftskostnader og 12 dollar per fat i investeringer (brukt året før produksjonen), og 78 % skatt.",
-     "en": "Ambitious: the fields in the portfolio recover a total of 1 bn boe more (gross, 100 %) than in the base case – for example new wells, longer field life and tie-backs around Ekofisk. The extra production rises steadily over the first five years after the deal to 180 thousand boe per day (gross) and then declines steadily, so the total comes to 1 bn boe. Vår Energi gets its ownership share. The extra volumes sell at the same price as the rest of the portfolio, with USD 8 per barrel in operating costs and USD 12 per barrel in investment (spent the year before production), and 78 % tax."
+     "nb": "Ambisiøs: feltene i porteføljen gir til sammen 1 mrd. fat o.e. mer (brutto, 100 %) enn i basis – for eksempel nye brønner, forlenget levetid og tilknytninger rundt Ekofisk. Tilleggsproduksjonen øker jevnt de første fem årene etter avtalen til 180 tusen fat o.e. per dag (brutto) og faller deretter jevnt, slik at summen blir 1 mrd. fat o.e. Vår Energi får sin eierandel. Tilleggsvolumene selges til samme pris som resten av porteføljen, med 8 dollar per fat i driftskostnader og 12 dollar per fat i investeringer (brukt året før produksjonen), og skatt etter dagens regler som i resten av modellen (78 %; investeringene trekkes fra straks i særskatten med friinntekt og over seks år i selskapsskatten).",
+     "en": "Ambitious: the fields in the portfolio recover a total of 1 bn boe more (gross, 100 %) than in the base case – for example new wells, longer field life and tie-backs around Ekofisk. The extra production rises steadily over the first five years after the deal to 180 thousand boe per day (gross) and then declines steadily, so the total comes to 1 bn boe. Vår Energi gets its ownership share. The extra volumes sell at the same price as the rest of the portfolio, with USD 8 per barrel in operating costs and USD 12 per barrel in investment (spent the year before production), and tax under today’s rules as in the rest of the model (78 %; the investments are deducted at once in the special tax, with uplift, and over six years in the corporate tax)."
     }
    }
   },
@@ -448,11 +448,11 @@
    },
    "source": "https://www.dno.no/en/investors/announcements/dno-to-acquire-sval-energi-in-transformative-transaction-quadruples-north-sea-output-2025-03-07/",
    "assessment": {
-    "verdict": "full",
+    "verdict": "fair",
     "confidence": "medium",
     "text": {
-     "nb": "Fullt priset, like over grensen (1,13 ganger medianen). 24 000 dollar per flytende fat og 11,1 dollar per fat reserver. DNO fikk ikke-opererte andeler i 16 felt med 66 000 fat o.e./d og firedoblet produksjonen i Nordsjøen. Kort historikk etter avtalen gjør vurderingen foreløpig.",
-     "en": "Fully priced, just over the line (1.13 times the median). 24,000 dollars per flowing barrel and 11.1 dollars per barrel of reserves. DNO got non-operated interests in 16 fields with 66,000 boe/d and quadrupled its North Sea output. The short history since the deal makes the assessment preliminary."
+     "nb": "Markedsmessig, i øvre del av normalen (1,05 ganger medianen). 24 000 dollar per flytende fat og 11,1 dollar per fat reserver. DNO fikk ikke-opererte andeler i 16 felt med 66 000 fat o.e./d og firedoblet produksjonen i Nordsjøen. Kort historikk etter avtalen gjør vurderingen foreløpig.",
+     "en": "Market-level, in the upper part of the normal range (1.05 times the median). 24,000 dollars per flowing barrel and 11.1 dollars per barrel of reserves. DNO got non-operated interests in 16 fields with 66,000 boe/d and quadrupled its North Sea output. The short history since the deal makes the assessment preliminary."
     }
    }
   },
@@ -575,15 +575,17 @@
     }
    },
    "synergies": {
-    "basis": "postTaxNpv",
+    "basis": "postTaxTotal",
     "lowUsdM": 300,
+    "years": 10,
     "note": {
-     "nb": "Vår Energi anslo synergier på om lag 300 mill. dollar over tid (utbygging og leting, bedre utnyttelse av anlegg, gassalg). Vi behandler beløpet som en nåverdi etter skatt.",
-     "en": "Vår Energi estimated synergies of about USD 300 m over time (development and exploration, better use of facilities, gas sales). We treat the amount as an after-tax present value."
+     "nb": "Vår Energi anslo synergier på mer enn 300 mill. dollar etter skatt over tid (utbygging og leting, bedre utnyttelse av anlegg, gassalg). Beløpet er en sum over flere år, ikke en nåverdi. Vi bruker 300 mill. fordelt jevnt over ti år fra 2024 og regner nåverdien med 8 %.",
+     "en": "Vår Energi estimated synergies of more than USD 300 m after tax over time (development and exploration, better use of facilities, gas sales). The amount is a total over several years, not a present value. We spread USD 300 m evenly over ten years from 2024 and discount it at 8 %."
     },
     "sources": [
      "https://www.energy-pedia.com/news/norway/v%C3%A5r-energi-to-acquire-neptune-energys-norwegian-oil-and-gas-assets-to-accelerate-growth-and-value-creation-on-the-ncs-191898",
-     "https://www.offshore-mag.com/business-briefs/company-news/article/14295540/eni-var-energi-acquiring-neptunes-global-ep-portfolio"
+     "https://www.offshore-mag.com/business-briefs/company-news/article/14295540/eni-var-energi-acquiring-neptunes-global-ep-portfolio",
+     "https://www.hartenergy.com/exclusives/eni-var-energi-wrap-acquisition-neptune-energy-assets-207990"
     ]
    }
   },
@@ -820,7 +822,7 @@
     }
    },
    "views": {
-        "note": {
+    "note": {
      "nb": "ExxonMobil gikk ut av en ikke-kjerneregion. Standardantakelsen for synergier er allerede med i verdien.",
      "en": "ExxonMobil was exiting a non-core region. The standard synergy assumption is already in the value."
     }
@@ -957,15 +959,15 @@
    },
    "source": "https://worldoil.com/news/2018/6/20/shell-sells-draugen-gjoa-interest-in-norway/",
    "assessment": {
-    "verdict": "fair",
+    "verdict": "cheap",
     "confidence": "medium",
     "text": {
-     "nb": "Markedsmessig, like over grensen til lav pris (0,81 ganger medianen), og i praksis et godt kjøp. Prisen på 21 dollar per fat av daværende reserver så høy ut, men Draugen-reservene har nesten tredoblet seg (2,8 ganger) gjennom levetidsforlengelse, og Shell beholdt 80 % av fjerningskostnadene etter skatt. OKEA overtok i tillegg ubrukte skattefradrag fra tidligere investeringer, verdt om lag 0,25 mrd. dollar.",
-     "en": "Market-level, just above the line to a low price (0.81 times the median), and in practice a good buy. The price of 21 dollars per barrel of reserves at the time looked high, but Draugen reserves have almost tripled (2.8 times) through life extension, and Shell kept 80 % of after-tax decommissioning costs. OKEA also took over unused tax deductions from earlier investments, worth about 0.25 billion dollars."
+     "nb": "Lav pris, like under grensen til markedsmessig (0,79 ganger medianen), og i praksis et godt kjøp. Prisen på 21 dollar per fat av daværende reserver så høy ut, men Draugen-reservene har nesten tredoblet seg (2,8 ganger) gjennom levetidsforlengelse, og Shell beholdt 80 % av fjerningskostnadene etter skatt. OKEA overtok i tillegg ubrukte skattefradrag fra tidligere investeringer, verdt om lag 0,25 mrd. dollar.",
+     "en": "Low price, just under the line to market-level (0.79 times the median), and in practice a good buy. The price of 21 dollars per barrel of reserves at the time looked high, but Draugen reserves have almost tripled (2.8 times) through life extension, and Shell kept 80 % of after-tax decommissioning costs. OKEA also took over unused tax deductions from earlier investments, worth about 0.25 billion dollars."
     }
    },
    "views": {
-        "note": {
+    "note": {
      "nb": "Shell solgte et modent felt utenfor kjernen. OKEA tok over driften av Draugen; standardantakelsen for synergier er allerede med i verdien.",
      "en": "Shell sold a mature, non-core field. OKEA took over operation of Draugen; the standard synergy assumption is already in the value."
     }
@@ -1018,7 +1020,7 @@
     }
    },
    "views": {
-        "note": {
+    "note": {
      "nb": "Hess gikk ut av Norge. Aker BP opererte allerede Valhall; standardantakelsen for synergier (15 % lavere driftskostnader på andelene) er allerede med i verdien.",
      "en": "Hess was exiting Norway. Aker BP already operated Valhall; the standard synergy assumption (15 % lower operating costs on the stakes) is already in the value."
     }

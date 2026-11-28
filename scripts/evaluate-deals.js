@@ -51,7 +51,10 @@ const SPEC = {
   '2019-var-exxonmobil': { sellers: ['ExxonMobil Exploration and Production Norway AS'], }, // cross-check: Breidablikk unit (2021) 34.4 % for Vår, all from ex-Exxon licences 001 CS, 027 FS, 028 C, 169, 169 B1, 169 B2
   '2020-sval-edison': { sellers: ['Edison Norge AS'] },
   '2021-sval-spirit': { sellers: ['Spirit Energy Norway AS', 'Spirit Energy Norge AS'], price: 1100 },
-  '2021-akerbp-lundin': { sellers: ['Lundin Energy Norway AS', 'Lundin Norway AS'] },
+  // Statutory merger paid in cash and shares, with no earlier economic effective date: Lundin kept the 2021 cash flow
+  // (the enterprise value uses its net debt at announcement) and the business passed to Aker BP at completion on
+  // 30 June 2022, when the shares in the adjusted price were valued. So the stakes are valued from 2022 (valYear).
+  '2021-akerbp-lundin': { sellers: ['Lundin Energy Norway AS', 'Lundin Norway AS'], valYear: 2022 },
   '2022-okea-wintershalldea': { sellers: ['Wintershall Dea Norge AS'], fields: ['BRAGE', 'IVAR AASEN', 'NOVA'], shares: { BRAGE: 35.2, 'IVAR AASEN': 6.4615, NOVA: 6 } },
   '2023-var-neptune': { sellers: ['Neptune Energy Norge AS'] },
   '2025-dno-sval': { sellers: ['Sval Energi AS', 'Sval Norge AS'] },
@@ -168,7 +171,7 @@ function reservesAt(fieldName, year) {
 // buyer takes over – are included; `inh` is their present value.
 function hindsightValue(f, s, year, synPct = 0, synRows = null) {
   let v = 0, inh = 0;
-  for (const r of V.stakeCashflow(f, H, {}, data.lastFullYear, {}, year)) {
+  for (const r of V.stakeCashflow(f, H, {}, data.lastFullYear, { tiebacks: V.tiebacksOf(f, data.fields) }, year)) {
     const df = Math.pow(1 + RATE, -(r.year - year + 0.5));
     v += r.fcf * s * df; inh += (r.taxInh || 0) * s * df;
     if (synRows && r.q > 0) synRows.set(r.year, (synRows.get(r.year) || 0) + (synPct > 0 && r.year > year ? synPct * (r.opex || 0) * s * (1 - V.MARGINAL) : 0));
@@ -177,7 +180,8 @@ function hindsightValue(f, s, year, synPct = 0, synRows = null) {
 }
 
 // ---- Synergies (buyer's view) ----
-// Announced synergies (deals.json `synergies`, low end of any stated range) take precedence. Otherwise a standard rule:
+// Announced synergies (deals.json `synergies`, low end of any stated range; an after-tax NPV, a pre-tax amount per year or an
+// undiscounted after-tax total) take precedence. Otherwise a standard rule:
 // opex on the acquired stakes falls by 10 % where the buyer already held a share of the field on the deal date, 15 % where
 // the buyer operates the field, plus 3 % for corporate deals (overhead) – from the year after the deal, after tax (78 %).
 const SYN_RULE = { partner: 0.10, operator: 0.15, corporate: 0.03, announcedYears: 10 };
@@ -213,7 +217,9 @@ function mergeParts(stakes) {
   return out;
 }
 
-function evalPackage(stakesIn, year, later = new Set(), syn = null) {
+// year = announcement year (multiples: production the year before, reserves at the time); vy = the year the value is
+// counted from and discounted to (the economic effective date, normally 1 January of the announcement year)
+function evalPackage(stakesIn, year, later = new Set(), syn = null, vy = year) {
   const stakes = mergeParts(stakesIn);
   let prod = 0, rem = 0, hindsight = 0, taxInh = 0, remNow = 0, prodAfter = 0;
   const items = [], synRows = new Map();
@@ -224,7 +230,7 @@ function evalPackage(stakesIn, year, later = new Set(), syn = null) {
     const r0 = reservesAt(name, year - 1) * BOE * s;
     prod += q; rem += r0;
     const sp = syn ? syn(f) : { p: 0, why: 'none' };
-    const hv = hindsightValue(f, s, year, sp.p, synRows);
+    const hv = hindsightValue(f, s, vy, sp.p, synRows);
     hindsight += hv.v; taxInh += hv.inh;
     prodAfter += f.prod.filter((r) => r[0] >= year && r[0] <= data.lastFullYear).reduce((t, r) => t + r[5] * BOE * s, 0);
     remNow += (f.rem ? f.rem.oe : 0) * BOE * s;
@@ -232,18 +238,24 @@ function evalPackage(stakesIn, year, later = new Set(), syn = null) {
   }
   return { prod, rem, hindsight, taxInh, remNow, prodAfter, synRows, items: items.sort((a, z) => z.remMmboe - a.remMmboe) };
 }
-// Yearly after-tax synergy cash flow (real USD m) for a deal; announced synergies replace the rule
-function dealSynergy(d, year, realF, synRows) {
+// Yearly after-tax synergy cash flow (real USD m) for a deal; announced synergies replace the rule. Announced amounts are
+// in money of the announcement year and are converted to real USD of the CPI base year (realF), like the price.
+// Annual synergies run from the year after the announcement; the PV is taken at the valuation year vy.
+function dealSynergy(d, year, realF, synRows, vy = year) {
   const a = d.synergies;
   const prodYears = [...synRows.keys()].sort((x, y) => x - y); // years with production in the package
   let rows;
-  if (a && a.basis === 'postTaxNpv') rows = [[year, a.lowUsdM * realF * Math.pow(1 + RATE, 0.5)]]; // PV at the deal date
+  if (a && a.basis === 'postTaxNpv') rows = [[vy, a.lowUsdM * realF * Math.pow(1 + RATE, 0.5)]]; // PV at the deal date
   else if (a && a.basis === 'preTaxAnnual') {
     const yrs = prodYears.filter((y) => y > year).slice(0, a.years || SYN_RULE.announcedYears);
-    rows = yrs.map((y) => [y, a.lowUsdM * (1 - V.MARGINAL)]);
+    rows = yrs.map((y) => [y, a.lowUsdM * realF * (1 - V.MARGINAL)]);
+  } else if (a && a.basis === 'postTaxTotal') {
+    // An after-tax sum "over time" (not discounted): spread evenly over `years` (default 10) from the year after the deal
+    const yrs = prodYears.filter((y) => y > year).slice(0, a.years || SYN_RULE.announcedYears);
+    rows = yrs.map((y) => [y, a.lowUsdM * realF / yrs.length]);
   } else rows = [...synRows.entries()].filter(([, v]) => v > 0.005).sort((x, y) => x[0] - y[0]);
   rows = rows.map(([y, v]) => [y, Math.round(v * 100) / 100]);
-  const pv = rows.reduce((t, [y, v]) => t + v * Math.pow(1 + RATE, -(y - year + 0.5)), 0);
+  const pv = rows.reduce((t, [y, v]) => t + v * Math.pow(1 + RATE, -(y - vy + 0.5)), 0);
   return { basis: a ? 'announced' : 'rule', pvUsdM: Math.round(pv), rows };
 }
 
@@ -251,7 +263,7 @@ const out = {};
 for (const d of deals) {
   const spec = SPEC[d.id];
   if (!spec) continue;
-  const date = new Date(d.date + 'T00:00:00Z'), year = +d.date.slice(0, 4);
+  const date = new Date(d.date + 'T00:00:00Z'), year = +d.date.slice(0, 4), vy = spec.valYear || year;
   if (spec.legs) {
     const legs = spec.legs.map((L) => {
       const st = L.diff ? shareDiff(L.diff) : new Map(Object.entries(L.shares));
@@ -267,18 +279,18 @@ for (const d of deals) {
   for (const [k, v] of Object.entries(spec.extra || {})) later.set(k, v);
   for (const [k, v] of later) if (!stakes.has(k)) stakes.set(k, v);
   const re = BUYERS[d.id], pre = re ? buyerStakes(re, date) : new Map();
-  const { prod, rem, hindsight: fieldValue, taxInh, remNow, prodAfter, synRows, items } = evalPackage(stakes, year, new Set(later.keys()), d.synergies ? null : (f) => synergyPct(d, re, pre, f));
+  const { prod, rem, hindsight: fieldValue, taxInh, remNow, prodAfter, synRows, items } = evalPackage(stakes, year, new Set(later.keys()), d.synergies ? null : (f) => synergyPct(d, re, pre, f), vy);
   if (!items.length) continue;
   // Adjusted price (shares valued at completion, tax assets taken out) when public; otherwise the headline price
   const price = spec.price ?? (d.priceAdjusted ? d.priceAdjusted.valueUsdM : d.valueUsdM);
-  const realF = cpiNow / (cpi.get(year) || cpiNow);
+  const realF = cpiNow / (cpi.get(vy) || cpiNow); // price in money of the valuation year (the adjusted price is valued at completion)
   // Company tax positions bought with the company (e.g. losses carried forward), where public – value at the deal date
   const taxPos = d.taxPosition ? d.taxPosition.valueUsdM * realF : 0;
-  const synergy = dealSynergy(d, year, realF, synRows);
+  const synergy = dealSynergy(d, year, realF, synRows, vy);
   const hindsight = fieldValue + taxPos * Math.pow(1 + RATE, -0.5) + synergy.pvUsdM; // tax position booked in the deal year, mid-year like the deal pages
   const b = brent.get(year) ?? brent.get(year - 1);
   const m = {
-    year, ...(ROLES[d.id] || {}), partial: !!spec.partial, note: spec.note || null, items,
+    year, ...(vy !== year ? { valYear: vy } : {}), ...(ROLES[d.id] || {}), partial: !!spec.partial, note: spec.note || null, items,
     prodKboed: Math.round(prod / 0.365 * 10) / 10, remMmboe: Math.round(rem), brent: b,
     priceUsdM: price, headlineUsdM: d.valueUsdM, priceBasis: d.priceAdjusted ? d.priceAdjusted.basis : spec.price != null ? 'estimate' : 'headline', priceReal: price != null ? Math.round(price * realF) : null,
     perFlowing: price != null && prod > 0 ? Math.round(price * 1e6 / (prod / 0.365 * 1000)) : null,
@@ -309,7 +321,7 @@ function pkgFcf(m, year, deck) {
   const by = new Map();
   for (const it of m.items) {
     const f = bySlug.get(it.slug); if (!f) continue;
-    for (const r of V.stakeCashflow(f, H, deck || {}, data.lastFullYear, {}, year)) by.set(r.year, (by.get(r.year) || 0) + r.fcf * it.share / 100);
+    for (const r of V.stakeCashflow(f, H, deck || {}, data.lastFullYear, { tiebacks: V.tiebacksOf(f, data.fields) }, year)) by.set(r.year, (by.get(r.year) || 0) + r.fcf * it.share / 100);
   }
   if (m.taxPositionUsdM) by.set(year, (by.get(year) || 0) + m.taxPositionUsdM);
   for (const [y, v] of m.synergy.rows) by.set(y, (by.get(y) || 0) + v);
@@ -320,10 +332,13 @@ function bisect(f, lo, hi, n = 30) { if (f(lo) * f(hi) > 0) return null; for (le
 const refs = [];
 for (const [id, m] of Object.entries(out)) {
   if (m.swap || m.priceReal == null || m.partial) continue;
-  const base = pkgFcf(m, m.year);
+  const vy = m.valYear || m.year;
+  const base = pkgFcf(m, vy);
   // highest rate at which the PV still covers the price (same convention as the deal pages)
-  let irr = null; for (let r = 1.5; r > -0.2; r -= 0.01) if (pvAt(base, m.year, r - 0.01) >= m.priceReal) { irr = bisect((x) => pvAt(base, m.year, x) - m.priceReal, r - 0.01, r); break; }
-  const fb = (b) => pvAt(pkgFcf(m, m.year, { brent: b, gasEur: V.DEFAULTS.gasEur * b / V.DEFAULTS.brent }), m.year, RATE) - m.priceReal;
+  // (capped at 150 % like the pages, where the PV still covers the price even at that rate)
+  let irr = pvAt(base, vy, 1.5) > m.priceReal ? 1.5 : null;
+  if (irr == null) for (let r = 1.5; r > -0.2; r -= 0.01) if (pvAt(base, vy, r - 0.01) >= m.priceReal) { irr = bisect((x) => pvAt(base, vy, x) - m.priceReal, r - 0.01, r); break; }
+  const fb = (b) => pvAt(pkgFcf(m, vy, { brent: b, gasEur: V.DEFAULTS.gasEur * b / V.DEFAULTS.brent }), vy, RATE) - m.priceReal;
   const be = fb(10) >= 0 ? 10 : fb(300) < 0 ? 300 : bisect(fb, 10, 300, 16); // clamped to the range shown on the pages
   m.ref = { irr: irr == null ? null : Math.round(irr * 1000) / 1000, be8: be == null ? null : Math.round(be) };
   if (verdictOf(id) !== 'early') refs.push(m.ref);

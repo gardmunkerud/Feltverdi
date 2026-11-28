@@ -196,7 +196,9 @@ async function buildHistory(useCache, lastFullYear) {
 
   const cpiRows = (await fetchRaw('fred_cpi.csv', CPI_URL, useCache)).trim().split(/\r?\n/).slice(1).map((l) => l.split(','));
   const byYear = new Map();
-  for (const [d, v] of cpiRows) { const y = +d.slice(0, 4); if (!byYear.has(y)) byYear.set(y, []); byYear.get(y).push(+v); }
+  // Skip missing months (FRED leaves the value empty or '.', e.g. October 2025, which BLS never published because of the
+  // US government shutdown – BLS computes that year's average from the 11 published months). +'' would count as 0.
+  for (const [d, v] of cpiRows) { const y = +d.slice(0, 4), x = parseFloat(v); if (!Number.isFinite(x) || x <= 0) continue; if (!byYear.has(y)) byYear.set(y, []); byYear.get(y).push(x); }
   const cpi = [...byYear.entries()].filter(([y]) => y >= 1960).map(([y, v]) => [y, Math.round(v.reduce((s, x) => s + x, 0) / v.length * 1000) / 1000]);
   const cpiLast = cpiRows[cpiRows.length - 1][0];
 

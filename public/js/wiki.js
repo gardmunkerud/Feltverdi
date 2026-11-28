@@ -310,7 +310,7 @@ window.FV_WIKI = [
       nb: ['Omfatter både nye utbygginger og løpende boring på produserende felt.', 'Kostnadsføres umiddelbart i særskattegrunnlaget siden 2022.', 'Uttrykkes ofte per fat for å sammenligne felt.'],
       en: ['Includes both new developments and ongoing drilling on producing fields.', 'Expensed immediately in the special tax base since 2022.', 'Often expressed per barrel to compare fields.'],
     },
-    body: { nb: '<p>Sodir publiserer investeringer per felt per år. Feltverdi bruker feltets egen investeringsintensitet – investeringer delt på produksjon de siste tre årene – til å anslå framtidige investeringer.</p>', en: '<p>Sodir publishes investments per field per year. Feltverdi uses each field\'s own investment intensity – investments divided by production over the last three years – to estimate future investments.</p>' },
+    body: { nb: '<p>Sodir publiserer investeringer per felt per år, og operatørenes forventede framtidige investeringer per felt. Feltverdi fordeler de forventede investeringene på produksjonen modellen venter, slik at summen blir om lag Sodirs tall. Sodirs forventede tall gjelder fra 1. januar i tallets år (nå 2025), mens prognosen starter i 2026. Den delen som hører til 2025, regnes derfor ikke med i prognosen. Så lenge Sodir ikke har publisert faktiske 2025-investeringer, er de anslått ut fra det samme tallet. Felt uten Sodir-tall bruker sin egen investeringsintensitet – investeringer delt på produksjon de siste tre årene.</p>', en: '<p>Sodir publishes investments per field per year, and the operators\' expected future investments per field. Feltverdi spreads the expected investments over the production the model expects, so the total is close to Sodir\'s figure. Sodir\'s expected figure runs from 1 January of its year (now 2025), while the forecast starts in 2026. The part that belongs to 2025 is therefore left out of the forecast. Until Sodir publishes the actual 2025 investments, they are estimated from the same figure. Fields without a Sodir figure use their own investment intensity – investments divided by production over the last three years.</p>' },
     formula: { expr: `Capex per fat = ${F('Investeringer', 'Produksjon (fat o.e.)')}`, vars: [] },
     example: { nb: '<p>Heidrun investerte om lag 2,9 mrd. kroner per år i 2022–2024. Med ConocoPhillips\' andel på 24 % og 5,6 mill. fat o.e. per år gir det om lag <strong>12 dollar per fat</strong>.</p>', en: '<p>Heidrun invested about NOK 2.9 bn per year in 2022–2024. With ConocoPhillips\' 24 % share and 5.6 MMboe per year, that is about <strong>12 dollars per barrel</strong>.</p>' },
     related: ['opex', 'fd-cost', 'ncs-petroleum-tax'],
@@ -323,7 +323,7 @@ window.FV_WIKI = [
       nb: ['En stor del av kostnadene er faste og uavhengige av produksjonen.', 'Når produksjonen faller, stiger kostnaden per fat.', 'Norske selskaper ligger typisk på 7–14 dollar per fat.'],
       en: ['A large part of the costs are fixed and independent of production.', 'When production falls, the cost per barrel rises.', 'Norwegian companies typically range from 7 to 14 dollars per barrel.'],
     },
-    body: { nb: '<p>Driftskostnader omfatter bemanning, vedlikehold, logistikk, forsikring, CO₂-avgift og tariffer. Fordi mye er fast, er økonomien i sene faser av feltets levetid følsom for fall i produksjonen. Feltverdi beregner driftskostnadene fra hvert felts innretninger – plattformer, flytere, havbunnsrammer og åpne brønner – kalibrert mot selskapenes rapporterte produksjonskostnad. Derfor er kostnaden per fat lav på store moderne felt (Johan Sverdrup under 2 dollar) og høy på gamle plattformfelt med lav produksjon.</p>', en: '<p>Operating costs include staffing, maintenance, logistics, insurance, CO₂ tax and tariffs. Because much is fixed, the economics of late field life are sensitive to falling production. Feltverdi calculates operating costs from each field’s facilities – platforms, floaters, subsea templates and open wells – calibrated against the companies’ reported production cost. That is why the cost per barrel is low on large modern fields (Johan Sverdrup below 2 dollars) and high on old platform fields with low production.</p>' },
+    body: { nb: '<p>Driftskostnader omfatter bemanning, vedlikehold, logistikk, forsikring, CO₂-avgift og tariffer. Fordi mye er fast, er økonomien i sene faser av feltets levetid følsom for fall i produksjonen. Feltverdi beregner driftskostnadene fra hvert felts innretninger – plattformer, flytere, havbunnsrammer og åpne brønner – kalibrert mot selskapenes rapporterte produksjonskostnad. Derfor er kostnaden per fat lav på store moderne felt (Johan Sverdrup under 2 dollar) og høy på gamle plattformfelt med lav produksjon. Havbunnsfelt betaler en prosesseringstariff til vertsplattformen, og vertsfeltet får den som inntekt.</p>', en: '<p>Operating costs include staffing, maintenance, logistics, insurance, CO₂ tax and tariffs. Because much is fixed, the economics of late field life are sensitive to falling production. Feltverdi calculates operating costs from each field’s facilities – platforms, floaters, subsea templates and open wells – calibrated against the companies’ reported production cost. That is why the cost per barrel is low on large modern fields (Johan Sverdrup below 2 dollars) and high on old platform fields with low production. Subsea fields pay a processing tariff to the host platform, and the host field receives it as income.</p>' },
     formula: { expr: `Opex per fat = ${F('Faste kostnader + variable kostnader', 'Produksjon')}`, vars: [] },
     example: { nb: '<p>Aker BP hadde en produksjonskostnad på 7,3 dollar per fat i 2025, Vår Energi 11,1 og ConocoPhillips Norge 13,9.</p>', en: '<p>Aker BP had a production cost of 7.3 dollars per barrel in 2025, Vår Energi 11.1 and ConocoPhillips Norway 13.9.</p>' },
     related: ['capex', 'breakeven-price', 'decline-curve'],
@@ -374,7 +374,7 @@ window.FV_WIKI = [
 <h3>To skattegrunnlag</h3>
 <div class="tbl-wrap"><table><thead><tr><th></th><th>Selskapsskatt (alminnelig inntekt)</th><th>Særskatt</th></tr></thead><tbody>
 <tr><td>Sats</td><td>22 %</td><td>71,8 %</td></tr>
-<tr><td>Investeringer</td><td>Lineær avskrivning over 6 år fra investeringsåret</td><td>Kostnadsføres umiddelbart (fra 2022)</td></tr>
+<tr><td>Investeringer</td><td>Lineær avskrivning over 6 år fra investeringsåret</td><td>Kostnadsføres umiddelbart, pluss 12,4 % friinntekt (fra 2022)</td></tr>
 <tr><td>Renter</td><td>Fradrag</td><td>Ikke fradrag</td></tr>
 <tr><td>Selskapsskatt</td><td>–</td><td>Betalt selskapsskatt trekkes fra</td></tr>
 <tr><td>Underskudd</td><td>Fremføres</td><td>Skatteverdien utbetales året etter</td></tr>
@@ -391,7 +391,7 @@ window.FV_WIKI = [
 <h3>Two tax bases</h3>
 <div class="tbl-wrap"><table><thead><tr><th></th><th>Corporate tax (ordinary income)</th><th>Special tax</th></tr></thead><tbody>
 <tr><td>Rate</td><td>22 %</td><td>71.8 %</td></tr>
-<tr><td>Investments</td><td>Straight-line depreciation over 6 years from the year incurred</td><td>Expensed immediately (from 2022)</td></tr>
+<tr><td>Investments</td><td>Straight-line depreciation over 6 years from the year incurred</td><td>Expensed immediately, plus 12.4 % uplift (from 2022)</td></tr>
 <tr><td>Interest</td><td>Deductible</td><td>Not deductible</td></tr>
 <tr><td>Corporate tax</td><td>–</td><td>Corporate tax paid is deducted</td></tr>
 <tr><td>Losses</td><td>Carried forward</td><td>Tax value paid out the year after</td></tr>
@@ -399,8 +399,8 @@ window.FV_WIKI = [
 <p>Because the corporate tax is deducted in the special tax base, the combined marginal rate is 22 % + 71.8 % × (1 − 0.22) = 78 %. Read more about <a href="#/wiki/tax-depreciation">depreciation</a>, <a href="#/wiki/tax-losses">losses</a> and <a href="#/wiki/tax-instalments">instalment tax</a>.</p>
 <p>In addition there is a CO₂ tax and an area fee, and the state is a direct owner through the SDFI (Petoro). Feltverdi simplifies by taxing income in the same year and assuming all deductions can be used in full.</p>`,
     },
-    formula: { expr: 'Skatt = 0,22 &middot; (I &minus; D &minus; R &minus; Avskr.) + 0,718 &middot; (I &minus; D &minus; Inv. &minus; Selskapsskatt)', vars: [['I', 'Inntekter (normpris for olje, faktisk pris for gass)', 'Revenue (norm price for oil, actual price for gas)'], ['D', 'Driftskostnader, letekostnader og fjerning', 'Operating, exploration and decommissioning costs'], ['R', 'Netto finanskostnader (bare i selskapsskatten)', 'Net financial costs (corporate tax only)'], ['Avskr.', 'Seksårig lineær avskrivning av investeringer', 'Six-year straight-line depreciation of investments'], ['Inv.', 'Årets investeringer (kostnadsføres umiddelbart)', 'This year\'s investments (expensed immediately)']] },
-    example: { nb: '<p>Inntekter 100, drift 20, investeringer 30 (avskrivning 30/6 = 5), ingen renter: selskapsskatt 0,22 × (100 − 20 − 5) = 16,5; særskatt 0,718 × (100 − 20 − 30 − 16,5) = 24,1. Samlet skatt <strong>40,6</strong>. Over hele avskrivningsperioden blir skatten 78 % av overskuddet etter alle kostnader.</p>', en: '<p>Revenue 100, opex 20, investments 30 (depreciation 30/6 = 5), no interest: corporate tax 0.22 × (100 − 20 − 5) = 16.5; special tax 0.718 × (100 − 20 − 30 − 16.5) = 24.1. Total tax <strong>40.6</strong>. Over the whole depreciation period the tax becomes 78 % of profit after all costs.</p>' },
+    formula: { expr: 'Skatt = 0,22 &middot; (I &minus; D &minus; R &minus; Avskr.) + 0,718 &middot; (I &minus; D &minus; 1,124 &middot; Inv. &minus; Selskapsskatt)', vars: [['I', 'Inntekter (normpris for olje, faktisk pris for gass)', 'Revenue (norm price for oil, actual price for gas)'], ['D', 'Driftskostnader, letekostnader og fjerning', 'Operating, exploration and decommissioning costs'], ['R', 'Netto finanskostnader (bare i selskapsskatten)', 'Net financial costs (corporate tax only)'], ['Avskr.', 'Seksårig lineær avskrivning av investeringer', 'Six-year straight-line depreciation of investments'], ['Inv.', 'Årets investeringer (kostnadsføres umiddelbart, med 12,4 % friinntekt)', 'This year\'s investments (expensed immediately, with 12.4 % uplift)']] },
+    example: { nb: '<p>Inntekter 100, drift 20, investeringer 30 (avskrivning 30/6 = 5), ingen renter: selskapsskatt 0,22 × (100 − 20 − 5) = 16,5; særskatt 0,718 × (100 − 20 − 30 − 3,7 friinntekt − 16,5) = 21,4. Samlet skatt <strong>37,9</strong>. Uten friinntekten ville skatten over hele avskrivningsperioden blitt 78 % av overskuddet etter alle kostnader.</p>', en: '<p>Revenue 100, opex 20, investments 30 (depreciation 30/6 = 5), no interest: corporate tax 0.22 × (100 − 20 − 5) = 16.5; special tax 0.718 × (100 − 20 − 30 − 3.7 uplift − 16.5) = 21.4. Total tax <strong>37.9</strong>. Without the uplift, the tax over the whole depreciation period would be 78 % of profit after all costs.</p>' },
     related: ['tax-depreciation', 'tax-losses', 'tax-instalments', 'norm-price', 'government-take', 'synergies'],
   },
   {
@@ -408,45 +408,47 @@ window.FV_WIKI = [
     title: { nb: 'Avskrivning og kostnadsføring av investeringer', en: 'Depreciation and expensing of investments' },
     short: { nb: 'Hvordan investeringer trekkes fra i petroleumsskatten: over seks år i selskapsskatten og umiddelbart i særskatten.', en: 'How investments are deducted in the petroleum tax: over six years in the corporate tax and immediately in the special tax.' },
     keys: {
-      nb: ['Selskapsskatt: lineær avskrivning over seks år, med start i året investeringen skjer.', 'Særskatt: full kostnadsføring samme år (kontantstrømskatt fra inntektsåret 2022).', 'Nesten hele skatteverdien (71,8 av 78 prosentpoeng) kommer i investeringsåret – staten finansierer i praksis 78 % av investeringen.', 'Tidligere fantes et friinntektsfradrag («uplift»); det er faset ut for nye investeringer.'],
-      en: ['Corporate tax: straight-line depreciation over six years, starting in the year the investment is made.', 'Special tax: fully expensed in the same year (cash-flow tax from income year 2022).', 'Almost all of the tax value (71.8 of 78 percentage points) arrives in the investment year – the state effectively finances 78 % of the investment.', 'There used to be an extra deduction ("uplift"); it has been phased out for new investments.'],
+      nb: ['Selskapsskatt: lineær avskrivning over seks år, med start i året investeringen skjer.', 'Særskatt: full kostnadsføring samme år (kontantstrømskatt fra inntektsåret 2022), pluss 12,4 % friinntekt («uplift»).', 'Det meste av skatteverdien kommer i investeringsåret: 71,8 % × 1,124 ≈ 80,7 av 100 kroner i særskatten, og 6,2 i selskapsskatten over seks år.', 'Friinntekten veier opp for at selskapsskattefradraget kommer over seks år, slik at skatten blir om lag nøytral.'],
+      en: ['Corporate tax: straight-line depreciation over six years, starting in the year the investment is made.', 'Special tax: fully expensed in the same year (cash-flow tax from income year 2022), plus a 12.4 % extra deduction ("uplift").', 'Most of the tax value arrives in the investment year: 71.8 % × 1.124 ≈ 80.7 of every 100 kroner in the special tax, and 6.2 in the corporate tax over six years.', 'The uplift makes up for the corporate-tax deduction coming over six years, so the tax is roughly neutral.'],
     },
     body: {
-      nb: `<p>Før 2022 ble investeringer avskrevet over seks år i begge skattegrunnlagene, og i særskatten fikk selskapene i tillegg et friinntektsfradrag («uplift») på 5,2 % per år i fire år. Fra inntektsåret 2022 ble særskatten lagt om til en <strong>kontantstrømskatt</strong>: investeringene trekkes fra i sin helhet samme år som de påløper.</p>
+      nb: `<p>Før 2022 ble investeringer avskrevet over seks år i begge skattegrunnlagene, og i særskatten fikk selskapene i tillegg et friinntektsfradrag («uplift») fordelt over fire år. Fra inntektsåret 2022 ble særskatten lagt om til en <strong>kontantstrømskatt</strong>: investeringene trekkes fra i sin helhet samme år som de påløper, og i tillegg gis en friinntekt på 12,4 % av investeringen samme år.</p>
 <p>I selskapsskatten gjelder fortsatt <strong>lineær avskrivning over seks år</strong>, med første avskrivning i investeringsåret. Fordi betalt selskapsskatt trekkes fra i særskattegrunnlaget, «lekker» en del av selskapsskatteffekten tilbake: hver avskrivningskrone gir netto 22 % × (1 − 0,718) = 6,2 øre i skatteverdi, fordelt over seks år.</p>
-<h3>Overgangsregler (uplift)</h3>
+<h3>Friinntekt (uplift) over tid</h3>
 <ul>
-<li><strong>2020–2021</strong> (midlertidig skattepakke): umiddelbar avskrivning i særskatten pluss 24 % uplift.</li>
-<li><strong>2022:</strong> uplift satt til 17,69 % da kontantstrømskatten ble innført.</li>
-<li><strong>Fra 2023:</strong> redusert til 12,4 % for investeringer som omfattes av overgangsreglene (prosjekter med utbyggingsplan levert innen utgangen av 2022).</li>
+<li><strong>Før 2020:</strong> seks års avskrivning også i særskatten, og friinntekt fordelt over fire år (30 % til 2012, deretter 22 % og ned mot 20,8 %).</li>
+<li><strong>2020–2021</strong> (midlertidig skattepakke): umiddelbar kostnadsføring i særskatten pluss 24 % friinntekt.</li>
+<li><strong>Fra 2022:</strong> kontantstrømskatt med 12,4 % friinntekt samme år.</li>
+<li><strong>Felt i den midlertidige pakken</strong> (utbyggingsplan levert innen utgangen av 2022 og godkjent innen utgangen av 2023): 17,69 % friinntekt på investeringene fram til produksjonsstart.</li>
 </ul>
-<p>Feltverdi bruker reglene for nye investeringer (ingen uplift).</p>`,
-      en: `<p>Before 2022, investments were depreciated over six years in both tax bases, and in the special tax companies also received an extra deduction ("uplift") of 5.2 % per year for four years. From income year 2022 the special tax became a <strong>cash-flow tax</strong>: investments are deducted in full in the year they are incurred.</p>
+<p>Feltverdi bruker 12,4 % for nye investeringer, 17,69 % for felt i pakken fram til produksjonsstart, og reglene fra investeringsåret for fradrag fra eldre investeringer.</p>`,
+      en: `<p>Before 2022, investments were depreciated over six years in both tax bases, and in the special tax companies also received an extra deduction ("uplift") spread over four years. From income year 2022 the special tax became a <strong>cash-flow tax</strong>: investments are deducted in full in the year they are incurred, plus an uplift of 12.4 % of the investment in the same year.</p>
 <p>The corporate tax still uses <strong>straight-line depreciation over six years</strong>, with the first depreciation in the investment year. Because corporate tax paid is deducted in the special tax base, part of the corporate tax effect "leaks" back: each krone of depreciation gives a net tax value of 22 % × (1 − 0.718) = 6.2 øre, spread over six years.</p>
-<h3>Transitional rules (uplift)</h3>
+<h3>Uplift over time</h3>
 <ul>
-<li><strong>2020–2021</strong> (temporary tax package): immediate depreciation in the special tax plus 24 % uplift.</li>
-<li><strong>2022:</strong> uplift set at 17.69 % when the cash-flow tax was introduced.</li>
-<li><strong>From 2023:</strong> reduced to 12.4 % for investments covered by the transitional rules (projects with a development plan submitted by the end of 2022).</li>
+<li><strong>Before 2020:</strong> six-year depreciation in the special tax too, and uplift spread over four years (30 % until 2012, then 22 % falling towards 20.8 %).</li>
+<li><strong>2020–2021</strong> (temporary tax package): immediate expensing in the special tax plus 24 % uplift.</li>
+<li><strong>From 2022:</strong> cash-flow tax with 12.4 % uplift in the same year.</li>
+<li><strong>Fields in the temporary package</strong> (development plan submitted by the end of 2022 and approved by the end of 2023): 17.69 % uplift on investments until production starts.</li>
 </ul>
-<p>Feltverdi uses the rules for new investments (no uplift).</p>`,
+<p>Feltverdi uses 12.4 % for new investments, 17.69 % for fields in the package until production starts, and the rules of the investment year for deductions from older investments.</p>`,
     },
-    formula: { expr: `Skatteverdi = 0,718 &middot; Inv. (år 0) + &sum;<sub>k=0</sub><sup>5</sup> 0,22 &middot; (1 &minus; 0,718) &middot; ${F('Inv.', '6')}`, vars: [['Inv.', 'Investering i år 0', 'Investment in year 0'], ['k', 'År 0–5 i avskrivningsperioden', 'Years 0–5 of the depreciation period']] },
+    formula: { expr: `Skatteverdi = 0,718 &middot; 1,124 &middot; Inv. (år 0) + &sum;<sub>k=0</sub><sup>5</sup> 0,22 &middot; (1 &minus; 0,718) &middot; ${F('Inv.', '6')}`, vars: [['Inv.', 'Investering i år 0', 'Investment in year 0'], ['k', 'År 0–5 i avskrivningsperioden', 'Years 0–5 of the depreciation period']] },
     example: {
       nb: `<p>En investering på 100 i år 0 gir disse skattefradragene:</p>
-<div class="tbl-wrap"><table><thead><tr><th>År</th><th class="r">Særskatt (71,8 %)</th><th class="r">Selskapsskatt netto (6,2 % / 6)</th><th class="r">Sum</th></tr></thead><tbody>
-<tr><td>0</td><td class="r">71,8</td><td class="r">1,03</td><td class="r">72,8</td></tr>
+<div class="tbl-wrap"><table><thead><tr><th>År</th><th class="r">Særskatt (71,8 % × 1,124)</th><th class="r">Selskapsskatt netto (6,2 % / 6)</th><th class="r">Sum</th></tr></thead><tbody>
+<tr><td>0</td><td class="r">80,7</td><td class="r">1,03</td><td class="r">81,7</td></tr>
 <tr><td>1–5</td><td class="r">–</td><td class="r">1,03 per år</td><td class="r">5,2</td></tr>
-<tr><td><strong>Totalt</strong></td><td class="r"><strong>71,8</strong></td><td class="r"><strong>6,2</strong></td><td class="r"><strong>78,0</strong></td></tr>
+<tr><td><strong>Totalt</strong></td><td class="r"><strong>80,7</strong></td><td class="r"><strong>6,2</strong></td><td class="r"><strong>86,9</strong></td></tr>
 </tbody></table></div>
-<p>Selskapet bærer altså bare 22 av 100 kroner selv, og 93 % av skattefradraget kommer i investeringsåret.</p>`,
+<p>Fradragene summerer seg til nær 87 av 100 kroner, og 94 % av dem kommer i investeringsåret. Friinntekten skal veie opp for at selskapsskattedelen kommer senere og for finansieringskostnaden, slik at skatten blir om lag nøytral: et prosjekt som er lønnsomt før skatt, skal også være det etter skatt.</p>`,
       en: `<p>An investment of 100 in year 0 gives these tax deductions:</p>
-<div class="tbl-wrap"><table><thead><tr><th>Year</th><th class="r">Special tax (71.8 %)</th><th class="r">Corporate tax net (6.2 % / 6)</th><th class="r">Total</th></tr></thead><tbody>
-<tr><td>0</td><td class="r">71.8</td><td class="r">1.03</td><td class="r">72.8</td></tr>
+<div class="tbl-wrap"><table><thead><tr><th>Year</th><th class="r">Special tax (71.8 % × 1.124)</th><th class="r">Corporate tax net (6.2 % / 6)</th><th class="r">Total</th></tr></thead><tbody>
+<tr><td>0</td><td class="r">80.7</td><td class="r">1.03</td><td class="r">81.7</td></tr>
 <tr><td>1–5</td><td class="r">–</td><td class="r">1.03 per year</td><td class="r">5.2</td></tr>
-<tr><td><strong>Total</strong></td><td class="r"><strong>71.8</strong></td><td class="r"><strong>6.2</strong></td><td class="r"><strong>78.0</strong></td></tr>
+<tr><td><strong>Total</strong></td><td class="r"><strong>80.7</strong></td><td class="r"><strong>6.2</strong></td><td class="r"><strong>86.9</strong></td></tr>
 </tbody></table></div>
-<p>The company bears only 22 of every 100 kroner itself, and 93 % of the tax deduction arrives in the investment year.</p>`,
+<p>The deductions add up to almost 87 of every 100 kroner, and 94 % of them arrive in the investment year. The uplift is meant to make up for the corporate-tax part coming later and for the cost of financing, so the tax is roughly neutral: a project that is profitable before tax should also be profitable after tax.</p>`,
     },
     related: ['ncs-petroleum-tax', 'tax-losses', 'capex', 'tax-instalments'],
   },
@@ -599,7 +601,7 @@ window.FV_WIKI = [
       en: ['Quoted in euros per megawatt hour (€/MWh).', 'Norwegian gas is largely sold at prices linked to TTF and the British NBP.', 'Rose to record levels in 2022 after the war in Ukraine.'],
     },
     body: { nb: '<p>Før om lag 2010 var mye av gassen i Europa solgt på langsiktige kontrakter med oljeindeksering. I dag prises den i hovedsak mot handelsplasser som TTF. For å sammenligne med olje må prisen regnes om – se [[gas-units|energienheter for gass]].</p>', en: '<p>Until around 2010 much of Europe\'s gas was sold on long-term contracts indexed to oil. Today it is mainly priced against hubs such as TTF. To compare with oil, the price must be converted – see [[gas-units|energy units for gas]].</p>' },
-    formula: { expr: 'USD/fat o.e. = €/MWh &times; 1,72 &times; EURUSD', vars: [['1,72', 'MWh per fat oljeekvivalent gass', 'MWh per barrel of oil equivalent of gas']] },
+    formula: { expr: 'USD/fat o.e. = €/MWh &times; 1,75 &times; EURUSD', vars: [['1,75', 'MWh per fat oljeekvivalent gass', 'MWh per barrel of oil equivalent of gas']] },
     example: { nb: '<p>Verdensbankens europeiske gasspris var 40,34 dollar per MMBtu i 2022 – om lag 130 €/MWh, eller over 200 dollar per fat o.e.</p>', en: '<p>The World Bank European gas price was 40.34 dollars per MMBtu in 2022 – about €130/MWh, or more than 200 dollars per boe.</p>' },
     related: ['gas-units', 'brent', 'netback'],
   },
@@ -608,12 +610,12 @@ window.FV_WIKI = [
     title: { nb: 'Energienheter for gass', en: 'Energy units for gas' },
     short: { nb: 'Omregning mellom Sm³, MMBtu, MWh og fat oljeekvivalenter.', en: 'Converting between Sm³, MMBtu, MWh and barrels of oil equivalent.' },
     keys: {
-      nb: ['1 MWh = 3,412 MMBtu.', '1 fat o.e. gass ≈ 159 Sm³ ≈ 1,72 MWh ≈ 5,87 MMBtu.', 'Brennverdien varierer litt fra felt til felt.'],
-      en: ['1 MWh = 3.412 MMBtu.', '1 boe of gas ≈ 159 Sm³ ≈ 1.72 MWh ≈ 5.87 MMBtu.', 'The calorific value varies slightly from field to field.'],
+      nb: ['1 MWh = 3,412 MMBtu.', '1 fat o.e. gass ≈ 159 Sm³ ≈ 1,75 MWh ≈ 5,97 MMBtu (om lag 11,0 kWh per Sm³, snittet for norsk gass levert til Europa ifølge Gassco).', 'Brennverdien varierer litt fra felt til felt.'],
+      en: ['1 MWh = 3.412 MMBtu.', '1 boe of gas ≈ 159 Sm³ ≈ 1.75 MWh ≈ 5.97 MMBtu (about 11.0 kWh per Sm³, the average for Norwegian gas delivered to Europe according to Gassco).', 'The calorific value varies slightly from field to field.'],
     },
     body: { nb: '<p>Gass handles i ulike enheter i ulike markeder: €/MWh i Europa, dollar per MMBtu i USA og Asia. For å sette gassverdien på linje med olje regnes den om til [[boe|fat oljeekvivalenter]].</p>', en: '<p>Gas is traded in different units in different markets: €/MWh in Europe, dollars per MMBtu in the US and Asia. To compare gas with oil, it is converted to [[boe|barrels of oil equivalent]].</p>' },
-    formula: { expr: `USD/MMBtu = ${F('€/MWh &times; EURUSD', '3,412')} &nbsp;&nbsp; USD/fat o.e. = USD/MMBtu &times; 5,87`, vars: [] },
-    example: { nb: '<p>35 €/MWh med EURUSD 1,15 gir 35 × 1,15 / 3,412 = <strong>11,8 dollar per MMBtu</strong>, eller 11,8 × 5,87 = <strong>69 dollar per fat o.e.</strong></p>', en: '<p>€35/MWh at EURUSD 1.15 gives 35 × 1.15 / 3.412 = <strong>11.8 dollars per MMBtu</strong>, or 11.8 × 5.87 = <strong>69 dollars per boe</strong>.</p>' },
+    formula: { expr: `USD/MMBtu = ${F('€/MWh &times; EURUSD', '3,412')} &nbsp;&nbsp; USD/fat o.e. = USD/MMBtu &times; 5,97`, vars: [] },
+    example: { nb: '<p>35 €/MWh med EURUSD 1,15 gir 35 × 1,15 / 3,412 = <strong>11,8 dollar per MMBtu</strong>, eller 11,8 × 5,97 = <strong>70 dollar per fat o.e.</strong></p>', en: '<p>€35/MWh at EURUSD 1.15 gives 35 × 1.15 / 3.412 = <strong>11.8 dollars per MMBtu</strong>, or 11.8 × 5.97 = <strong>70 dollars per boe</strong>.</p>' },
     related: ['boe', 'ttf', 'netback'],
   },
   {

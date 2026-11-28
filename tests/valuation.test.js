@@ -43,7 +43,31 @@ test('after-tax margin is roughly 22 % of the pre-tax margin (78 % marginal tax)
 test('gas is priced from EUR/MWh, net of the transport tariff', () => {
   const gasField = field({ hc: 'GAS', rem: { oil: 0, gas: 10, ngl: 0, cond: 0, oe: 10 } });
   const p = V.realisedPrice(gasField, { ...V.DEFAULTS, gasEur: 35, eurusd: 1.15 });
-  assert.ok(Math.abs(p - (35 * 1.72 * 1.15 - V.GAS_TARIFF)) < 1e-9);
+  // 1.75 MWh/boe = 159 Sm3 at ~11.0 kWh (Gassco deliveries); MMBtu factor must match it
+  assert.ok(Math.abs(p - (35 * 1.75 * 1.15 - V.GAS_TARIFF)) < 1e-9);
+  assert.ok(Math.abs(V.MMBTU_PER_BOE_GAS - V.MWH_PER_BOE_GAS * 3.412) < 0.01);
+});
+
+test('NOK costs: a weaker krone lowers opex in USD; the default rate leaves the calibrated level unchanged', () => {
+  const f = field();
+  const base = V.valueField(f, {}, LAST), weak = V.valueField(f, { usdnok: 12 }, LAST);
+  assert.ok(Math.abs(weak.opexBoe - base.opexBoe * 10 / 12) < 1e-9, `${weak.opexBoe} vs ${base.opexBoe}`);
+  assert.ok(weak.npv > base.npv);
+  // a user override in USD/boe is not rescaled
+  assert.strictEqual(V.valueField(f, { usdnok: 12 }, LAST, { opexBoe: 15 }).opexBoe, 15);
+});
+
+test('historical gas revenue is net of the transport tariff, as in the forecast', () => {
+  const H = { prices: [[2024, 80, 10], [2025, 70, 12]], usdnok: [[2024, 10], [2025, 10]], cpi: [[2024, 100], [2025, 100]], cpiBaseYear: 2025 };
+  const g = field({ hc: 'GAS', rem: { oil: 0, gas: 10, ngl: 0, cond: 0, oe: 10 }, prod: [[2024, 0, 2, 0, 0, 2], [2025, 0, 2, 0, 0, 2]] });
+  const r = V.valueHistory(g, H, {}, LAST).rows.find((x) => x.year === 2025);
+  assert.ok(Math.abs(r.rev - 2 * V.BOE_PER_SM3 * (12 * V.MMBTU_PER_BOE_GAS - V.GAS_TARIFF)) < 1e-6, `rev ${r.rev}`);
+});
+
+test('history.json CPI has no year with a gap counted as zero (rises every year since 2000)', () => {
+  const H = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'public', 'data', 'history.json'), 'utf8'));
+  const c = H.cpi.filter(([y]) => y >= 2000);
+  for (let i = 1; i < c.length; i++) assert.ok(c[i][1] > c[i - 1][1] * 0.97, `CPI ${c[i][0]} ${c[i][1]} vs ${c[i - 1][1]}`);
 });
 
 test('shut-down fields and fields without reserves are worth zero', () => {
@@ -135,4 +159,69 @@ test('built data file values sensibly (if present)', { skip: !fs.existsSync(path
   const troll = vals.get('troll');
   assert.ok(troll && troll.npv > 0);
   for (const f of d.fields) assert.ok(Math.abs(f.owners.reduce((s, o) => s + o[1], 0) - 100) < 0.6 || !f.owners.length, f.name);
+});
+
+test('host fields receive the processing tariff their tie-backs pay (if data present)', { skip: !fs.existsSync(path.join(__dirname, '..', 'public', 'data', 'fields.json')) }, () => {
+  const d = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'public', 'data', 'fields.json'), 'utf8'));
+  for (const [tb, host] of Object.entries(V.TIEBACK_HOST)) {
+    assert.ok(d.fields.some((f) => f.slug === tb), `tie-back ${tb} exists`);
+    assert.ok(d.fields.some((f) => f.slug === host), `host ${host} exists`);
+  }
+  const vals = V.valueAll(d.fields, {}, d.lastFullYear);
+  const g = d.fields.find((f) => f.slug === 'gullfaks');
+  const tbs = V.tiebacksOf(g, d.fields);
+  assert.ok(tbs.some((f) => f.slug === 'gullfaks-sor'));
+  const alone = V.valueField(g, {}, d.lastFullYear);
+  const withTb = V.valueField(g, {}, d.lastFullYear, { tiebacks: tbs });
+  assert.ok(withTb.tariffPv > 0 && withTb.npv > alone.npv);
+  assert.strictEqual(withTb.decline, alone.decline); // the tariff does not change the decline fit
+  assert.ok(Math.abs(vals.get('gullfaks').npv - withTb.npv) < 1e-6); // valueAll and the stand-alone path agree
+  // the tariff income in a forecast year equals the tie-backs' modelled production × tariff
+  const y0 = d.lastFullYear + 1;
+  const expect = tbs.reduce((t, f) => t + ((vals.get(f.slug).years.find((r) => r.year === y0) || {}).q || 0) * V.OPEX_FAC.tieback, 0);
+  assert.ok(Math.abs(withTb.years.find((r) => r.year === y0).tariff - expect) < 1e-6);
+});
+
+test('Sodir expected investments from a past year are not charged to the forecast again; the unreported year is estimated', () => {
+  // Producing field: invExp "from 2025" spread over 2025 production + reserves × 1.3; 2025 not reported by Sodir yet
+  const f = field({ invExp: { mnok: 2000, year: 2025 } });
+  const prodBase = 10 * V.BOE_PER_SM3 * 1.3, q25 = 2.0 * V.BOE_PER_SM3;
+  const k = 2000 / 10 / (prodBase + q25);
+  const v = V.valueField(f, {}, LAST);
+  assert.ok(Math.abs(v.capexBoe - k) < 1e-9, `capex/boe ${v.capexBoe} vs ${k}`);
+  const inv = V.investmentsWithGap(f, V.DEFAULTS, LAST);
+  assert.ok(Math.abs(inv.find((r) => r[0] === 2025)[1] - k * q25 * 10) < 1e-6);
+  const h = V.valueHistory(f, { prices: [[2025, 70, 11]], usdnok: [[2025, 10]], cpi: [[2025, 100]], cpiBaseYear: 2025 }, {}, LAST);
+  assert.ok(h.rows.find((r) => r.year === 2025).capex > 0); // the estimate appears in the actual year
+  // Reported 2025 investments are used as they are, not replaced
+  const g = field({ invExp: { mnok: 2000, year: 2025 }, inv: [[2024, 1500], [2025, 900]] });
+  assert.strictEqual(V.investmentsWithGap(g, V.DEFAULTS, LAST).find((r) => r[0] === 2025)[1], 900);
+  // New field (approved, starts 2027): 80 % development spread over 2025–26, so 2026 carries half of it
+  const n = field({ status: 'Approved for production', prod: [], inv: [[2024, 500]], invExp: { mnok: 5000, year: 2025 } });
+  const vn = V.valueField(n, {}, LAST);
+  assert.ok(Math.abs(vn.years[0].capex - 0.4 * 5000 / 10) < 1e-6);
+  assert.ok(Math.abs(V.investmentsWithGap(n, V.DEFAULTS, LAST).find((r) => r[0] === 2025)[1] - 0.4 * 5000) < 1e-6);
+  // Field Sodir lists as producing with no production last year: started this year, development already spent
+  const p = field({ prod: [[2025, 0, 0, 0, 0, 0]], inv: [[2024, 500]], invExp: { mnok: 5000, year: 2025 } });
+  const vp = V.valueField(p, {}, LAST);
+  assert.ok(vp.years[0].q > 0);
+  assert.ok(Math.abs(V.investmentsWithGap(p, V.DEFAULTS, LAST).find((r) => r[0] === 2025)[1] - 0.8 * 5000) < 1e-6);
+});
+
+test('deductions still unused when a field stops are counted in full (tax is per company, not per field)', () => {
+  // Short-lived field: about one year of production left, so most of a 2025 investment's corporate-tax depreciation
+  // (2025–2030) falls after the field has stopped.
+  const over = { rem: { oil: 1, gas: 0, ngl: 0, cond: 0, oe: 1 }, invExp: { year: 2026, mnok: 50 } };
+  const base = V.valueField(field(over), {}, LAST);
+  const extra = 10000; // NOK million in 2025
+  const withInv = V.valueField(field({ ...over, inv: [[2022, 1500], [2023, 1500], [2024, 1500], [2025, extra]] }), {}, LAST);
+  assert.ok(base.endYear <= 2028, `ends ${base.endYear}`);
+  const a = V.DEFAULTS, k = 1 / a.usdnok;
+  let expect = 0;
+  for (const [t, c, sp] of V.investmentDeductions(field(over), 2025, extra, 2023)) {
+    if (t < a.startYear) continue;
+    const i = t - a.startYear;
+    expect += (c * 0.22 * (1 - 0.718) + sp * 0.718) * k / Math.pow(1.02, i) * Math.pow(1 + a.discount, -(i + 0.5));
+  }
+  assert.ok(Math.abs(withInv.npv - base.npv - expect) < 1e-6 * Math.max(1, expect), `${withInv.npv - base.npv} vs ${expect}`);
 });

@@ -26,7 +26,7 @@ Scheduled cloud agents improve Feltverdi in small, focused steps (one topic per 
 
 ### Financial analysis
 - **Deal prices:** adjusted prices (`priceAdjusted`) exist for Aker BP–Lundin, Det norske–BP and Aker BP–Hess. Others still use the headline price; add more only with public sources.
-- **Opex:** facility-based and calibrated since 2026-11-27. Possible refinements:
+- **Opex:** facility-based since 2026-11-27, re-calibrated to Norsk Petroleum's shelf total with a NOK 5 bn per-field cap on 2026-11-28 (see the opex review). Possible refinements:
   - separate gas transport tariffs (Gassled)
   - tariff income for host fields: modelled since 2026-11-27 (run 2, `TIEBACK_HOST`); the $4/boe level itself is a rounded assumption
   - onshore plants that Sodir does not link to a field (Hammerfest LNG, Nyhamna)
@@ -557,6 +557,51 @@ Ten hourly runs, one topic each, on branch `review/assumptions` (never main). Ne
     2. The historical gas tariff is a flat $2/boe real. Gassled tariffs were higher before the 2016 cut, so this is slightly generous for early years. Acceptable for now.
     3. The CPI base year 2026 is a partial-year average (January–October). Consider fixing the base to the last full year, or note it on the history page.
     4. The oil differential could be field-specific, for example a sour-crude discount for Johan Sverdrup and a premium for light crude. This needs public realised prices per field, which are not available. Keep Brent − 1.
+
+## Opex review (2026-11-28)
+
+Three hourly runs (10:00, 11:00, 12:00 Oslo) on branch `review/opex` (never main). The owner's brief: opex looks too high for all assets; older facilities should cost more per barrel than new ones; a field's total opex must never exceed NOK 5 bn a year (gross). Newest entry first.
+
+- **Run 1 – Level and hard cap** (`OPEX_FAC`, new `OPEX_CAP_NOK`)
+  - **Findings**
+    - *Why old hubs got USD 30–64/boe.* The flat USD 2.5 m per open well was half of all model opex (about 2,300 open wells on producing fields). Old platform fields carry 100–200 open wells each: Ekofisk 201, Gullfaks 136, Statfjord 126, Eldfisk 108, Valhall 102. Ekofisk paid USD 500 m a year for wells alone. Their Sodir-allocated production is small (Gullfaks main field 8 MMboe in 2026; Gullfaks Sør and other satellites are separate fields), so the fixed cost per barrel exploded. Platform wells have dry trees and are serviced from the platform by crews already counted in the platform cost; subsea wells need a vessel or rig. The flat rate overcharged platform fields.
+    - Some of the "open" wells on old fields are probably plugged but not yet removed (see the overnight run 4 note on Sodir's well status). That would inflate the count further; not checked, because factpages.sodir.no is blocked.
+    - *Why the shelf total was ~20 % above Norsk Petroleum.* Model 2026 opex was NOK 113.4 bn. NOK 11.0 bn of it is the USD 4/boe tie-back tariff, a transfer between fields (the hosts book it as income). Net of that the model was NOK 102.4 bn against close to NOK 94 bn in 2025 (97 producing fields, excluding transport; [Norsk Petroleum, investments and costs](https://www.norskpetroleum.no/en/economy/investments-operating-costs/), from a search snippet because norskpetroleum.no, sodir.no and Petoro's report site are not reachable from this session). Norsk Petroleum's 2026 forecast is only in a chart and could not be read.
+    - *Company unit costs (2025, reported):* Aker BP USD 7.3/boe, guiding ~8 for 2026 ([Aker BP Q4 2025](https://akerbp.com/borsmelding/fourth-quarter-2025-results-and-strategy-update/)); Vår Energi 11.1, guiding ~10 for 2026 ([Vår Energi Q4 2025](https://live.euronext.com/en/products/equities/company-news/2026-02-10-var-energi-delivering-higher-production-and-more-value)); Equinor gives no Norway unit cost, the ceiling is ≤ 7.45 including SG&A and some transport ([20-F 2025](https://www.sec.gov/Archives/edgar/data/1140625/000114062526000013/eqnr-20251231.htm)); OKEA 24.5–28.8 (Q3/Q4 2025); ConocoPhillips EMENA ~11.7 incl. Libya. No operator publishes field-level opex for Gullfaks, Ekofisk, Eldfisk or Valhall.
+    - *The two benchmarks pull apart.* Matching every company's reported unit cost would give a shelf total of roughly NOK 105–110 bn, more than Norsk Petroleum's 94 bn; company production cost includes items Sodir leaves out (insurance, some overhead, onshore plants). The new calibration sits close to Norsk Petroleum and 0–15 % below most companies.
+  - **Changed**
+    - `public/js/valuation.js`:
+      - `OPEX_FAC`: `perWell` 2.5 → `wellPlatform` 1.5 and `wellSubsea` 2.5 (USD m per open well a year); `variable` 0.5 → 1.0 USD/boe (chemicals, power, CO₂ tax and emission allowances; the CO₂ cost alone is about NOK 14/boe at the shelf's average intensity). Facility constants and the $4/boe tariff unchanged.
+      - **Hard cap** `OPEX_CAP_NOK = 5000` (NOK m a year, gross field). Forecast years: `min(fixed + variable × q, 5000 / USD/NOK)` in `simulate` (so it also applies in `fitDecline`'s economic limit and to user overrides of $/boe and fields valued by type). Actual years (`valueHistory`, `stakeCashflow`): USD 500 m, the model's NOK-10 cost basis, because actual-year opex is in fixed USD (see the overnight run 6 proposal). The starting $/boe shown on the field page is capped too.
+    - `public/js/i18n.js` (method page and cost tooltip), `public/js/wiki.js` (opex entry), `README.md`: nb + en.
+    - `tests/valuation.test.js`: two new tests – the cap holds in every forecast year at USD/NOK 8/10/12 and in actual years, and binds; on the shelf data no field breaks the cap in any year, shelf opex stays NOK 85–115 bn, and the old hubs (Ekofisk, Eldfisk, Valhall, Gullfaks, Statfjord) cost more per boe than Johan Sverdrup, Johan Castberg and Breidablikk, with Sverdrup below USD 2/boe.
+  - **Shelf opex 2026:** NOK 113.4 → 106.6 bn (net of tie-back tariffs 102.4 → 95.6 bn, vs Norsk Petroleum ~94 bn in 2025).
+  - **Shelf value at defaults:** 128.21 → 130.31 bn USD (+1.6 %). Brent 60 / 90: 114.1 → 116.2 / 142.5 → 144.4.
+  - **Largest fields, 2026 opex (NOK bn, USD/boe) before → after:**
+
+    | Field | Before | After | Note |
+    |---|---|---|---|
+    | Troll | 8.31 (3.0) | 5.00 (1.8) | cap binds |
+    | Ekofisk | 7.88 (40.1) | 5.00 (26.1) | cap binds; value 159 → 465 USD m, life 2034 → 2036 |
+    | Gullfaks | 5.32 (64.0) | 4.06 (50.2) | still high, see open question 1 |
+    | Johan Sverdrup | 5.26 (1.9) | 5.00 (1.8) | cap binds |
+    | Eldfisk | 4.84 (29.1) | 4.01 (24.2) | |
+    | Oseberg | 4.54 (8.0) | 4.00 (7.1) | |
+    | Snorre | 4.05 (13.4) | 3.76 (12.5) | |
+    | Valhall | 3.89 (28.7) | 2.93 (21.8) | value 543 → 710 USD m |
+    | Åsgard | 3.76 (8.9) | 3.97 (9.4) | subsea-heavy, +variable |
+    | Statfjord | shut in 2026 | 3.82 (50.0) | now produces to 2038 (value −409 → −62) |
+    | Johan Castberg | 1.78 (2.2) | 2.18 (2.7) | subsea + variable |
+
+  - **Company unit costs 2025 (model before → after vs reported, USD/boe):** Equinor 6.7 → 6.2 (≤ 7.45); Aker BP 6.9 → 6.1 (7.3); Vår Energi 12.2 → 11.6 (11.1); ConocoPhillips 15.4 → 12.1 (~11.7); DNO 11.9 → 10.6 (no Norway split); OKEA 25.2 → 21.3 (24.5–28.8); Harbour 6.6 → 7.0.
+  - **Production and volumes:** the economic limit moves little: shelf 4.13 → 4.15 Mboe/d in 2026, 3.25 in 2030 both, 2.14 → 2.16 in 2035; implied reserve growth ×1.324 → ×1.329. The decline method, reserveGrowth 1.6, capex, gas tariff, tie-back tariffs and deal rules are untouched. The decline-persistence backtest uses Sodir production only and does not depend on opex; a full re-run is left for run 2.
+  - **Deal verdicts:** **deal-metrics needs regenerating** (opex enters every deal cash flow; `public/data/deal-metrics.json` not edited). Most deal values rise a little together, so the median baseline moves with them; Ekofisk/Eldfisk/Valhall-heavy deals (ConocoPhillips, Aker BP–Hess/Lundin) move most.
+  - **Checks:** `npm test` 22/22; `npm run validate:deals` OK; `npm run stamp`; i18n 564 keys in both nb and en; valuation.js loads; `node --check` on app.js and wiki.js.
+  - **Proposals / open questions for the owner**
+    1. Gullfaks and Statfjord main fields still show ~USD 50/boe, because Sodir allocates most area production to satellites (Gullfaks Sør, Statfjord Nord/Øst) while the hub carries the platforms; the hubs get the $4/boe tariff as income. Run 2 should judge whether to raise the tariff for big hubs or flag these as "hub cost carried by the area".
+    2. Johan Sverdrup now hits the cap (uncapped NOK 5.6 bn). Equinor states Sverdrup below USD 2/boe, which at 270 MMboe is ≈ NOK 5.4 bn; the cap is the owner's rule, so it is kept.
+    3. `FX_COST_REF` 10.39 (overnight proposal) would raise opex ~4 % and move it further from Norsk Petroleum; not done.
+    4. Snøhvit and Ormen Lange onshore plants (Hammerfest LNG, Nyhamna) are still not linked; adding them would add about NOK 2 bn to the shelf.
 
 ## Log (newest first)
 

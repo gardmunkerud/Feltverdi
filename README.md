@@ -162,10 +162,11 @@ To update the data: run `npm run build:data` locally, then commit and push the c
       - floater/FPSO 52
       - onshore plant 100
       - subsea template 1
-      - each open well 2.5
-    - Variable cost: $0.5 per boe, plus a $4/boe processing tariff for tie-backs without their own platform.
+      - each open platform well 1.5, each open subsea well 2.5
+    - Variable cost: $1 per boe (chemicals, power, CO₂ tax and allowances), plus a $4/boe processing tariff for tie-backs without their own platform.
     - The host field receives that tariff as taxable income (`TIEBACK_HOST` in `valuation.js`, from public field descriptions), in actual years and in the forecast. It is added after the decline is set, so it can extend the host's life but does not change its decline.
-    - Calibrated to the companies' reported production cost for 2025 (Aker BP 7.3, Vår Energi 11.1, OKEA ~25, DNO ~12 $/boe) and to Johan Sverdrup (below $2/boe).
+    - **Hard cap:** a field's total opex is never above NOK 5 bn a year (gross, 100 % of the field; `OPEX_CAP_NOK`), converted with the assumptions' USD/NOK in forecast years and at the model's NOK-10 cost basis (USD 500 m) in actual years. In 2026 it binds for Troll, Johan Sverdrup and Ekofisk.
+    - Calibrated (2026-11-28) to Norsk Petroleum's shelf operating cost (about NOK 94 bn in 2025; the model gives about NOK 96 bn in 2026 net of tie-back tariffs, which are transfers between fields) and checked against the companies' reported production cost for 2025 (Aker BP 7.3, Vår Energi 11.1 $/boe; the model is 0–15 % lower for most companies, whose figures include some items Norsk Petroleum leaves out) and Johan Sverdrup (below $2/boe).
     - Fields without a facility profile use the old default by field type.
   - Capex comes from Sodir's expected future investments per field (`field_investment_expected`, the operators' own plans), spread over the production the model expects (Sodir reserves × the middle of the reserve-growth range) and bounded to $1–20 per boe. New fields spend 80 % before first production, spread evenly over the years until start-up. Sodir's figure runs from 1 January of its year (2025), so the part that belongs to years before the forecast start is left out, and years Sodir has not reported yet get an estimate in the actual-year cash flows and the tax deductions. Fields Sodir lists as producing but without production last year are treated as starting this year. Fields without a Sodir figure use their own recent investment intensity, limited to $2–12 per boe.
   - **Decommissioning is per facility.**

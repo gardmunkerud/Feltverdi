@@ -10,7 +10,8 @@
  *    gas = €/MWh × 1.75 MWh/boe × EURUSD − USD 2/boe transport tariff (Gassco).
  *    Operating and decommissioning costs are mostly paid in NOK: they are calibrated in USD at USD/NOK 10 and scale with
  *    10 / USD/NOK when the exchange rate is changed (like the NOK capex).
- *  - Opex: 60 % fixed (based on the starting/plateau rate) + 40 % variable, so unit cost rises as the field declines.
+ *  - Opex: from the field's facilities (fixed per facility and open well + a cost per boe), otherwise 60 % fixed + 40 % variable
+ *    by field type, so unit cost rises as the field declines; never above NOK 5 bn a year per field (OPEX_CAP_NOK).
  *  - Capex: Sodir's expected future investments per field, spread over expected production ($1–20/boe); without a Sodir
  *    figure, the field's own investment intensity (last 3 reported years, NOK → USD) per boe, clamped to $2–12/boe.
  *  - Tax (2022 rules): 22 % corporate tax (capex depreciated over 6 years) + 71.8 % special tax (capex expensed
@@ -54,12 +55,16 @@
   // Field-specific operating cost from the field's facilities (Sodir facility register and development wells).
   // Annual fixed cost (USD million per year) per facility in service, plus a cost per open well, plus a variable cost per boe;
   // tie-backs (no surface facility of their own) pay a processing tariff per boe to the host instead of running a platform.
-  // Calibrated (2026-11-27) so that companies' share-weighted 2025 unit costs match their reported production cost:
-  // Aker BP 7.3, Vår Energi 11.1, OKEA ~25, DNO North Sea ~12 USD/boe, and Johan Sverdrup < 2 USD/boe (Equinor).
+  // Re-calibrated 2026-11-28 (opex review, run 1). Shelf opex 2026 ≈ NOK 96 bn net of tie-back tariffs (transfers between
+  // fields), against Norsk Petroleum's ≈ NOK 94 bn for 2025 (excl. transport). The old flat USD 2.5 m per well (half of
+  // all opex) made old platform fields with 100–200 wells (Ekofisk, Gullfaks, Valhall, Eldfisk) cost USD 30–64/boe; platform
+  // wells are now cheaper than subsea wells. Share-weighted 2025 unit costs vs reported: Aker BP 6.1 vs 7.3, Vår Energi
+  // 11.6 vs 11.1, Equinor 6.2 vs ≤ 7.45, ConocoPhillips 12.1 vs ~11.7 (EMENA), OKEA 21 vs 24–29 USD/boe; Johan Sverdrup < 2.
   const OPEX_FAC = {
     gbs: 60, steelLarge: 40, steelSmall: 14, floater: 52, onshore: 100, template: 1, // USD million per year per facility
-    perWell: 2.5,    // USD million per year per open well (integrity, intervention)
-    variable: 0.5,   // USD per boe (chemicals, energy, CO2 tax share)
+    wellPlatform: 1.5, // USD million per year per open platform well (dry tree, serviced from the platform)
+    wellSubsea: 2.5,   // USD million per year per open subsea well (intervention needs a vessel or rig)
+    variable: 1.0,   // USD per boe (chemicals, power and fuel, CO2 tax and emission allowances)
     tieback: 4,      // USD per boe processing tariff paid to the host
   };
   // Decommissioning from the same profile (USD million, real): plugging each open well + removing each facility.
@@ -71,6 +76,10 @@
   // PV at ~2 % real is about 7 % lower in total (Aker BP −22 %, Petoro −11 %, Vår +4 %, ConocoPhillips +27 %).
   // Removal costs are rounded industry levels; concrete gravity-based substructures (Condeep) are normally left in
   // place, so only the topside is counted.
+  // Hard ceiling on a field's total operating cost: NOK 5 billion per year (gross, 100 % of the field), converted with the
+  // assumptions' USD/NOK in forecast years. Actual years use the model's fixed NOK-10 cost basis (USD 500 million).
+  const OPEX_CAP_NOK = 5000; // NOK million per year
+  const HIST_OPEX_CAP = OPEX_CAP_NOK / FX_COST_REF; // USD million, actual years
   const DECOM_FAC = { gbs: 300, steelLarge: 250, steelSmall: 80, floater: 120, onshore: 0, template: 8, wellPlatform: 8, wellSubsea: 18 };
 
   // Tie-backs pay the host a processing tariff (OPEX_FAC.tieback per boe). The host's owners receive it as income (taxed
@@ -121,7 +130,7 @@
     if (!p) return null;
     const o = p.own, F = OPEX_FAC;
     const fixed = F.gbs * o.gbs + F.steelLarge * o.steelLarge + F.steelSmall * o.steelSmall + F.floater * o.floater + F.onshore * (o.onshore || 0)
-      + F.template * o.template + F.perWell * (p.wells.platform + p.wells.subsea);
+      + F.template * o.template + F.wellPlatform * p.wells.platform + F.wellSubsea * p.wells.subsea;
     return { fixed, variable: F.variable + (p.tieback ? F.tieback : 0) };
   }
   function facilityDecom(field) {
@@ -301,7 +310,7 @@
     let fixedOpex, varOpex, opexBoe, opexBasis;
     if (fo && refRate > 0) {
       fixedOpex = fo.fixed * fxCost; varOpex = fo.variable * fxCost; opexBasis = 'facilities';
-      opexBoe = (fixedOpex + varOpex * refRate) / refRate;
+      opexBoe = Math.min(fixedOpex + varOpex * refRate, OPEX_CAP_NOK / a.usdnok) / refRate;
     } else {
       opexBoe = ov.opexBoe ?? (OPEX_BY_TYPE[field.hc] ?? 10) * fxCost;
       fixedOpex = 0.6 * opexBoe * refRate; varOpex = 0.4 * opexBoe; opexBasis = ov.opexBoe != null ? 'user' : 'type';
@@ -314,7 +323,7 @@
     for (const [t, d] of hd) if (t >= a.startYear) { const i = t - a.startYear, k = 1 / a.usdnok / Math.pow(1 + INFLATION, i); histCit[i] = (histCit[i] || 0) + d.cit * k; histSpt[i] = (histSpt[i] || 0) + d.spt * k; }
     const fd = facilityDecom(field);
     const decomTotal = ov.decomPerBoe != null ? ov.decomPerBoe * recBoe : fd != null ? Math.max(fd, 0.5 * recBoe) * fxCost : null;
-    return { histCit, histSpt, tempUplift: tempPackage(field) && !first, remBoe, remSodir, recBoe, q0, kind, startIndex, plateau, plateauYears, plateauSource, opexBoe, fixedOpex, varOpex, opexBasis, capexBoe, refRate,
+    return { histCit, histSpt, tempUplift: tempPackage(field) && !first, remBoe, remSodir, recBoe, q0, kind, startIndex, plateau, plateauYears, plateauSource, opexBoe, fixedOpex, varOpex, opexBasis, capexBoe, refRate, opexCap: OPEX_CAP_NOK / a.usdnok,
       capexBasis, devCapex: kind === 'new' ? plan.devCapex : 0, invGap: plan.gap, decomPerBoe: ov.decomPerBoe, decomTotal, decomBasis: ov.decomPerBoe != null ? 'user' : fd != null ? 'facilities' : 'perBoe' };
   }
 
@@ -337,7 +346,7 @@
       }
       const tariff = q > 0 && s.tariff ? s.tariff[i] || 0 : 0; // processing tariffs received from tie-backs
       const rev = q * price + tariff;
-      const opex = q > 0 ? fixed + varc * q : 0;
+      const opex = q > 0 ? Math.min(fixed + varc * q, s.opexCap) : 0; // never above NOK 5 bn a year
       if (q > 0) capex = s.capexBoe * q;
       if (q > 0 && rev - opex - 0.3 * capex <= 0) break; // economic limit
       dep.push(capex);
@@ -497,7 +506,7 @@
     const top = field.prod.map((r) => r[5] * BOE_PER_SM3).sort((x, y) => y - x).slice(0, 3);
     const peak = top.length ? top.reduce((s, x) => s + x, 0) / top.length : 0;
     const fo = ov.opexBoe == null ? facilityOpex(field) : null;
-    const histOpex = (q) => (q <= 0 ? 0 : fo ? fo.fixed + fo.variable * q : 0.6 * opexBoe * peak + 0.4 * opexBoe * q);
+    const histOpex = (q) => (q <= 0 ? 0 : Math.min(HIST_OPEX_CAP, fo ? fo.fixed + fo.variable * q : 0.6 * opexBoe * peak + 0.4 * opexBoe * q));
     const ded = deductionSchedule(field, undefined, inv);
     const rows = [];
     for (const y of histYears) {
@@ -567,7 +576,7 @@
       const revNom = p && pr ? (p[1] + p[4]) * BOE_PER_SM3 * (pr.b - 1) + p[3] * BOE_PER_SM3 * 0.6 * pr.b + p[2] * BOE_PER_SM3 * pr.g * MMBTU_PER_BOE_GAS : 0;
       const rev = (pr && pr.real ? revNom : revNom * rf) - (p && pr ? p[2] * BOE_PER_SM3 * GAS_TARIFF : 0) + (q > 0 ? tariffHist(ov.tiebacks, y) : 0);
       const capex = (invY.get(y) || 0) / (fx.get(y) || a.usdnok) * rf;
-      const opex = q <= 0 ? 0 : fo ? fo.fixed + fo.variable * q : opexBoe * (0.6 * Math.max(qRef, q) + 0.4 * q);
+      const opex = q <= 0 ? 0 : Math.min(HIST_OPEX_CAP, fo ? fo.fixed + fo.variable * q : opexBoe * (0.6 * Math.max(qRef, q) + 0.4 * q));
       const conv = rf / (fx.get(y) || a.usdnok);
       const pre = rev - opex - capex, tax = MARGINAL * (rev - opex) - taxSaving(ded, y) * conv;
       rows.push({ year: y, hist: true, q, rev, opex, capex, tax, fcf: pre - tax, taxInh: taxSaving(dedInh, y) * conv });
@@ -595,5 +604,5 @@
     return [...m.entries()].map(([name, n]) => ({ name, fields: n })).sort((a, b) => a.name.localeCompare(b.name, 'nb'));
   }
 
-  return { DEFAULTS, MARGINAL, GAS_TARIFF, OPEX_BY_TYPE, BOE_PER_SM3, MWH_PER_BOE_GAS, valueField, valueAll, valueCompany, valueHistory, stakeCashflow, facilityOpex, tiebacksOf, TIEBACK_HOST, facilityDecom, OPEX_FAC, DECOM_FAC, MMBTU_PER_BOE_GAS, companies, realisedPrice, prices, mix, investmentDeductions, deductionSchedule, taxSaving, UPLIFT, investmentsWithGap };
+  return { DEFAULTS, MARGINAL, GAS_TARIFF, OPEX_BY_TYPE, BOE_PER_SM3, MWH_PER_BOE_GAS, valueField, valueAll, valueCompany, valueHistory, stakeCashflow, facilityOpex, OPEX_CAP_NOK, tiebacksOf, TIEBACK_HOST, facilityDecom, OPEX_FAC, DECOM_FAC, MMBTU_PER_BOE_GAS, companies, realisedPrice, prices, mix, investmentDeductions, deductionSchedule, taxSaving, UPLIFT, investmentsWithGap };
 });

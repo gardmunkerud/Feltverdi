@@ -259,3 +259,32 @@ test('shelf data: no field above the opex cap in any year, old hubs dearer per b
   assert.ok(minOld > maxNew, `old hubs from ${minOld} $/boe, new fields up to ${maxNew} $/boe`);
   assert.ok(unit('johan-sverdrup') < 2);
 });
+
+test('shelf data: cap holds at other exchange rates and prices, opex never rises with time, older fields cost more per boe (if data present)', { skip: !fs.existsSync(path.join(__dirname, '..', 'public', 'data', 'fields.json')) }, () => {
+  const d = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'public', 'data', 'fields.json'), 'utf8'));
+  for (const a of [{ usdnok: 8 }, { usdnok: 12 }, { brent: 60 }, { brent: 95, gas: 50 }]) {
+    const usdnok = a.usdnok ?? V.DEFAULTS.usdnok;
+    for (const [slug, v] of V.valueAll(d.fields, a, d.lastFullYear)) {
+      const ops = v.years.filter((y) => y.q > 0);
+      for (let i = 0; i < ops.length; i++) {
+        assert.ok(ops[i].opex <= V.OPEX_CAP_NOK / usdnok + 1e-9, `${JSON.stringify(a)} ${slug} ${ops[i].year} opex ${ops[i].opex}`);
+        // Late life: total opex falls (or stays) as production falls; the economic limit ends the field instead
+        if (i) assert.ok(ops[i].opex <= ops[i - 1].opex + 1e-9, `${slug} opex rises in ${ops[i].year}`);
+      }
+      const last = ops[ops.length - 1];
+      if (last) assert.ok(last.opex <= last.rev + 1e-9, `${slug} last year opex above revenue`);
+    }
+  }
+  // Age profile: median 2026 opex per boe rises with the years since first production
+  const vals = V.valueAll(d.fields, {}, d.lastFullYear), y0 = d.lastFullYear + 1;
+  const groups = [[], [], []];
+  for (const f of d.fields) {
+    const first = f.prod.find((r) => r[5] > 0), y = vals.get(f.slug).years.find((r) => r.year === y0 && r.q > 0);
+    if (!first || !y) continue;
+    const age = y0 - first[0];
+    groups[age < 15 ? 0 : age < 30 ? 1 : 2].push(y.opex / y.q);
+  }
+  const med = (xs) => xs.sort((p, q) => p - q)[Math.floor(xs.length / 2)];
+  const [young, mid, old] = groups.map(med);
+  assert.ok(young < mid && mid < old, `median $/boe by age: <15 yrs ${young}, 15–30 ${mid}, 30+ ${old}`);
+});

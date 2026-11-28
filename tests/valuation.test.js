@@ -225,3 +225,84 @@ test('deductions still unused when a field stops are counted in full (tax is per
   }
   assert.ok(Math.abs(withInv.npv - base.npv - expect) < 1e-6 * Math.max(1, expect), `${withInv.npv - base.npv} vs ${expect}`);
 });
+
+test('a field never has more than NOK 5 bn of operating cost in a year (forecast and actual years)', () => {
+  // A big old hub: 4 Condeeps and 400 platform wells would cost far more than the cap
+  const f = field({ rem: { oil: 60, gas: 0, ngl: 0, cond: 0, oe: 60 }, prod: [[2023, 12, 0, 0, 0, 12], [2024, 11, 0, 0, 0, 11], [2025, 10, 0, 0, 0, 10]],
+    fac: { own: { gbs: 4, steelLarge: 0, steelSmall: 0, floater: 0, onshore: 0, template: 0 }, tieback: false, wells: { platform: 400, subsea: 0 } } });
+  assert.ok(V.facilityOpex(f).fixed > 500); // uncapped cost is above the cap
+  for (const usdnok of [8, 10, 12]) {
+    const v = V.valueField(f, { usdnok }, LAST);
+    const ops = v.years.filter((y) => y.q > 0);
+    assert.ok(ops.length > 0);
+    for (const y of ops) assert.ok(y.opex <= V.OPEX_CAP_NOK / usdnok + 1e-9, `${usdnok}: ${y.year} opex ${y.opex}`);
+    assert.ok(Math.abs(ops[0].opex - V.OPEX_CAP_NOK / usdnok) < 1e-9); // binds
+  }
+  const H = { prices: [[2024, 80, 10], [2025, 70, 12]], usdnok: [[2024, 10], [2025, 10]], cpi: [[2024, 100], [2025, 100]], cpiBaseYear: 2025 };
+  for (const r of V.valueHistory(f, H, {}, LAST).rows) assert.ok(r.opex <= V.OPEX_CAP_NOK / 10 + 1e-9, `${r.year} ${r.opex}`);
+  for (const r of V.stakeCashflow(f, H, {}, LAST, {}, 2024)) assert.ok(r.opex <= V.OPEX_CAP_NOK / 10 + 1e-9);
+});
+
+test('shelf data: no field above the opex cap in any year, old hubs dearer per boe than new fields (if data present)', { skip: !fs.existsSync(path.join(__dirname, '..', 'public', 'data', 'fields.json')) }, () => {
+  const d = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'public', 'data', 'fields.json'), 'utf8'));
+  const vals = V.valueAll(d.fields, {}, d.lastFullYear);
+  let total = 0;
+  for (const [slug, v] of vals) for (const y of v.years) {
+    if (y.q > 0) assert.ok(y.opex <= V.OPEX_CAP_NOK / V.DEFAULTS.usdnok + 1e-9, `${slug} ${y.year} opex ${y.opex}`);
+    if (y.q > 0 && y.year === d.lastFullYear + 1) total += y.opex;
+  }
+  // Shelf opex in the first forecast year stays near Norsk Petroleum's ~NOK 94 bn (2025), incl. tie-back tariffs
+  assert.ok(total * V.DEFAULTS.usdnok / 1000 > 85 && total * V.DEFAULTS.usdnok / 1000 < 115, `shelf opex NOK ${total / 100} bn`);
+  const unit = (slug) => { const v = vals.get(slug), y = v.years.find((r) => r.q > 0); return y.opex / y.q; };
+  const oldHubs = ['ekofisk', 'eldfisk', 'valhall', 'gullfaks', 'statfjord'], young = ['johan-sverdrup', 'johan-castberg', 'breidablikk'];
+  const minOld = Math.min(...oldHubs.map(unit)), maxNew = Math.max(...young.map(unit));
+  assert.ok(minOld > maxNew, `old hubs from ${minOld} $/boe, new fields up to ${maxNew} $/boe`);
+  assert.ok(unit('johan-sverdrup') < 2);
+});
+
+test('shelf data: cap holds at other exchange rates and prices, opex never rises with time, older fields cost more per boe (if data present)', { skip: !fs.existsSync(path.join(__dirname, '..', 'public', 'data', 'fields.json')) }, () => {
+  const d = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'public', 'data', 'fields.json'), 'utf8'));
+  for (const a of [{ usdnok: 8 }, { usdnok: 12 }, { brent: 60 }, { brent: 95, gas: 50 }]) {
+    const usdnok = a.usdnok ?? V.DEFAULTS.usdnok;
+    for (const [slug, v] of V.valueAll(d.fields, a, d.lastFullYear)) {
+      const ops = v.years.filter((y) => y.q > 0);
+      for (let i = 0; i < ops.length; i++) {
+        assert.ok(ops[i].opex <= V.OPEX_CAP_NOK / usdnok + 1e-9, `${JSON.stringify(a)} ${slug} ${ops[i].year} opex ${ops[i].opex}`);
+        // Late life: total opex falls (or stays) as production falls; the economic limit ends the field instead
+        if (i) assert.ok(ops[i].opex <= ops[i - 1].opex + 1e-9, `${slug} opex rises in ${ops[i].year}`);
+      }
+      const last = ops[ops.length - 1];
+      if (last) assert.ok(last.opex <= last.rev + 1e-9, `${slug} last year opex above revenue`);
+    }
+  }
+  // Age profile: median 2026 opex per boe rises with the years since first production
+  const vals = V.valueAll(d.fields, {}, d.lastFullYear), y0 = d.lastFullYear + 1;
+  const groups = [[], [], []];
+  for (const f of d.fields) {
+    const first = f.prod.find((r) => r[5] > 0), y = vals.get(f.slug).years.find((r) => r.year === y0 && r.q > 0);
+    if (!first || !y) continue;
+    const age = y0 - first[0];
+    groups[age < 15 ? 0 : age < 30 ? 1 : 2].push(y.opex / y.q);
+  }
+  const med = (xs) => xs.sort((p, q) => p - q)[Math.floor(xs.length / 2)];
+  const [young, mid, old] = groups.map(med);
+  assert.ok(young < mid && mid < old, `median $/boe by age: <15 yrs ${young}, 15–30 ${mid}, 30+ ${old}`);
+});
+
+test('opex calibration: company unit costs match reported figures and old hubs stay within USD 30–40/boe', () => {
+  const D = require('../public/data/fields.json');
+  const m = V.valueAll(D.fields, {}, D.lastFullYear), Y = D.lastFullYear + 1, acc = {};
+  for (const f of D.fields) {
+    const r = m.get(f.slug) && m.get(f.slug).years.find((x) => x.year === Y); if (!r) continue;
+    for (const [n, s] of f.owners || []) { const o = acc[n] || (acc[n] = { o: 0, q: 0 }); o.o += r.opex * s / 100; o.q += r.q * s / 100; }
+  }
+  const unit = (n) => acc[n].o / acc[n].q;
+  for (const [n, target] of [['Aker BP ASA', 7.3], ['Vår Energi ASA', 11.1], ['Equinor Energy AS', 6.0], ['OKEA ASA', 25]]) {
+    assert.ok(Math.abs(unit(n) - target) < 0.3, `${n} ${unit(n).toFixed(2)} vs ${target}`);
+  }
+  for (const s of ['gullfaks', 'statfjord', 'norne', 'ula']) {
+    const r = m.get(s).years.find((x) => x.year === Y);
+    const boe = r.opex / r.q;
+    assert.ok(boe >= 25 && boe <= 40, `${s} ${boe.toFixed(1)} USD/boe`);
+  }
+});

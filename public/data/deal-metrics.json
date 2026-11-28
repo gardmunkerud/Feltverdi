@@ -2,11 +2,11 @@
  "generated": "2026-11-28",
  "baseYear": 2026,
  "discount": 0.08,
- "baseline": 1.09,
+ "baseline": 1.02,
  "n": 11,
  "typical": {
-  "irr": 0.064,
-  "be8": 85,
+  "irr": 0.071,
+  "be8": 77,
   "n": 11
  },
  "metrics": {
@@ -33,7 +33,7 @@
      ],
      "prodKboed": 1.8,
      "remMmboe": 5.2,
-     "hindsightValue": 29,
+     "hindsightValue": 32,
      "taxInheritedUsdM": 1
     },
     {
@@ -55,7 +55,7 @@
      ],
      "prodKboed": 0.1,
      "remMmboe": 1.5,
-     "hindsightValue": 17,
+     "hindsightValue": 19,
      "taxInheritedUsdM": 0
     }
    ],
@@ -241,8 +241,8 @@
    "perFlowing": 35955,
    "perBoe": 12.26,
    "perBoePctBrent": 17.8,
-   "hindsightValue": 3425,
-   "taxInheritedUsdM": 63,
+   "hindsightValue": 3762,
+   "taxInheritedUsdM": 60,
    "taxPositionUsdM": 0,
    "synergy": {
     "basis": "announced",
@@ -254,12 +254,12 @@
      ]
     ]
    },
-   "ratio": 1.29,
+   "ratio": 1.18,
    "reserveGrowth": 1,
-   "relative": 1.18,
+   "relative": 1.16,
    "ref": {
-    "irr": 0.014,
-    "be8": 94
+    "irr": 0.02,
+    "be8": 86
    }
   },
   "2026-var-pandion": {
@@ -286,7 +286,7 @@
    "perFlowing": 37090,
    "perBoe": 34.43,
    "perBoePctBrent": 49.9,
-   "hindsightValue": 40,
+   "hindsightValue": 45,
    "taxInheritedUsdM": 1,
    "taxPositionUsdM": 0,
    "synergy": {
@@ -347,7 +347,7 @@
      ]
     ]
    },
-   "ratio": 2.72,
+   "ratio": 2.42,
    "reserveGrowth": 1,
    "relative": null
   },
@@ -371,7 +371,7 @@
      ],
      "prodKboed": 1.5,
      "remMmboe": 1.2,
-     "hindsightValue": 12,
+     "hindsightValue": 13,
      "taxInheritedUsdM": 0
     },
     {
@@ -393,7 +393,7 @@
      ],
      "prodKboed": 1.5,
      "remMmboe": 1.6,
-     "hindsightValue": 20,
+     "hindsightValue": 23,
      "taxInheritedUsdM": 1
     }
    ],
@@ -450,7 +450,7 @@
    "perFlowing": 47315,
    "perBoe": 15.85,
    "perBoePctBrent": 23,
-   "hindsightValue": 150,
+   "hindsightValue": 168,
    "taxInheritedUsdM": 4,
    "taxPositionUsdM": 0,
    "synergy": {
@@ -458,12 +458,12 @@
     "pvUsdM": 0,
     "rows": []
    },
-   "ratio": 2.34,
+   "ratio": 2.08,
    "reserveGrowth": 1,
-   "relative": 2.15,
+   "relative": 2.04,
    "ref": {
     "irr": null,
-    "be8": 142
+    "be8": 128
    }
   },
   "2025-dno-sval": {
@@ -642,8 +642,8 @@
    "perFlowing": 24288,
    "perBoe": 11.1,
    "perBoePctBrent": 16.1,
-   "hindsightValue": 1439,
-   "taxInheritedUsdM": 41,
+   "hindsightValue": 1614,
+   "taxInheritedUsdM": 39,
    "taxPositionUsdM": 0,
    "synergy": {
     "basis": "rule",
@@ -803,12 +803,12 @@
      ]
     ]
    },
-   "ratio": 1.15,
+   "ratio": 1.02,
    "reserveGrowth": 1.05,
-   "relative": 1.06,
+   "relative": 1,
    "ref": {
-    "irr": 0.046,
-    "be8": 85
+    "irr": 0.071,
+    "be8": 77
    }
   },
   "2024-equinor-petoro-swap": {
@@ -834,7 +834,7 @@
      ],
      "prodKboed": 16.1,
      "remMmboe": 77.3,
-     "hindsightValue": 447,
+     "hindsightValue": 500,
      "taxInheritedUsdM": 12
     },
     {
@@ -863,7 +863,7 @@
      ],
      "prodKboed": 16.5,
      "remMmboe": 60.6,
-     "hindsightValue": 660,
+     "hindsightValue": 745,
      "taxInheritedUsdM": 11
     }
    ],
@@ -993,8 +993,8 @@
    "perFlowing": 40096,
    "perBoe": 8.99,
    "perBoePctBrent": 10.9,
-   "hindsightValue": 2328,
-   "taxInheritedUsdM": 153,
+   "hindsightValue": 2577,
+   "taxInheritedUsdM": 147,
    "taxPositionUsdM": 0,
    "synergy": {
     "basis": "announced",
@@ -1042,12 +1042,12 @@
      ]
     ]
    },
-   "ratio": 1.07,
+   "ratio": 0.96,
    "reserveGrowth": 1.11,
-   "relative": 0.98,
+   "relative": 0.94,
    "ref": {
-    "irr": 0.069,
-    "be8": 83
+    "irr": 0.088,
+    "be8": 71
    }
   },
   "2022-okea-wintershalldea": {
@@ -1087,8 +1087,8 @@
    "perFlowing": 19215,
    "perBoe": 7.14,
    "perBoePctBrent": 7.2,
-   "hindsightValue": 225,
-   "taxInheritedUsdM": 44,
+   "hindsightValue": 243,
+   "taxInheritedUsdM": 42,
    "taxPositionUsdM": 0,
    "synergy": {
     "basis": "announced",
@@ -1136,11 +1136,11 @@
      ]
     ]
    },
-   "ratio": 0.59,
+   "ratio": 0.55,
    "reserveGrowth": 1.41,
    "relative": 0.54,
    "ref": {
-    "irr": 0.335,
+    "irr": 0.567,
     "be8": 10
    }
   },
@@ -1224,8 +1224,8 @@
    "perFlowing": 82720,
    "perBoe": 20.66,
    "perBoePctBrent": 29.3,
-   "hindsightValue": 8891,
-   "taxInheritedUsdM": 449,
+   "hindsightValue": 9932,
+   "taxInheritedUsdM": 432,
    "taxPositionUsdM": 0,
    "synergy": {
     "basis": "announced",
@@ -1273,12 +1273,12 @@
      ]
     ]
    },
-   "ratio": 1.77,
+   "ratio": 1.59,
    "reserveGrowth": 1.11,
-   "relative": 1.62,
+   "relative": 1.56,
    "ref": {
-    "irr": -0.034,
-    "be8": 210
+    "irr": -0.046,
+    "be8": 176
    }
   },
   "2021-sval-spirit": {
@@ -1427,8 +1427,8 @@
    "perFlowing": 20766,
    "perBoe": 8.6,
    "perBoePctBrent": 12.2,
-   "hindsightValue": 1938,
-   "taxInheritedUsdM": 313,
+   "hindsightValue": 2129,
+   "taxInheritedUsdM": 301,
    "taxPositionUsdM": 0,
    "synergy": {
     "basis": "rule",
@@ -1588,12 +1588,12 @@
      ]
     ]
    },
-   "ratio": 0.7,
+   "ratio": 0.63,
    "reserveGrowth": 1.25,
-   "relative": 0.64,
+   "relative": 0.62,
    "ref": {
-    "irr": 0.212,
-    "be8": 16
+    "irr": 0.391,
+    "be8": 10
    }
   },
   "2020-sval-edison": {
@@ -1628,8 +1628,8 @@
    "perFlowing": null,
    "perBoe": 12.7,
    "perBoePctBrent": 30,
-   "hindsightValue": 232,
-   "taxInheritedUsdM": 86,
+   "hindsightValue": 245,
+   "taxInheritedUsdM": 83,
    "taxPositionUsdM": 0,
    "synergy": {
     "basis": "rule",
@@ -1809,12 +1809,12 @@
      ]
     ]
    },
-   "ratio": 1.66,
+   "ratio": 1.57,
    "reserveGrowth": 1.04,
-   "relative": 1.52,
+   "relative": 1.54,
    "ref": {
-    "irr": 0.009,
-    "be8": 163
+    "irr": 0.011,
+    "be8": 146
    }
   },
   "2019-var-exxonmobil": {
@@ -2011,8 +2011,8 @@
    "perFlowing": 28620,
    "perBoe": 10.75,
    "perBoePctBrent": 16.8,
-   "hindsightValue": 5368,
-   "taxInheritedUsdM": 657,
+   "hindsightValue": 5944,
+   "taxInheritedUsdM": 632,
    "taxPositionUsdM": 0,
    "synergy": {
     "basis": "rule",
@@ -2188,12 +2188,12 @@
      ]
     ]
    },
-   "ratio": 1.09,
+   "ratio": 0.98,
    "reserveGrowth": 1.52,
-   "relative": 1,
+   "relative": 0.96,
    "ref": {
-    "irr": 0.064,
-    "be8": 92
+    "irr": 0.084,
+    "be8": 72
    }
   },
   "2019-dno-faroe": {
@@ -2334,8 +2334,8 @@
    "perFlowing": 91198,
    "perBoe": 14.4,
    "perBoePctBrent": 22.5,
-   "hindsightValue": 413,
-   "taxInheritedUsdM": 202,
+   "hindsightValue": 431,
+   "taxInheritedUsdM": 195,
    "taxPositionUsdM": 0,
    "synergy": {
     "basis": "rule",
@@ -2515,7 +2515,7 @@
      ]
     ]
    },
-   "ratio": 2.57,
+   "ratio": 2.46,
    "reserveGrowth": 1.1,
    "relative": null
   },
@@ -2551,8 +2551,8 @@
    "perFlowing": 22963,
    "perBoe": 21.2,
    "perBoePctBrent": 29.8,
-   "hindsightValue": 775,
-   "taxInheritedUsdM": 251,
+   "hindsightValue": 828,
+   "taxInheritedUsdM": 242,
    "taxPositionUsdM": 0,
    "synergy": {
     "basis": "rule",
@@ -2664,12 +2664,12 @@
      ]
     ]
    },
-   "ratio": 0.95,
+   "ratio": 0.89,
    "reserveGrowth": 2.84,
    "relative": 0.87,
    "ref": {
-    "irr": 0.095,
-    "be8": 60
+    "irr": 0.127,
+    "be8": 42
    }
   },
   "2017-akerbp-hess": {
@@ -2704,8 +2704,8 @@
    "perFlowing": 71009,
    "perBoe": 12.81,
    "perBoePctBrent": 23.5,
-   "hindsightValue": 2643,
-   "taxInheritedUsdM": 316,
+   "hindsightValue": 2617,
+   "taxInheritedUsdM": 304,
    "taxPositionUsdM": 1885,
    "synergy": {
     "basis": "rule",
@@ -2857,12 +2857,12 @@
      ]
     ]
    },
-   "ratio": 1.03,
+   "ratio": 1.04,
    "reserveGrowth": 1.61,
-   "relative": 0.94,
+   "relative": 1.02,
    "ref": {
-    "irr": 0.072,
-    "be8": 84
+    "irr": 0.069,
+    "be8": 85
    }
   },
   "2017-ineos-dong": {
@@ -2921,8 +2921,8 @@
    "perFlowing": null,
    "perBoe": null,
    "perBoePctBrent": null,
-   "hindsightValue": 1649,
-   "taxInheritedUsdM": 140,
+   "hindsightValue": 1845,
+   "taxInheritedUsdM": 135,
    "taxPositionUsdM": 0,
    "synergy": {
     "basis": "rule",
@@ -3158,8 +3158,8 @@
    "perFlowing": null,
    "perBoe": null,
    "perBoePctBrent": null,
-   "hindsightValue": 1082,
-   "taxInheritedUsdM": 570,
+   "hindsightValue": 1098,
+   "taxInheritedUsdM": 549,
    "taxPositionUsdM": 0,
    "synergy": {
     "basis": "rule",
@@ -3234,8 +3234,8 @@
    "perFlowing": 37256,
    "perBoe": 10.12,
    "perBoePctBrent": 23,
-   "hindsightValue": 2182,
-   "taxInheritedUsdM": 593,
+   "hindsightValue": 2380,
+   "taxInheritedUsdM": 571,
    "taxPositionUsdM": 0,
    "synergy": {
     "basis": "rule",
@@ -3391,12 +3391,12 @@
      ]
     ]
    },
-   "ratio": 1.44,
+   "ratio": 1.32,
    "reserveGrowth": 1.41,
-   "relative": 1.32,
+   "relative": 1.29,
    "ref": {
-    "irr": 0.024,
-    "be8": 193
+    "irr": 0.028,
+    "be8": 158
    }
   }
  }

@@ -186,7 +186,7 @@ To update the data: run `npm run build:data` locally, then commit and push the c
   - Deductions still unused when a field stops producing (past investments, and the corporate-tax depreciation of the last years' capex) are counted in the years they fall due, at the 2022 values (71.8 % special tax, 6.2 % corporate tax): tax is paid per company, so the owners use them against other income on the shelf. They are shown in the decommissioning year.
   - In a deal they follow the stake, so the value the buyer receives includes them (`taxInh` in `stakeCashflow()`).
   - Company tax positions bought with a company (losses carried forward) can be set as `taxPosition` in deals.json, with sources (Aker BP–Hess).
-- **Value:** net present value after tax in real terms, discounted from 2026.
+- **Value:** net present value after tax in real terms, discounted from 2026 (mid-year). **Tax is paid half a year later** (`TAX_LAG` = 0.5, `pvCash` in `valuation.js`): petroleum tax is paid in six instalments, three in the income year's second half and three in the next year's first half. Tax saved by deductions, the decommissioning deduction and company tax positions follow the same timing. Used everywhere: fields, companies, the history page, the deal pages and `evaluate-deals.js`. It raised the shelf value about 12 % (129 → 146 bn USD at defaults) and the deal median from 1.09 to 1.02.
 
 ## Data and licences
 

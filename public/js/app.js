@@ -1247,10 +1247,12 @@
   // PV at the deal year of the deductions the buyer takes over (stakes) and of company tax positions
   function ddTaxBenefit(rows, year, r) {
     let inh = 0, pos = 0;
-    for (const x of rows) { const df = Math.pow(1 + r, -(x.year - year + 0.5)); inh += (x.taxInh || 0) * df; if (x.taxPos) pos += x.taxPos * df; }
+    // Tax saved, so paid (or not paid) half a year after the cash flow, like all tax (V.TAX_LAG)
+    for (const x of rows) { const df = Math.pow(1 + r, -(x.year - year + 0.5 + V.TAX_LAG)); inh += (x.taxInh || 0) * df; if (x.taxPos) pos += x.taxPos * df; }
     return { inh, pos, total: inh + pos };
   }
-  const ddPv = (rows, year, r) => rows.reduce((s, x) => s + x.fcf * Math.pow(1 + r, -(x.year - year + 0.5)), 0);
+  // Present value at the deal year: mid-year cash flows, with tax paid half a year later (V.pvCash)
+  const ddPv = (rows, year, r) => rows.reduce((s, x) => s + V.pvCash(x.fcf, x.tax, x.year - year + 0.5, r), 0);
   // Real after-tax return on a price: the discount rate at which the stakes' PV equals the price
   function ddIrr(rows, year, price) {
     const f = (r) => ddPv(rows, year, r) - price;
@@ -1265,7 +1267,7 @@
   }
   function ddPayback(rows, year, r, price) {
     let c = 0;
-    for (const x of rows) { c += x.fcf * Math.pow(1 + r, -(x.year - year + 0.5)); if (c >= price) return x.year; }
+    for (const x of rows) { c += V.pvCash(x.fcf, x.tax, x.year - year + 0.5, r); if (c >= price) return x.year; }
     return null;
   }
   // One Brent grid (gas moving in proportion) shared by the value-vs-Brent chart (40–120, at the page's discount rate) and
@@ -1305,7 +1307,7 @@
     const tp = d.taxPosition;
     const row = (k, v) => `<div><dt>${k}</dt><dd>${v}</dd></div>`;
     // Which fields the deductions come from (PV at the deal year, buyer's share)
-    const byField = (per || []).map((p) => ({ name: p.f.name, slug: p.f.slug, v: p.rows.reduce((s, x) => s + (x.taxInh || 0) * p.s * Math.pow(1 + r, -(x.year - year + 0.5)), 0) }))
+    const byField = (per || []).map((p) => ({ name: p.f.name, slug: p.f.slug, v: p.rows.reduce((s, x) => s + (x.taxInh || 0) * p.s * Math.pow(1 + r, -(x.year - year + 0.5 + V.TAX_LAG)), 0) }))
       .filter((x) => x.v > 0.5).sort((x, y) => y.v - x.v);
     const srcs = TAX_SOURCES.concat(tp ? tp.sources.map((u) => [t('ddTaxSrcDeal'), u]) : []);
     const ref = `<button type="button" class="ref-mark" data-ref="dd-taxref" aria-label="${esc(t('ddTaxRef'))}">[1–${srcs.length}]</button>`;
@@ -1484,7 +1486,7 @@
       </div>`;
   }
   function ddStakeTable(items, per, year, rate, label) {
-    const vals = new Map(per.map((p) => [p.it.slug, ddPv(p.rows.map((r) => ({ ...r, fcf: r.fcf * p.s })), year, rate)]));
+    const vals = new Map(per.map((p) => [p.it.slug, ddPv(p.rows.map((r) => ({ ...r, fcf: r.fcf * p.s, tax: (r.tax || 0) * p.s })), year, rate)]));
     const tot = [...vals.values()].reduce((s, v) => s + v, 0);
     const sum = (k) => items.reduce((s, i) => s + (i[k] || 0), 0);
     return `<div class="tbl-wrap"><table class="tbl dd-tbl">
@@ -1505,7 +1507,8 @@
   }
   function ddViewsCard(d, year, rows, price, baseline, buyer, seller) {
     const { def, cur, custom } = ddViewInputs(d);
-    const synRows = rows.map((x) => ({ ...x, fcf: x.fcf + (x.year > year ? cur.synergy * x.opex * (1 - V.MARGINAL) : 0) })); // from the year after the deal, like the deal's own synergies
+    // Extra opex saved from the year after the deal, like the deal's own synergies; the tax on the saving is paid with the rest
+    const synRows = rows.map((x) => { const sv = x.year > year ? cur.synergy * x.opex : 0; return { ...x, fcf: x.fcf + sv * (1 - V.MARGINAL), tax: (x.tax || 0) + sv * V.MARGINAL }; });
     const bMax = ddPv(synRows, year, cur.buyerRate) * baseline;
     // The seller does not get the buyer's synergies
     const sMin = ddPv(rows.map((x) => ({ ...x, fcf: x.fcf - (x.syn || 0) })), year, cur.sellerRate) * baseline;
@@ -1731,7 +1734,7 @@ ${ddTaxCard(d, tb, V0, year, base.per, r)}
     if (!canvas) return;
     const yrs = new Set(); series.forEach((s) => s.rows.forEach((x) => yrs.add(x.year))); if (upRows) upRows.forEach((x) => yrs.add(x.year));
     const labels = [...yrs].sort((a, b) => a - b);
-    const cumLine = (rows) => { const mp = new Map(rows.map((x) => [x.year, x])); let c = 0; return labels.map((y) => { const x = mp.get(y); if (x) c += x.fcf * Math.pow(1 + r, -(y - year + 0.5)); return toCur(c); }); };
+    const cumLine = (rows) => { const mp = new Map(rows.map((x) => [x.year, x])); let c = 0; return labels.map((y) => { const x = mp.get(y); if (x) c += V.pvCash(x.fcf, x.tax, y - year + 0.5, r); return toCur(c); }); };
     const datasets = [];
     const palette = [COLORS.gas, COLORS.oil];
     series.forEach((s, i) => {

@@ -34,6 +34,12 @@
   const MMBTU_PER_BOE_GAS = 5.97; // 1.75 MWh × 3.412 MMBtu/MWh
   const FX_COST_REF = 10.0; // USD/NOK at which the USD opex/decommissioning constants apply (NOK costs)
   const CIT = 0.22, SPT = 0.718, MARGINAL = 0.78;
+  // Petroleum tax for an income year is paid in six instalments: three in the second half of that year and three in the
+  // first half of the next (Skatteetaten). On average that is about half a year after the cash flow it belongs to, which
+  // is discounted at mid-year. So tax (and tax saved by deductions) is discounted TAX_LAG years later than the cash flow.
+  const TAX_LAG = 0.5;
+  /** Present value at rate r of a year's after-tax cash flow `fcf` containing `tax`, t years (mid-year) from the base. */
+  function pvCash(fcf, tax, t, r) { const d = Math.pow(1 + r, -t); return (fcf + (tax || 0)) * d - (tax || 0) * d * Math.pow(1 + r, -TAX_LAG); }
   // Gas is sold at European hubs; NCS gas pays Gassco transport tariffs to get there (about NOK 0.10–0.15 per Sm³,
   // ≈ USD 2 per boe). Company production costs (which the opex is calibrated to) exclude transport, so it is deducted here.
   const GAS_TARIFF = 2.0; // USD per boe
@@ -347,6 +353,7 @@
     const horizon = 45;
     const years = [];
     let q = 0, cum = 0, npv = 0, taxPv = 0, last = -1, dep = [];
+    const lagF = Math.pow(1 + a.discount, -TAX_LAG);
     const plateauYears = s.plateauYears || 0;
     for (let i = 0; i < horizon; i++) {
       const y = a.startYear + i;
@@ -372,9 +379,9 @@
       const spt = SPT * (rev - opex - capex - uplift - (s.histSpt[i] || 0) - cit);
       const tax = cit + spt;
       const fcf = rev - opex - capex - tax;
-      const df = Math.pow(1 + a.discount, -(i + 0.5));
-      npv += fcf * df; taxPv += tax * df; cum += q; last = i;
-      if (record) years.push({ year: y, q, rev, tariff, opex, capex, tax, fcf, df, pv: fcf * df });
+      const df = Math.pow(1 + a.discount, -(i + 0.5)), pv = pvCash(fcf, tax, i + 0.5, a.discount);
+      npv += pv; taxPv += tax * df * lagF; cum += q; last = i;
+      if (record) years.push({ year: y, q, rev, tariff, opex, capex, tax, fcf, df, pv });
     }
     // Deductions not yet used when the field stops are not lost: tax is paid per company, not per field, so the owners
     // use them against their other income on the shelf (special-tax losses are also refunded by the state). Counted in
@@ -383,16 +390,16 @@
     for (let i = last + 1; i < Math.max(last + 7, s.histCit.length, s.histSpt.length); i++) {
       let depr = s.histCit[i] || 0;
       for (let j = Math.max(0, i - 5); j <= Math.min(i, last); j++) depr += dep[j] / 6 / Math.pow(1 + INFLATION, i - j);
-      restPv += (CIT * (1 - SPT) * depr + SPT * (s.histSpt[i] || 0)) * Math.pow(1 + a.discount, -(i + 0.5));
+      restPv += (CIT * (1 - SPT) * depr + SPT * (s.histSpt[i] || 0)) * Math.pow(1 + a.discount, -(i + 0.5)) * lagF;
     }
     npv += restPv; taxPv -= restPv;
     const decom = s.decomTotal ?? (s.decomPerBoe ?? a.decomPerBoe) * s.recBoe;
     const decomYear = last + 2;
     const decomDf = Math.pow(1 + a.discount, -(decomYear + 0.5));
-    const decomPv = decom * (1 - MARGINAL) * decomDf;
-    npv -= decomPv; taxPv -= decom * MARGINAL * decomDf;
-    // Shown in the decommissioning year (same present value)
-    const rest = restPv / decomDf;
+    const decomPv = decom * decomDf - decom * MARGINAL * decomDf * lagF;
+    npv -= decomPv; taxPv -= decom * MARGINAL * decomDf * lagF;
+    // Shown in the decommissioning year as tax saved (pvCash of the row gives back the same present value)
+    const rest = restPv / (decomDf * lagF);
     if (record && (decom > 0 || rest > 0)) years.push({ year: a.startYear + decomYear, q: 0, rev: 0, opex: 0, capex: 0, decom, tax: -decom * MARGINAL - rest, fcf: -decom * (1 - MARGINAL) + rest, df: decomDf, pv: -decomPv + restPv });
     return { cum, npv, taxPv, endYear: last >= 0 ? a.startYear + last : null, years, price };
   }
@@ -541,7 +548,7 @@
     rows.sort((x, y) => x.year - y.year);
     const y0 = rows[0].year;
     const sum = (k, f = () => true) => rows.filter(f).reduce((s, r) => s + r[k], 0);
-    const npvAt = (k, rate) => rows.reduce((s, r) => s + r[k] * Math.pow(1 + rate, -(r.year - y0 + 0.5)), 0);
+    const npvAt = (k, rate) => rows.reduce((s, r) => s + (k === 'post' ? pvCash(r.post, r.tax, r.year - y0 + 0.5, rate) : r[k] * Math.pow(1 + rate, -(r.year - y0 + 0.5))), 0);
     // real pre-tax IRR (only defined if cash flows change sign)
     let irr = null;
     if (rows.some((r) => r.pre < 0) && rows.some((r) => r.pre > 0)) {
@@ -618,5 +625,5 @@
     return [...m.entries()].map(([name, n]) => ({ name, fields: n })).sort((a, b) => a.name.localeCompare(b.name, 'nb'));
   }
 
-  return { DEFAULTS, MARGINAL, GAS_TARIFF, OPEX_BY_TYPE, BOE_PER_SM3, MWH_PER_BOE_GAS, valueField, valueAll, valueCompany, valueHistory, stakeCashflow, facilityOpex, OPEX_OPERATOR, HUB_OPEX_MAX, OPEX_CAP_NOK, tiebacksOf, TIEBACK_HOST, facilityDecom, OPEX_FAC, DECOM_FAC, MMBTU_PER_BOE_GAS, companies, realisedPrice, prices, mix, investmentDeductions, deductionSchedule, taxSaving, UPLIFT, investmentsWithGap };
+  return { DEFAULTS, MARGINAL, TAX_LAG, pvCash, GAS_TARIFF, OPEX_BY_TYPE, BOE_PER_SM3, MWH_PER_BOE_GAS, valueField, valueAll, valueCompany, valueHistory, stakeCashflow, facilityOpex, OPEX_OPERATOR, HUB_OPEX_MAX, OPEX_CAP_NOK, tiebacksOf, TIEBACK_HOST, facilityDecom, OPEX_FAC, DECOM_FAC, MMBTU_PER_BOE_GAS, companies, realisedPrice, prices, mix, investmentDeductions, deductionSchedule, taxSaving, UPLIFT, investmentsWithGap };
 });

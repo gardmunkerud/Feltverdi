@@ -173,7 +173,7 @@ function hindsightValue(f, s, year, synPct = 0, synRows = null) {
   let v = 0, inh = 0;
   for (const r of V.stakeCashflow(f, H, {}, data.lastFullYear, { tiebacks: V.tiebacksOf(f, data.fields) }, year)) {
     const df = Math.pow(1 + RATE, -(r.year - year + 0.5));
-    v += r.fcf * s * df; inh += (r.taxInh || 0) * s * df;
+    v += V.pvCash(r.fcf * s, (r.tax || 0) * s, r.year - year + 0.5, RATE); inh += (r.taxInh || 0) * s * df * Math.pow(1 + RATE, -V.TAX_LAG); // tax paid half a year later
     if (synRows && r.q > 0) synRows.set(r.year, (synRows.get(r.year) || 0) + (synPct > 0 && r.year > year ? synPct * (r.opex || 0) * s * (1 - V.MARGINAL) : 0));
   }
   return { v, inh };
@@ -287,7 +287,7 @@ for (const d of deals) {
   // Company tax positions bought with the company (e.g. losses carried forward), where public – value at the deal date
   const taxPos = d.taxPosition ? d.taxPosition.valueUsdM * realF : 0;
   const synergy = dealSynergy(d, year, realF, synRows, vy);
-  const hindsight = fieldValue + taxPos * Math.pow(1 + RATE, -0.5) + synergy.pvUsdM; // tax position booked in the deal year, mid-year like the deal pages
+  const hindsight = fieldValue + taxPos * Math.pow(1 + RATE, -(0.5 + V.TAX_LAG)) + synergy.pvUsdM; // tax position used in the deal year, paid like tax (half a year after mid-year), as on the deal pages
   const b = brent.get(year) ?? brent.get(year - 1);
   const m = {
     year, ...(vy !== year ? { valYear: vy } : {}), ...(ROLES[d.id] || {}), partial: !!spec.partial, note: spec.note || null, items,
@@ -319,15 +319,17 @@ for (const m of Object.values(out)) m.relative = m.ratio && !m.partial ? Math.ro
 const bySlug = new Map(data.fields.map((f) => [f.slug, f]));
 function pkgFcf(m, year, deck) {
   const by = new Map();
+  const add = (y, f, t) => { const o = by.get(y) || { f: 0, t: 0 }; o.f += f; o.t += t; by.set(y, o); };
   for (const it of m.items) {
     const f = bySlug.get(it.slug); if (!f) continue;
-    for (const r of V.stakeCashflow(f, H, deck || {}, data.lastFullYear, { tiebacks: V.tiebacksOf(f, data.fields) }, year)) by.set(r.year, (by.get(r.year) || 0) + r.fcf * it.share / 100);
+    for (const r of V.stakeCashflow(f, H, deck || {}, data.lastFullYear, { tiebacks: V.tiebacksOf(f, data.fields) }, year)) add(r.year, r.fcf * it.share / 100, (r.tax || 0) * it.share / 100);
   }
-  if (m.taxPositionUsdM) by.set(year, (by.get(year) || 0) + m.taxPositionUsdM);
-  for (const [y, v] of m.synergy.rows) by.set(y, (by.get(y) || 0) + v);
-  return [...by.entries()];
+  if (m.taxPositionUsdM) add(year, m.taxPositionUsdM, -m.taxPositionUsdM);
+  for (const [y, v] of m.synergy.rows) add(y, v, 0);
+  return [...by.entries()].map(([y, o]) => [y, o.f, o.t]);
 }
-const pvAt = (rows, year, r) => rows.reduce((t, [y, v]) => t + v * Math.pow(1 + r, -(y - year + 0.5)), 0);
+// Present value with tax paid half a year after the cash flow (V.pvCash), as on the deal pages
+const pvAt = (rows, year, r) => rows.reduce((t, [y, v, tax]) => t + V.pvCash(v, tax, y - year + 0.5, r), 0);
 function bisect(f, lo, hi, n = 30) { if (f(lo) * f(hi) > 0) return null; for (let k = 0; k < n; k++) { const mid = (lo + hi) / 2; if (f(lo) * f(mid) <= 0) hi = mid; else lo = mid; } return (lo + hi) / 2; }
 const refs = [];
 for (const [id, m] of Object.entries(out)) {

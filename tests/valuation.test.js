@@ -221,7 +221,7 @@ test('deductions still unused when a field stops are counted in full (tax is per
   for (const [t, c, sp] of V.investmentDeductions(field(over), 2025, extra, 2023)) {
     if (t < a.startYear) continue;
     const i = t - a.startYear;
-    expect += (c * 0.22 * (1 - 0.718) + sp * 0.718) * k / Math.pow(1.02, i) * Math.pow(1 + a.discount, -(i + 0.5));
+    expect += (c * 0.22 * (1 - 0.718) + sp * 0.718) * k / Math.pow(1.02, i) * Math.pow(1 + a.discount, -(i + 0.5 + V.TAX_LAG)); // tax saved, paid half a year later
   }
   assert.ok(Math.abs(withInv.npv - base.npv - expect) < 1e-6 * Math.max(1, expect), `${withInv.npv - base.npv} vs ${expect}`);
 });
@@ -305,4 +305,18 @@ test('opex calibration: company unit costs match reported figures and old hubs s
     const boe = r.opex / r.q;
     assert.ok(boe >= 25 && boe <= 40, `${s} ${boe.toFixed(1)} USD/boe`);
   }
+});
+
+test('tax is paid half a year after the cash flow it belongs to', () => {
+  // pvCash: pre-tax part at mid-year, tax half a year later
+  const r = 0.08, t = 2.5;
+  assert.ok(Math.abs(V.pvCash(22, 78, t, r) - (100 * Math.pow(1 + r, -t) - 78 * Math.pow(1 + r, -t - V.TAX_LAG))) < 1e-9);
+  assert.strictEqual(V.TAX_LAG, 0.5);
+  // A taxed field is worth more with the lag than if tax were paid with the cash flow
+  const v = V.valueField(field(), {}, LAST);
+  const noLag = v.years.reduce((s, y) => s + y.fcf * y.df, 0);
+  assert.ok(v.npv > noLag, `${v.npv} vs ${noLag}`);
+  // The decommissioning row's pv equals pvCash of its own fcf and tax (so deal pages that recompute PV agree)
+  const d = v.years[v.years.length - 1];
+  assert.ok(Math.abs(V.pvCash(d.fcf, d.tax, d.year - V.DEFAULTS.startYear + 0.5, V.DEFAULTS.discount) - d.pv) < 1e-6 * Math.max(1, Math.abs(d.pv)));
 });

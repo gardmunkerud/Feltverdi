@@ -1559,7 +1559,9 @@
       return;
     }
     if (m.swap) { viewSwapDetail(el, d, m); return; }
-    const year = m.year, r = state.a.discount, last = state.data.lastFullYear;
+    // Value counted from (and discounted to) the economic effective date: 1 January of the deal year, or `valYear` where the
+    // business passed at completion in a later year (statutory mergers). "Prices then" stays at the announcement year.
+    const year = m.valYear || m.year, r = state.a.discount, last = state.data.lastFullYear;
     const upOv = ddUpsideOv(d);
     const price = m.priceUsdM != null ? m.priceUsdM * ddCpiF(year) : null;
     const items = ddItems(m, year);
@@ -1569,7 +1571,7 @@
     const synPv = ddSynPv(base.rows, year, r);
     const histRows = base.rows.filter((x) => x.hist);
     const vHist = ddPv(histRows, year, r);
-    const thenDeck = ddDeckThen(year);
+    const thenDeck = ddDeckThen(m.year);
     const vThen = thenDeck ? ddPv(ddPackage(items, year, thenDeck).rows, year, r) : null;
     const up = upOv ? ddPackage(items, year, null, upOv) : null;
     const vUp = up ? ddPv(up.rows, year, r) : null;
@@ -1583,7 +1585,7 @@
     const pctTxt = (v) => (v == null ? '–' : v >= 1.5 ? '> 150 %' : pct(v * 100, 1));
     // scenarios
     const decks = [['low', DD_DECKS.low, `${t('ddDeckLow')} ($${DD_DECKS.low.brent} / €${DD_DECKS.low.gasEur})`], ['base', null, `${t('ddDeckBase')} ($${nf(state.a.brent)} / €${nf(state.a.gasEur)})`], ['high', DD_DECKS.high, `${t('ddDeckHigh')} ($${DD_DECKS.high.brent} / €${DD_DECKS.high.gasEur})`]];
-    if (thenDeck) decks.push(['then', thenDeck, `${t('ddDeckThen', year)} ($${nf(thenDeck.brent)} / €${nf(thenDeck.gasEur)})`]);
+    if (thenDeck) decks.push(['then', thenDeck, `${t('ddDeckThen', m.year)} ($${nf(thenDeck.brent)} / €${nf(thenDeck.gasEur)})`]);
     const scen = decks.map(([k, deck, label]) => ({ k, label, rows: k === 'base' ? base.rows : ddPackage(items, year, deck).rows }));
     if (up) scen.push({ k: 'up', label: t('ddDeckUp'), rows: up.rows });
     const amb = d.ambitious ? ddAmbitious(d.ambitious, base, year) : null;

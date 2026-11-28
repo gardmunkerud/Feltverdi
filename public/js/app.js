@@ -1150,7 +1150,7 @@
           <div class="deal-year"><div class="az-letter">${y}</div><div class="deal-list">
           ${ds.map((d) => `<article class="deal ${d.id === focusId ? 'focus' : ''}" id="deal-${d.id}">
             <div class="deal-top"><span class="deal-date">${esc(dealDate(d))}</span><span class="tick-type t-${d.type}">${esc(t('dealType_' + d.type))}</span><span class="tag ${d.status === 'completed' ? 'prod' : 'appr'}">${esc(t('dealStatus_' + d.status))}${d.completed && d.status === 'completed' ? ` ${esc(new Intl.DateTimeFormat(locale(), { month: 'short', year: 'numeric' }).format(new Date(d.completed + 'T12:00:00')))}` : ''}</span></div>
-            <h3>${esc(dealHeadline(d))}</h3>
+            <h3><a class="deal-title" href="#/deal/${d.id}">${esc(dealHeadline(d))}</a></h3>
             <p>${esc(d.summary[state.lang])}</p>
             <div class="deal-meta">
               <div><span class="l">${t('dealsParties')}</span>${d.parties.map((p) => `<span class="tag">${esc(p)}</span>`).join('')}</div>
@@ -1158,7 +1158,7 @@
             </div>
             ${dealAssessment(d, DM[d.id])}
             <div class="deal-foot"><div><span class="deal-val">${d.valueUsdM == null ? t('dealsNoValue') : `USD ${d.valueUsdM >= 1000 ? nf(d.valueUsdM / 1000, 2) + ' ' + t('bn') : nf(d.valueUsdM, Number.isInteger(d.valueUsdM) ? 0 : 1) + ' ' + t('mn')}`}</span> <span class="muted">${esc(d.valueNote[state.lang])}</span>${d.priceAdjusted ? `<span class="muted"> · ${t('dealsAdjPrice', usdStated(d.priceAdjusted.valueUsdM))}</span>` : ''}</div>
-              <span class="deal-links"><a class="dd-open" href="#/deal/${d.id}">${t('ddOpen')}</a><a href="${esc(d.source)}" target="_blank" rel="noopener">${t('dealsSource')}</a></span></div>
+              <span class="deal-links"><a href="${esc(d.source)}" target="_blank" rel="noopener">${t('dealsSource')}</a></span></div>
           </article>`).join('')}
           </div></div>`).join('') : `<div class="empty">${t('dealsNoHits')}</div>`}
         <p class="muted" style="font-size:13px;margin:18px 2px 0">${t('dealsNote', state.deals.updated)}</p>

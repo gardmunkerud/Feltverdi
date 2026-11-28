@@ -54,6 +54,52 @@ Scheduled cloud agents improve Feltverdi in small, focused steps (one topic per 
 
 Ten hourly runs, one topic each, on branch `review/assumptions` (never main). Newest entry first.
 
+- **Run 9 – Deal valuation II** (synergies, tax positions, upside, scenarios incl. "Ambitious", buyer/seller views card)
+  - **Sources** (search-result text; akerbp.com, news.cision.com, energy-pedia.com and factpages.sodir.no cannot be reached from this session):
+    - Vår–ConocoPhillips: [Vår Energi release, 23 Nov 2026](https://news.cision.com/var-energi-asa/r/var-energi-to-acquire-conocophillips--norwegian-business--and-related-uk-infrastructure--strengtheni,c4427939), [Offshore Energy](https://www.offshore-energy.biz/2026/11/23/dollar44-billion-play-for-conocophillips-norwegian-oil-and-gas-assets-and-uk-infrastructure-expands-var-energis-north-sea-footprint): EV USD 4.425 bn, "USD 700 million to USD 1 billion of synergies and additional value creation potential, net present value post-tax", closing around end Q1 2027. The deals.json figures (EV 4,425, synergies 700 low end as post-tax NPV) are confirmed. No effective date was found.
+    - Vår–Neptune: [Hart Energy](https://www.hartenergy.com/exclusives/eni-var-energi-wrap-acquisition-neptune-energy-assets-207990) ("significant synergies exceeding $300 million, post-tax, over time"); Vår's own release (search text, via [MarketScreener](https://ca.marketscreener.com/quote/stock/VAR-ENERGI-133025650/news/V-r-Energi-to-acquire-Neptune-Energy-s-Norwegian-oil-and-gas-assets-to-accelerate-growth-and-value-44173839/)) says "~USD 300 million over time". Effective date 1 January 2023, which matches the model's 1 January convention.
+    - Aker BP–Lundin: [World Oil](https://worldoil.com/news/2021/12/21/aker-bp-buys-lundin-s-oil-and-gas-units-for-10b-becoming-major-north-sea-player/), [Natural Gas World](https://www.naturalgasworld.com/aker-bp-lundin-announce-merger-95034): "operational synergies of up to USD 200 million per year" (improved operations, exploration savings, organisation). That is the only figure stated, so 200 m a year before tax stays.
+    - Vår–BlueNord (July 2026, marked *early*): [Vår Energi release](https://news.cision.com/var-energi-asa/r/var-energi-to-combine-with-bluenord--building-the-largest-independent-producer-of-oil-and-gas-in-eur,c4376331) (search text): "accumulated post-tax synergies of USD 250–300 million for 2027–2032". deals.json has no `synergies` for this deal yet.
+  - **Findings**
+    - *Vår–Neptune synergies were treated as a present value.* Vår gave an after-tax total "over time", not an NPV. Booking USD 300 m (327 m in real terms) at the deal date overstated the synergies by about a third.
+    - *The Ambitious case taxed the extra investments at a flat 78 %.* The rest of the model uses today's rules: the special tax (71.8 %) deducts the investment at once plus the 12.4 % uplift, and the corporate tax (22 %) depreciates it over six years. Per dollar of capex that is worth about 0.86 in present value, not 0.78, so the Ambitious case was slightly too pessimistic.
+    - *Views card:* the user's extra synergies also counted in the deal year and used a hard-coded 0.78. The deal's own synergies start the year after the deal.
+    - *Checked and found consistent:*
+      - The standard rule (15 % operator / 10 % partner / +3 % corporate, on opex after 78 % tax, from the year after the deal) is the same in the script, the pages, README and both languages.
+      - Announced synergies use the low end of the range: Vår–COP 700 of 700–1,000; OKEA–Wintershall 4 of 4–7; Aker BP–Lundin "up to 200".
+      - The Hess tax position: USD 1.5 bn nominal, one year at 8 % gives 1.39 bn at the deal, then CPI to real terms (1,885 m) and half a year to 1 January. It is consistent with the other cash flows.
+      - The upside (Goliat gas export, +112 MMboe gross) is applied as `remAdd` only in the "with upside" scenario, not in the verdict.
+      - The Ambitious volumes follow the owner's decision. With a 5-year linear build-up to 180 kboe/d, the decline that gives 1 bn boe is about 7–8 % a year. The net share is the stake weighted by acquired volumes.
+      - The views card uses the same required return for buyer and seller (validated), and the seller side excludes the buyer's synergies.
+  - **Changed**
+    - `public/js/app.js`:
+      - `ddAmbitious` taxes the extra volumes under today's rules (special tax: capex × (1 + 12.4 %) at once; corporate tax: capex/6 over six years, worth 22 % × (1 − 71.8 %)).
+      - The views card's extra synergies start the year after the deal and use `V.MARGINAL`.
+    - `scripts/evaluate-deals.js` and `scripts/validate-deals.js`: a new synergy basis, `postTaxTotal`. It is an undiscounted after-tax sum, spread evenly over `years` (default 10) from the year after the deal, in real terms, then discounted at 8 %.
+    - `public/data/deals.json`:
+      - Vår–Neptune now uses `postTaxTotal` (300, 10 years), with a new nb + en note and the Hart Energy source.
+      - The note for the Vår–COP Ambitious case describes the tax treatment (nb + en).
+    - `public/js/i18n.js` (nb + en, `dealsMethod`) and `README.md` describe the new basis.
+  - **Effect**
+    - **Shelf value at defaults:** 128.21 → 128.21 bn USD (valuation.js not touched).
+    - **Vår–COP Ambitious scenario** (headless render, defaults): value NOK 42.0 → 42.8 bn; price/value 1.05× → 1.03×; relative to typical 0.93× → 0.91×. The base case and the verdict are unchanged.
+    - **Vår–Neptune, once deal-metrics is regenerated** (hand calculation): synergy PV 327 → about 211 m; value 2,425 → about 2,309 m; ratio 1.02 → about 1.07; relative to the median (1.13) 0.90 → about 0.95. It stays *fair*, and the median is unchanged (ExxonMobil, 1.13, is still the middle deal).
+    - **Deal verdicts:** none changed. **deal-metrics needs regenerating:** factpages.sodir.no is still blocked (403), and `data/raw` is missing. Until then the Neptune page shows the new note next to the old synergy figure (327 m).
+  - **Checks:** all passed.
+    - `npm test`: 20/20
+    - `npm run validate:deals`: OK
+    - `npm run stamp`
+    - i18n: 565 keys in both nb and en
+    - valuation.js loads
+    - `node --check` on app.js, evaluate-deals.js and validate-deals.js
+    - Headless render of the Vår–COP and Vår–Neptune deal pages: no JS errors
+  - **Proposals for the owner**
+    1. *Vår–BlueNord synergies.* Add `synergies: { basis: "postTaxTotal", lowUsdM: 250, highUsdM: 300, years: 6 }` (2027–2032) when the deal leaves *early* and gets a SPEC entry. It is not added now because deals.json belongs to the deal job and the deal has no metrics.
+    2. *How long is "over time" for Neptune?* Ten years is an assumption. Five years would raise the PV to about 245 m (ratio about 1.05). The verdict is the same either way.
+    3. *Aker BP–Lundin "up to 200 m a year".* The only figure stated is a ceiling, so strictly there is no low end. A haircut (for example 150 m) would be more conservative. Lundin is far into *expensive* (1.58×), so the verdict does not depend on it.
+    4. *Hess tax losses on the seller side.* Since 2005 the tax value of unused Norwegian losses is refunded when a company stops its activity. Hess could therefore have realised much of the 1.39 bn itself, and the views card could add it to the seller's minimum. It is a judgement call, and it affects only the views card.
+    5. *Synergies as a share of the deal.* Vår–COP's 700 m is 22 % of the model value (3,143 m). It explains much of the *full* verdict (without the synergies the ratio is about 1.8×). Consider showing the ratio with and without synergies next to each other on deal pages that use announced synergies.
+
 - **Run 8 – Deal valuation I** (`evaluate-deals.js`, deal pages: median baseline, verdict bands, deal prices, 8 % break-even, IRR, payback, deal-year deck)
   - **Sources:**
     - Effective dates: [HitecVision, Sval–Edison Norge](https://hitecvision.com/news/sval-energi-to-acquire-edison-norge/) (1 Jan 2020, locked box); [HitecVision, Sval–Spirit](https://hitecvision.com/?p=2358) and [Energy Voice](https://www.energyvoice.com/oilandgas/norway/416454/centrica-completes-sale-of-spirits-norwegian-assets/) (1 Jan 2021); [DNO–Sval, Euronext](https://live.euronext.com/en/products/equities/company-news/2025-03-07-dno-acquire-sval-energi-transformative-transaction) (1 Jan 2025); Hess 1 Jan 2017 (deals.json).
